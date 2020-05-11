@@ -1,4 +1,4 @@
-# aoc_tsp
+# aco_tsp
 Solves the Traveling Salesman Problem using Ant Colony Optimization 
 
 The input graph needs to be in this format: 
