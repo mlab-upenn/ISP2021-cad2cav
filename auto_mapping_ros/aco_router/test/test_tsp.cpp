@@ -24,10 +24,10 @@ int main()
     graph.add_edge(id_E, id_D);
 
     // Set Parameters of the Ant Colony Optimization Problem
-    aco::AcoParams params{.n_ants = 2, .max_iters = 5, .alpha=1, .beta=1, .rho=0.05};
+    aco::AcoParams params{.n_ants = 2, .max_iters = 5, .alpha=1, .beta=1, .rho=0.05, .n_salesman=1};
 
     // Solve the TSP using Ant Colony Optimization
-    std::vector<aco::Node> best_route = aco::solve_tsp(graph, params);
+    std::vector<std::vector<aco::Node>> best_route = aco::solve_tsp(graph, params, id_A);
 
     return 0;
 }

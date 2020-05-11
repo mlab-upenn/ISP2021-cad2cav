@@ -12,7 +12,6 @@ namespace aco
      */
     struct Node
     {
-        Node();
         Node(double x, double y, int id);
         int id;
         double x{};
@@ -95,15 +94,16 @@ namespace aco
         double alpha;
         double beta;
         double rho;
+        int n_salesman;
     };
 
     /**
-     * Function to solve the
+     * Function to solve the traveling salesman problem for single salesman using the ant colony optimization
      * @param graph
      * @param params
      * @return
      */
-    std::vector<Node> solve_tsp(const Graph& graph, const AcoParams& params, int initial_node_id = -1);
+    std::vector<std::vector<aco::Node>> solve_tsp(const Graph& graph, const AcoParams& params, int initial_node_id = -1);
 }
 
 #endif //ACO_TSP_ACO_H

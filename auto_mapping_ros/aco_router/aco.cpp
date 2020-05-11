@@ -5,9 +5,6 @@
 
 #include "aco.h"
 
-aco::Node::Node()
-{
-}
 
 aco::Node::Node(double x, double y, int id)
 {
@@ -318,12 +315,12 @@ void update_pheromone_value(const std::vector<std::vector<aco::Node>>& colony,
 }
 
 /**
- * Function to solve the traveling salesman problem using ant colony optimization
+ * Function to solve the traveling salesman problem for single salesman using ant colony optimization
  * @param graph
  * @param params
  * @return
  */
-std::vector<aco::Node> aco::solve_tsp(const aco::Graph& graph, const aco::AcoParams& params, int initial_node_id)
+std::vector<aco::Node> solve_single_tsp(const aco::Graph& graph, const aco::AcoParams& params, int initial_node_id)
 {
     // Get Initial Parameters
 
@@ -370,8 +367,6 @@ std::vector<aco::Node> aco::solve_tsp(const aco::Graph& graph, const aco::AcoPar
 
         // Evaporation
         tau = (1-params.rho)*tau;
-
-        std::cout << "\nbest fitness value: " << best_fitness_value << "\n";
     }
 
     std::cout << "best route: \n";
@@ -384,6 +379,30 @@ std::vector<aco::Node> aco::solve_tsp(const aco::Graph& graph, const aco::AcoPar
     return best_route;
 }
 
+/**
+ * TODO: Function to solve the traveling salesman problem for multiple salesman using ant colony optimization
+ * @param graph
+ * @param params
+ * @return
+ */
+std::vector<std::vector<aco::Node>> solve_multi_tsp(const aco::Graph& graph, const aco::AcoParams& params, int initial_node_id)
+{
+    return std::vector<std::vector<aco::Node>>();
+}
+
+std::vector<std::vector<aco::Node>> aco::solve_tsp(const Graph& graph, const AcoParams& params, int initial_node_id)
+{
+    if(params.n_salesman == 1)
+    {
+        std::vector<std::vector<aco::Node>> output_sequence{};
+        output_sequence.emplace_back(solve_single_tsp(graph, params, initial_node_id));
+        return output_sequence;
+    }
+    else
+    {
+        return solve_multi_tsp(graph, params, initial_node_id);
+    }
+}
 
 namespace std
 {
