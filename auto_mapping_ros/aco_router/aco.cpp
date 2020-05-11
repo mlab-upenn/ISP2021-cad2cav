@@ -210,6 +210,9 @@ void create_colony(const aco::Graph& graph,
                    const aco::AcoParams& params,
                    const int initial_node_id)
 {
+    // TODO: Use previous elements from the colony
+    colony.clear();
+
     // Find whether the user wants to set intial node for the ants to start or random
     bool use_random_start = true;
     if(initial_node_id >= 0 && initial_node_id < tau.rows())
@@ -223,7 +226,7 @@ void create_colony(const aco::Graph& graph,
         {
             std::random_device rd;
             std::mt19937 mt(rd());
-            std::uniform_int_distribution<int> int_dist(0, graph.size());
+            std::uniform_int_distribution<int> int_dist(0, graph.size()-1);
             return graph.get_node_from_graph(int_dist(mt));
         }
         else
@@ -244,13 +247,13 @@ void create_colony(const aco::Graph& graph,
         current_ant_path.emplace_back(init_node);
 
         // Move the ant through the n nodes based on the probabilities received in the previous iteration
-        for(int j=0; j<params.n_ants-1; j++)
+        for(int j=0; j<graph.size()-1; j++)
         {
             const auto current_node = current_ant_path.back();
 
             // Calculate Probabilities of next choice of path for the ant
             Eigen::ArrayXd probability_array = Eigen::ArrayXd::Zero(graph.size());
-            for(int k=0; k<current_node.neighbors.size(); k++)
+            for(int k=0; k<graph.size(); k++)
             {
                 if(visited(k)) continue;
                 probability_array(k) = pow(tau(current_node.id, k), params.alpha) * pow(eta(current_node.id, k), params.beta);
@@ -260,6 +263,7 @@ void create_colony(const aco::Graph& graph,
 
             // Call Roulette Wheel to get the next node
             int next_node_id = run_roulette_wheel(norm_prob_array);
+            visited(next_node_id) = 1;
             const aco::Node next_node = graph.get_node_from_graph(next_node_id);
 
             // Add next node to the current ant path
@@ -268,6 +272,48 @@ void create_colony(const aco::Graph& graph,
 
         // Complete the TSP loop
         current_ant_path.emplace_back(init_node);
+
+        // Add current path to the colony
+        colony.emplace_back(current_ant_path);
+    }
+}
+
+/**
+ * Finds fitness value for a single path of ant
+ * @param cost_matrix
+ * @param ant_path
+ * @return
+ */
+double find_fitness_values(const Eigen::MatrixXd& cost_matrix, std::vector<aco::Node> ant_path)
+{
+    double fitness_value = 0;
+    for(int i=0; i<ant_path.size()-1; i++)
+    {
+        const auto from_node_id = ant_path[i].id;
+        const auto to_node_id = ant_path[i+1].id;
+        fitness_value += cost_matrix(from_node_id, to_node_id);
+    }
+    return fitness_value;
+}
+
+/**
+ * Updates the pheromone values (tau matrix) based on the paths that the ants moved on and the quality of those paths
+ * @param colony - collection of paths that the ants have moved on
+ * @param fitness_values - fitness values of each of the paths the ants of the colony moved on
+ * @param tau - pheromone matrix
+ */
+void update_pheromone_value(const std::vector<std::vector<aco::Node>>& colony,
+                            const std::vector<double>& fitness_values,
+                            Eigen::MatrixXd& tau)
+{
+    for(int ant_index=0; ant_index < colony.size(); ant_index++)
+    {
+        for(int node_index=0; node_index < colony[ant_index].size()-1; node_index++)
+        {
+            const int current_node_id = colony[ant_index][node_index].id;
+            const int next_node_id = colony[ant_index][node_index + 1].id;
+            tau(current_node_id, next_node_id) = tau(current_node_id, next_node_id) + (1/fitness_values[ant_index]);
+        }
     }
 }
 
@@ -282,7 +328,7 @@ std::vector<aco::Node> aco::solve_tsp(const aco::Graph& graph, const aco::AcoPar
     // Get Initial Parameters
 
     // Cost/Distance Matrix
-    const auto cost_matrix = get_cost_matrix(graph);
+    const Eigen::MatrixXd cost_matrix = get_cost_matrix(graph);
 
     // Get the initial pheromene matrix
     double tau0 = 10/(graph.size() * graph.mean_edge_weight());
@@ -290,7 +336,10 @@ std::vector<aco::Node> aco::solve_tsp(const aco::Graph& graph, const aco::AcoPar
     Eigen::MatrixXd tau = Eigen::MatrixXd::Constant(n_nodes, n_nodes, tau0);
     const Eigen::MatrixXd eta = cost_matrix.cwiseInverse();
 
-    std::vector<aco::Node> best_route;
+    // Initialize best route and fitness value
+    std::vector<aco::Node> best_route{};
+    double best_fitness_value = std::numeric_limits<double>::max();
+
     std::vector<std::vector<aco::Node>> colony;
 
     // Main ACO Loop
@@ -298,13 +347,49 @@ std::vector<aco::Node> aco::solve_tsp(const aco::Graph& graph, const aco::AcoPar
     {
         // Create Colony
         create_colony(graph, colony, tau, eta, params, initial_node_id);
+
+        // Find All Fitness Values
+        std::vector<double> ant_fitness_value(params.n_ants, 0);
+        for(int j=0; j<params.n_ants; j++)
+        {
+            ant_fitness_value[j] = find_fitness_values(cost_matrix, colony.at(j));
+        }
+
+        // Find the Queen/ Best Ant Path
+        const auto min_index = std::distance(ant_fitness_value.begin(),
+                std::min_element(ant_fitness_value.begin(), ant_fitness_value.end()));
+        const auto min_value = ant_fitness_value[min_index];
+        if(min_value < best_fitness_value)
+        {
+            best_route = colony[min_index];
+            best_fitness_value = min_value;
+        }
+
+        // Update pheromone values
+        update_pheromone_value(colony, ant_fitness_value, tau);
+
+        // Evaporation
+        tau = (1-params.rho)*tau;
+
+        std::cout << "\nbest fitness value: " << best_fitness_value << "\n";
     }
-    
+
+    std::cout << "best route: \n";
+    for(const auto & node: best_route)
+    {
+        std::cout << node.id << "-";
+    }
+    std::cout << "\nbest fitness value: " << best_fitness_value << "\n";
+
     return best_route;
 }
 
+
 namespace std
 {
+    /**
+     * Add hash for aco::Node
+     */
     template <>
     struct hash<aco::Node>
     {
