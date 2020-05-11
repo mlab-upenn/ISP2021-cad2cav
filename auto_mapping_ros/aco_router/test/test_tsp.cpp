@@ -2,20 +2,14 @@
 
 int main()
 {
-    aco::Node A(0, 3);
-    aco::Node B(0, 1);
-    aco::Node C(0, 0);
-    aco::Node D(2, 1);
-    aco::Node E(2, 0);
-
     aco::Graph graph;
 
-    // Add nodes to graph
-    int id_A = graph.add_node_to_graph(A);
-    int id_B = graph.add_node_to_graph(B);
-    int id_C = graph.add_node_to_graph(C);
-    int id_D = graph.add_node_to_graph(D);
-    int id_E = graph.add_node_to_graph(E);
+    // Create nodes in graph
+    int id_A = graph.create_node_in_graph(0, 3);
+    int id_B = graph.create_node_in_graph(0, 1);
+    int id_C = graph.create_node_in_graph(0, 0);
+    int id_D = graph.create_node_in_graph(2, 1);
+    int id_E = graph.create_node_in_graph(2, 0);
 
     // Add edges to graph
     graph.add_edge(id_A, id_B);
@@ -29,9 +23,11 @@ int main()
     graph.add_edge(id_E, id_C);
     graph.add_edge(id_E, id_D);
 
-    aco::AcoParams params{.n_ants = 10, .max_iters = 100};
+    // Set Parameters of the Ant Colony Optimization Problem
+    aco::AcoParams params{.n_ants = 10, .max_iters = 100, .alpha=1, .beta=1, .rho=0.05};
 
-    aco::solve_tsp(graph, params);
+    // Solve the TSP using Ant Colony Optimization
+    std::vector<aco::Node> best_route = aco::solve_tsp(graph, params);
 
     return 0;
 }
