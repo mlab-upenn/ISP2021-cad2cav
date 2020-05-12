@@ -1,5 +1,7 @@
-# aco_tsp
-Solves the Traveling Salesman Problem using Ant Colony Optimization 
+# aco_router
+Solves routing problems for coverage planning using Ant Colony Optimization based algorithms:
+1. Traveling Salesman Problem
+2. Vehicle Routing Problem
 
 The input graph needs to be in this format: 
 
