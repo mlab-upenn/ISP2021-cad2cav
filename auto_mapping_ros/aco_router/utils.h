@@ -3,6 +3,9 @@
 
 #include "tsp_solver.h"
 
+namespace aco
+{
+
 /**
  * Get Cost Matrix for the graph required by Ant Colony Optimization
  * @details This function runs the Floyd-Warshall Algorithm for finding shortest path between each pair of the graph
@@ -42,6 +45,8 @@ int run_roulette_wheel(const Eigen::ArrayXd& probability_array);
  */
 template <typename GraphType>
 aco::Graph convert_to_aco_graph(const GraphType& graph);
+
+} // namespace aco
 
 #endif //ACO_TSP_UTILS_H
 

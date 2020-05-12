@@ -9,7 +9,7 @@
  * @param graph
  * @return
  */
-Eigen::MatrixXd get_cost_matrix(const aco::Graph& graph)
+Eigen::MatrixXd aco::get_cost_matrix(const aco::Graph& graph)
 {
     const int n_nodes = graph.size();
     Eigen::MatrixXd cost_matrix = Eigen::MatrixXd::Zero(n_nodes, n_nodes);
@@ -50,7 +50,7 @@ Eigen::MatrixXd get_cost_matrix(const aco::Graph& graph)
  * @param ant_path
  * @return
  */
-double find_fitness_values(const Eigen::MatrixXd& cost_matrix, const std::vector<aco::Node>& ant_path)
+double aco::find_fitness_values(const Eigen::MatrixXd& cost_matrix, const std::vector<aco::Node>& ant_path)
 {
     double fitness_value = 0;
     for(int i=0; i<ant_path.size()-1; i++)
@@ -68,12 +68,12 @@ double find_fitness_values(const Eigen::MatrixXd& cost_matrix, const std::vector
  * @param ant_path
  * @return
  */
-double find_fitness_values(const Eigen::MatrixXd& cost_matrix, const std::vector<std::vector<aco::Node>>& ant_paths)
+double aco::find_fitness_values(const Eigen::MatrixXd& cost_matrix, const std::vector<std::vector<aco::Node>>& ant_paths)
 {
     double total_fitness_value = 0;
     for(const auto& route: ant_paths)
     {
-        total_fitness_value += find_fitness_values(cost_matrix, route);
+        total_fitness_value += aco::find_fitness_values(cost_matrix, route);
     }
     return total_fitness_value;
 }
@@ -83,7 +83,7 @@ double find_fitness_values(const Eigen::MatrixXd& cost_matrix, const std::vector
  * @param probability_array
  * @return
  */
-int run_roulette_wheel(const Eigen::ArrayXd& probability_array)
+int aco::run_roulette_wheel(const Eigen::ArrayXd& probability_array)
 {
     Eigen::ArrayXd cumulative_sum = Eigen::ArrayXd::Zero(probability_array.size());
     double current_sum = 0;

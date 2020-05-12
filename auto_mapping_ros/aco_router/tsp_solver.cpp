@@ -71,7 +71,7 @@ void create_colony(const aco::Graph& graph,
             Eigen::ArrayXd norm_prob_array = probability_array/probability_array_sum;
 
             // Call Roulette Wheel to get the next node
-            int next_node_id = run_roulette_wheel(norm_prob_array);
+            int next_node_id = aco::run_roulette_wheel(norm_prob_array);
             visited(next_node_id) = 1;
             const aco::Node next_node = graph.get_node_from_graph(next_node_id);
 
@@ -119,7 +119,7 @@ std::pair<std::vector<aco::Node>, double> aco::solve_tsp(const Graph& graph, con
     // Get Initial Parameters
 
     // Cost/Distance Matrix
-    const Eigen::MatrixXd cost_matrix = get_cost_matrix(graph);
+    const Eigen::MatrixXd cost_matrix = aco::get_cost_matrix(graph);
 
     // Get the initial pheromene matrix
     double tau0 = 10/(graph.size() * graph.mean_edge_weight());
