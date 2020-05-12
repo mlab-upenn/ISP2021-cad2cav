@@ -1,6 +1,8 @@
 #ifndef ACO_TSP_UTILS_IMPL_H
 #define ACO_TSP_UTILS_IMPL_H
 
+#include <iostream>
+
 /**
  * Convert user defined graph type to aco graph type
  * @tparam GraphType - GraphType must be a sequential std container (Eg. Vector) containing sequence of nodes
@@ -11,7 +13,17 @@ template <typename GraphType>
 aco::Graph convert_to_aco_graph(const GraphType& graph)
 {
     aco::Graph aco_graph;
-    std::vector<std::pair<decltype (GraphType::value_type), int>> original_node_to_aco_id{};
+    std::vector<std::pair<typename GraphType::value_type, int>> original_node_to_aco_id{};
+
+    auto find_node_id = [&](const auto& node){
+        for(const auto& og_node: original_node_to_aco_id)
+        {
+            if(og_node.first == node)
+            {
+                return og_node.second;
+            }
+        }
+    };
 
     for(const auto& node: graph)
     {
@@ -21,21 +33,11 @@ aco::Graph convert_to_aco_graph(const GraphType& graph)
 
     for(const auto& node: graph)
     {
-        int aco_cur_id = -1;
-        const auto aco_cur_id_found = original_node_to_aco_id.find(node);
-        if(aco_cur_id_found != original_node_to_aco_id.end())
-        {
-            aco_cur_id = aco_cur_id_found->second;
-        }
+        int aco_cur_id = find_node_id(node);
 
         for(const auto& neighbor: node.neighbors)
         {
-            int aco_nbr_id = -1;
-            const auto aco_nbr_id_found = original_node_to_aco_id.find(neighbor);
-            if(aco_nbr_id_found != original_node_to_aco_id.end())
-            {
-                aco_nbr_id = aco_nbr_id_found->second;
-            }
+            int aco_nbr_id = find_node_id(*neighbor);
             aco_graph.add_edge(aco_cur_id, aco_nbr_id);
         }
     }
