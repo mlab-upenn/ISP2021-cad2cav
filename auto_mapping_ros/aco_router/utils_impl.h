@@ -1,7 +1,85 @@
 #ifndef ACO_TSP_UTILS_IMPL_H
 #define ACO_TSP_UTILS_IMPL_H
 
+#include <iostream>
+#include <random>
+
 #include "utils.h"
+
+/**
+ * Get Cost Matrix for the graph required by Ant Colony Optimization
+ * @details This function runs the Floyd-Warshall Algorithm for finding shortest path between each pair of the graph
+ * @param graph
+ * @return
+ */
+Eigen::MatrixXd get_cost_matrix(const aco::Graph& graph)
+{
+    const int n_nodes = graph.size();
+    Eigen::MatrixXd cost_matrix = Eigen::MatrixXd::Zero(n_nodes, n_nodes);
+
+    for(int i=0; i<n_nodes; i++)
+    {
+        const auto node_i = graph.get_node_from_graph(i);
+        for(int j=0; j<n_nodes; j++)
+        {
+            if(i != j)
+            {
+                cost_matrix(i, j) = node_i.get_distance_from_neighbor(j);
+            }
+        }
+    }
+
+    for(int k=0; k<n_nodes; k++)
+    {
+        for(int i=0; i<n_nodes; i++)
+        {
+            for(int j=0; j<n_nodes; j++)
+            {
+                if(i == j) continue;
+                if(cost_matrix(i, j) > cost_matrix(i, k) + cost_matrix(k, j))
+                {
+                    cost_matrix(i, j) = cost_matrix(i, k) + cost_matrix(k, j);
+                }
+            }
+        }
+    }
+
+    return cost_matrix;
+}
+
+/**
+ * Find a random index based on probabilities in the probability array
+ * @param probability_array
+ * @return
+ */
+int run_roulette_wheel(const Eigen::ArrayXd& probability_array)
+{
+    Eigen::ArrayXd cumulative_sum = Eigen::ArrayXd::Zero(probability_array.size());
+    double current_sum = 0;
+    for(int i=0; i<probability_array.size(); i++)
+    {
+        current_sum += probability_array(i);
+        cumulative_sum(i) = current_sum;
+    }
+
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<double> real_dist(0.0, current_sum);
+
+    double rolled_value = real_dist(mt);
+
+    int i=0;
+    while(rolled_value > cumulative_sum(i))
+    {
+        if(i >= cumulative_sum.size())
+        {
+            std::cout << "invalid: logical error in roulette wheel. \n";
+        }
+        i++;
+    }
+
+    return i;
+}
 
 /**
  * Convert user defined graph type to aco graph type

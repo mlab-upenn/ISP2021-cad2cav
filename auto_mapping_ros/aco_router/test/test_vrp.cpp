@@ -1,4 +1,4 @@
-#include "../tsp_solver.h"
+#include "../vrp_solver.h"
 
 int main()
 {
@@ -51,15 +51,15 @@ int main()
 
     // Set Parameters of the Ant Colony Optimization Problem
     aco::IacoParamas params{};
-    params.max_iters = 10;
-    params.n_ants = 10;
+    params.max_iters = 5;
+    params.n_ants = 5;
     params.alpha = 1;
     params.beta = 1;
-    params.rho = 0.05;
-    params.n_vehicles = 4;
+    params.rho = 0.1;
+    params.vehicles_available = 4;
 
     // Solve the TSP using Ant Colony Optimization
-    const auto best_route = aco::solve_tsp(graph, params, id_A);
+    const auto best_route = aco::solve_vrp(graph, params, id_I);
 
     return 0;
 }

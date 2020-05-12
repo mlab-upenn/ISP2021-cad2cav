@@ -13,7 +13,8 @@ namespace aco
      */
     struct IacoParamas : public AcoParams
     {
-        int n_vehicles;
+        int vehicles_available;
+        int max_route_per_vehicle;
     };
 
     /**
@@ -22,7 +23,7 @@ namespace aco
      * @param params
      * @return
      */
-    std::vector<std::vector<aco::Node>> solve_vrp(const Graph& graph, const AcoParams& params, int initial_node_id = -1);
+    std::vector<std::vector<aco::Node>> solve_vrp(const Graph& graph, const IacoParamas& params, int initial_node_id = -1);
 }
 
 #endif //ACO_TSP_VRP_SOLVER_H
