@@ -85,7 +85,7 @@ namespace aco
     };
 
     /**
-     * Parameters for solving the Ant Colony Optimzation Problem
+     * Parameters for solving the Ant Colony Optimzation Problem for TSP
      */
     struct AcoParams
     {
@@ -94,16 +94,31 @@ namespace aco
         double alpha;
         double beta;
         double rho;
-        int n_salesman;
     };
 
     /**
-     * Function to solve the traveling salesman problem for single salesman using the ant colony optimization
+     * Parameters for solving the Improved Ant Colony Optimization for VRP
+     */
+    struct IacoParamas : public AcoParams
+    {
+        int n_vehicles;
+    };
+
+    /**
+     * Function to solve the traveling salesman problem using the ant colony optimization
      * @param graph
      * @param params
      * @return
      */
-    std::vector<std::vector<aco::Node>> solve_tsp(const Graph& graph, const AcoParams& params, int initial_node_id = -1);
+    std::vector<aco::Node> solve_tsp(const Graph& graph, const AcoParams& params, int initial_node_id = -1);
+
+    /**
+     * Function to solve the vehicle routing problem using the ant colony optimization
+     * @param graph
+     * @param params
+     * @return
+     */
+    std::vector<std::vector<aco::Node>> solve_vrp(const Graph& graph, const AcoParams& params, int initial_node_id = -1);
 }
 
 #endif //ACO_TSP_ACO_H
