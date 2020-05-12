@@ -48,6 +48,7 @@ namespace aco
         aco::Node *get_node_from_graph(int node_id);
 
     public:
+        Graph();
         /**
          * Get the number of nodes in a graph
          * @return

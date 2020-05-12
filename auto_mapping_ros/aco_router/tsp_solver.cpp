@@ -114,7 +114,7 @@ void update_pheromone_value(const std::vector<std::vector<aco::Node>>& colony,
  * @param params
  * @return
  */
-std::vector<aco::Node> aco::solve_tsp(const Graph& graph, const AcoParams& params, int initial_node_id)
+std::pair<std::vector<aco::Node>, double> aco::solve_tsp(const Graph& graph, const AcoParams& params, int initial_node_id)
 {
     // Get Initial Parameters
 
@@ -163,13 +163,6 @@ std::vector<aco::Node> aco::solve_tsp(const Graph& graph, const AcoParams& param
         tau = (1-params.rho)*tau;
     }
 
-    std::cout << "best route: \n";
-    for(const auto & node: best_route)
-    {
-        std::cout << node.id << "-";
-    }
-    std::cout << "\nbest fitness value: " << best_fitness_value << "\n";
-
-    return best_route;
+    return {best_route, find_fitness_values(cost_matrix, best_route)};
 }
 

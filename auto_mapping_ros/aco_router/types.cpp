@@ -33,6 +33,11 @@ double aco::Node::get_distance_from_neighbor(int node_id) const
     return std::numeric_limits<double>::max();
 }
 
+aco::Graph::Graph()
+{
+    n_nodes_ = 0;
+}
+
 int aco::Graph::size() const
 {
     return n_nodes_;
@@ -65,10 +70,8 @@ double aco::Graph::mean_edge_weight() const
  */
 int aco::Graph::create_node_in_graph(double x, double y)
 {
-    static int count = 0;
-    const int id = count++;
+    const int id = n_nodes_++;
     this->graph_.emplace_back(Node(x, y, id));
-    n_nodes_ = count;
     return id;
 }
 

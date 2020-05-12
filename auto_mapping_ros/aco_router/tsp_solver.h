@@ -26,7 +26,7 @@ namespace aco
      * @param params
      * @return
      */
-    std::vector<aco::Node> solve_tsp(const Graph& graph, const AcoParams& params, int initial_node_id = -1);
+    std::pair<std::vector<aco::Node>, double> solve_tsp(const Graph& graph, const AcoParams& params, int initial_node_id = -1);
 }
 
 #endif //ACO_TSP_TSP_SOLVER_H

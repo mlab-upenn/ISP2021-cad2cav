@@ -1,5 +1,5 @@
 # aco_router
-Solves routing problems for coverage planning using Ant Colony Optimization based algorithms:
+Solves routing problems for coverage planning using Ant Colony Optimization based algorithms (tested on Google OR Tools dataset):
 1. Traveling Salesman Problem
 2. Vehicle Routing Problem
 

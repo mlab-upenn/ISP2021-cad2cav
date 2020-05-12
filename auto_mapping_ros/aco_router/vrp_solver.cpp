@@ -169,7 +169,8 @@ void update_pheromone_matrix(const std::vector<std::vector<std::vector<aco::Node
  * @param params
  * @return
  */
-std::vector<std::vector<aco::Node>> aco::solve_vrp(const aco::Graph& graph, aco::IacoParamas& params, int initial_node_id)
+std::pair<std::vector<std::vector<aco::Node>>, double>
+        aco::solve_vrp(const aco::Graph& graph, aco::IacoParamas& params, int initial_node_id)
 {
     // Initialize Parameters
 
@@ -185,8 +186,11 @@ std::vector<std::vector<aco::Node>> aco::solve_vrp(const aco::Graph& graph, aco:
     // Initialize Capacity
     if(params.max_route_per_vehicle < 0)
     {
-        params.max_route_per_vehicle = cost_matrix.mean()*graph.size()/params.vehicles_available;
+        // TODO: Find if capacity is a tunable parameter or if this value works for all problems
+        params.max_route_per_vehicle = cost_matrix.mean()*graph.size()/(params.vehicles_available*2);
     }
+
+    // Initializ Number of ants
     if(params.n_ants < 0)
     {
         params.n_ants = graph.size();
@@ -223,16 +227,6 @@ std::vector<std::vector<aco::Node>> aco::solve_vrp(const aco::Graph& graph, aco:
         update_pheromone_matrix(colony, cost_matrix, params, tau);
     }
 
-    // Print best routes
-    for(const auto& route: best_routes)
-    {
-        for(const auto& node: route)
-        {
-            std::cout << node.id << "-";
-        }
-        std::cout << std::endl;
-    }
-
-    return best_routes;
+    return {best_routes, find_fitness_values(cost_matrix, best_routes)};
 }
 
