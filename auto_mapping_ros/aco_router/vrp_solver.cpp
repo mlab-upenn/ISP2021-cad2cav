@@ -188,7 +188,10 @@ std::pair<std::vector<std::vector<aco::Node>>, double>
     if(params.max_route_per_vehicle < 0)
     {
         // TODO: Find if capacity is a tunable parameter or if this value works for all problems
-        params.max_route_per_vehicle = cost_matrix.mean()*graph.size()/(params.vehicles_available*2);
+        double max_edge_distance = cost_matrix.maxCoeff();
+        double sum_edge_distances = cost_matrix.sum();
+        double capacity = cost_matrix.mean()*graph.size()/(params.vehicles_available*2);
+        params.max_route_per_vehicle = std::clamp(capacity, max_edge_distance, sum_edge_distances);
     }
 
     // Initializ Number of ants
