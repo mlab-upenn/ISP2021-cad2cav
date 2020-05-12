@@ -10,7 +10,7 @@
  * @return aco::Graph
  */
 template <typename GraphType>
-aco::Graph convert_to_aco_graph(const GraphType& graph)
+aco::Graph aco::convert_to_aco_graph(const GraphType& graph)
 {
     aco::Graph aco_graph;
     std::vector<std::pair<typename GraphType::value_type, int>> original_node_to_aco_id{};
