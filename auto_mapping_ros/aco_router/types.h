@@ -1,8 +1,6 @@
-#ifndef ACO_TSP_ACO_H
-#define ACO_TSP_ACO_H
+#ifndef ACO_TSP_TYPES_H
+#define ACO_TSP_TYPES_H
 
-#include <eigen3/Eigen/Dense>
-#include <unordered_map>
 #include <vector>
 
 namespace aco
@@ -13,12 +11,13 @@ namespace aco
     struct Node
     {
         Node(double x, double y, int id);
+
         int id;
         double x{};
         double y{};
         std::vector<std::pair<int, double>> neighbors;
 
-        bool operator==(const Node&other) const;
+        bool operator==(const Node &other) const;
 
         /**
          * Get distance between current node and node with node id as node_id
@@ -46,7 +45,7 @@ namespace aco
          * @param node_id
          * @return
          */
-        aco::Node* get_node_from_graph(int node_id);
+        aco::Node *get_node_from_graph(int node_id);
 
     public:
         /**
@@ -84,41 +83,6 @@ namespace aco
         aco::Node get_node_from_graph(int node_id) const;
     };
 
-    /**
-     * Parameters for solving the Ant Colony Optimzation Problem for TSP
-     */
-    struct AcoParams
-    {
-        int n_ants;
-        int max_iters;
-        double alpha;
-        double beta;
-        double rho;
-    };
+} // namespace aco
 
-    /**
-     * Parameters for solving the Improved Ant Colony Optimization for VRP
-     */
-    struct IacoParamas : public AcoParams
-    {
-        int n_vehicles;
-    };
-
-    /**
-     * Function to solve the traveling salesman problem using the ant colony optimization
-     * @param graph
-     * @param params
-     * @return
-     */
-    std::vector<aco::Node> solve_tsp(const Graph& graph, const AcoParams& params, int initial_node_id = -1);
-
-    /**
-     * Function to solve the vehicle routing problem using the ant colony optimization
-     * @param graph
-     * @param params
-     * @return
-     */
-    std::vector<std::vector<aco::Node>> solve_vrp(const Graph& graph, const AcoParams& params, int initial_node_id = -1);
-}
-
-#endif //ACO_TSP_ACO_H
+#endif //ACO_TSP_TYPES_H

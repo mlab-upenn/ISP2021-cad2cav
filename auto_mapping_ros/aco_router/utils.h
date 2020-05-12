@@ -1,7 +1,7 @@
 #ifndef ACO_TSP_UTILS_H
 #define ACO_TSP_UTILS_H
 
-#include "aco.h"
+#include "tsp_solver.h"
 
 /**
  * Convert user defined graph type to aco graph type
