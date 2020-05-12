@@ -48,6 +48,40 @@ Eigen::MatrixXd get_cost_matrix(const aco::Graph& graph)
 }
 
 /**
+ * Finds fitness value for a single path of ant
+ * @param cost_matrix
+ * @param ant_path
+ * @return
+ */
+double find_fitness_values(const Eigen::MatrixXd& cost_matrix, const std::vector<aco::Node>& ant_path)
+{
+    double fitness_value = 0;
+    for(int i=0; i<ant_path.size()-1; i++)
+    {
+        const auto from_node_id = ant_path[i].id;
+        const auto to_node_id = ant_path[i+1].id;
+        fitness_value += cost_matrix(from_node_id, to_node_id);
+    }
+    return fitness_value;
+}
+
+/**
+ * Finds fitness value for a single path of ant
+ * @param cost_matrix
+ * @param ant_path
+ * @return
+ */
+double find_fitness_values(const Eigen::MatrixXd& cost_matrix, const std::vector<std::vector<aco::Node>>& ant_paths)
+{
+    double total_fitness_value = 0;
+    for(const auto& route: ant_paths)
+    {
+        total_fitness_value += find_fitness_values(cost_matrix, route);
+    }
+    return total_fitness_value;
+}
+
+/**
  * Find a random index based on probabilities in the probability array
  * @param probability_array
  * @return

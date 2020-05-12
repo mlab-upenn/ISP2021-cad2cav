@@ -88,24 +88,6 @@ void create_colony(const aco::Graph& graph,
 }
 
 /**
- * Finds fitness value for a single path of ant
- * @param cost_matrix
- * @param ant_path
- * @return
- */
-double find_fitness_values(const Eigen::MatrixXd& cost_matrix, std::vector<aco::Node> ant_path)
-{
-    double fitness_value = 0;
-    for(int i=0; i<ant_path.size()-1; i++)
-    {
-        const auto from_node_id = ant_path[i].id;
-        const auto to_node_id = ant_path[i+1].id;
-        fitness_value += cost_matrix(from_node_id, to_node_id);
-    }
-    return fitness_value;
-}
-
-/**
  * Updates the pheromone values (tau matrix) based on the paths that the ants moved on and the quality of those paths
  * @param colony - collection of paths that the ants have moved on
  * @param fitness_values - fitness values of each of the paths the ants of the colony moved on

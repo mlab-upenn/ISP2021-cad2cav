@@ -13,7 +13,7 @@ namespace aco
      */
     struct AcoParams
     {
-        int n_ants;
+        int n_ants = -1;
         int max_iters;
         double alpha;
         double beta;

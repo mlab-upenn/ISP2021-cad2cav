@@ -85,6 +85,7 @@ void create_colony(const aco::Graph& graph,
                 current_ant_route.emplace_back(init_node);
                 current_ant_routes.emplace_back(current_ant_route);
                 current_ant_route.clear();
+                current_ant_route.emplace_back(init_node);
                 current_capacity_left = params.max_route_per_vehicle;
                 j--;
                 continue;
@@ -97,6 +98,7 @@ void create_colony(const aco::Graph& graph,
             // Call Roulette Wheel to get the next node
             int next_node_id = run_roulette_wheel(norm_prob_array);
             visited(next_node_id) = 1;
+            current_capacity_left -= cost_matrix(current_node.id, next_node_id);
             const aco::Node next_node = graph.get_node_from_graph(next_node_id);
 
             // Add next node to the current ant path
@@ -108,6 +110,56 @@ void create_colony(const aco::Graph& graph,
             current_ant_route.emplace_back(init_node);
             current_ant_routes.emplace_back(current_ant_route);
         }
+
+        colony.emplace_back(current_ant_routes);
+    }
+}
+
+/**
+ * Evaporate the pheromone matrix (tau)
+ * @param params
+ * @param tau
+ */
+void evaporate_pheromone_matrix(const aco::IacoParamas& params, Eigen::MatrixXd& tau)
+{
+    tau = (1-params.rho) * tau;
+}
+
+/**
+ * Updates the pheromone values (tau matrix) based on the paths that the ants moved on and the quality of those paths
+ * @param colony - collection of paths that the ants have moved on
+ * @param fitness_values - fitness values of each of the paths the ants of the colony moved on
+ * @param tau - pheromone matrix
+ */
+void update_pheromone_matrix(const std::vector<std::vector<std::vector<aco::Node>>>& colony,
+                            const Eigen::MatrixXd& cost_matrix,
+                            const aco::IacoParamas& params,
+                            Eigen::MatrixXd& tau)
+{
+    // For every ant (fresh solution)
+    for(int ant_index=0; ant_index < colony.size(); ant_index++)
+    {
+        double global_pheromone_update = params.max_route_per_vehicle/
+                (colony.size() * find_fitness_values(cost_matrix, colony[ant_index]));
+
+        // For every route cluster in the solution
+        for(int route_index=0; route_index < colony[ant_index].size(); route_index++)
+        {
+            const double dk = find_fitness_values(cost_matrix, colony[ant_index][route_index]);
+            const int mk = colony[ant_index].size();
+
+            // For every customer/ node in the solution
+            for(int node_index=0; node_index < colony[ant_index][route_index].size()-1; node_index++)
+            {
+                const int current_node_id = colony[ant_index][route_index][node_index].id;
+                const int next_node_id = colony[ant_index][route_index][node_index + 1].id;
+                const double dij = cost_matrix(current_node_id, next_node_id);
+
+                double local_pheromone_update = (dk - dij)/(mk * dk);
+
+                tau(current_node_id, next_node_id) = global_pheromone_update * local_pheromone_update;
+            }
+        }
     }
 }
 
@@ -117,7 +169,7 @@ void create_colony(const aco::Graph& graph,
  * @param params
  * @return
  */
-std::vector<std::vector<aco::Node>> aco::solve_vrp(const aco::Graph& graph, const aco::IacoParamas& params, int initial_node_id)
+std::vector<std::vector<aco::Node>> aco::solve_vrp(const aco::Graph& graph, aco::IacoParamas& params, int initial_node_id)
 {
     // Initialize Parameters
 
@@ -129,6 +181,16 @@ std::vector<std::vector<aco::Node>> aco::solve_vrp(const aco::Graph& graph, cons
     int n_nodes = graph.size();
     Eigen::MatrixXd tau = Eigen::MatrixXd::Constant(n_nodes, n_nodes, tau0);
     const Eigen::MatrixXd eta = cost_matrix.cwiseInverse();
+
+    // Initialize Capacity
+    if(params.max_route_per_vehicle < 0)
+    {
+        params.max_route_per_vehicle = cost_matrix.mean()*graph.size()/params.vehicles_available;
+    }
+    if(params.n_ants < 0)
+    {
+        params.n_ants = graph.size();
+    }
 
     // Initialize best route and fitness value
     std::vector<std::vector<aco::Node>> best_routes{};
@@ -142,6 +204,33 @@ std::vector<std::vector<aco::Node>> aco::solve_vrp(const aco::Graph& graph, cons
     {
         // Create Colony
         create_colony(graph, colony, cost_matrix, tau, eta, params, initial_node_id);
+
+        // Find Best Fitness value
+        for(int j=0; j<params.n_ants; j++)
+        {
+            double fitness_value = find_fitness_values(cost_matrix, colony.at(j));
+            if(fitness_value < best_fitness_value)
+            {
+                best_fitness_value = fitness_value;
+                best_routes = colony.at(j);
+            }
+        }
+
+        // Evaporate Tau
+        evaporate_pheromone_matrix(params, tau);
+
+        // Update Pheromone Matrix
+        update_pheromone_matrix(colony, cost_matrix, params, tau);
+    }
+
+    // Print best routes
+    for(const auto& route: best_routes)
+    {
+        for(const auto& node: route)
+        {
+            std::cout << node.id << "-";
+        }
+        std::cout << std::endl;
     }
 
     return best_routes;

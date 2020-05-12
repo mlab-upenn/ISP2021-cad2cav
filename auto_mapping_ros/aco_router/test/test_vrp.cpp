@@ -52,7 +52,6 @@ int main()
     // Set Parameters of the Ant Colony Optimization Problem
     aco::IacoParamas params{};
     params.max_iters = 5;
-    params.n_ants = 5;
     params.alpha = 1;
     params.beta = 1;
     params.rho = 0.1;
