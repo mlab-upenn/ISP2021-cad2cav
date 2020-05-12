@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Eigen3 REQUIRED)
 
-add_library(acolib vrp_solver.h vrp_solver.cpp tsp_solver.h tsp_solver.cpp utils.h utils_impl.h types.h types.cpp)
+add_library(acolib vrp_solver.h vrp_solver.cpp tsp_solver.h tsp_solver.cpp utils.h utils_impl.h types.h types.cpp utils.cpp)
 
 include_directories(test)
 

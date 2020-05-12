@@ -29,7 +29,7 @@ int main()
 
     // Solve the TSP using Ant Colony Optimization
     const auto best_route = aco::solve_tsp(graph, params, id_A);
-    std::cout << "\nbest fitness value: " << best_route.second << "\n";
+    std::cout << "best fitness value: " << best_route.second << "\n";
     std::cout << "best route: ";
     for(const auto & node: best_route.first)
     {
