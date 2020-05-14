@@ -36,25 +36,35 @@ You must use the two public helper functions to create the graph.
         .
     };
 ```
+The test examples shows examples of how graph is created.
 
-The test example shows an example of how a graph is created. After creating the graph, you need to set the parameters of the algorithm and then call tsp_solver.
+Alternatively, you can also use the converter that we provide to convert your graph format to our graph format if you have a similar data structure (std::vector<NodeType> where NodeType has a neighbors field which is a vector of pointers).
 ```
-    // Set Parameters of the Ant Colony Optimization Problem
-    aco::AcoParams params{.n_ants = 2, .max_iters = 5, .alpha=1, .beta=1, .rho=0.05};
+    const auto aco_graph = aco::convert_to_aco_graph(user_graph);
+```
 
+After creating the graph, you need to set the parameters of the algorithm and then call tsp_solver or the vsp_solver.
+```
     // Solve the TSP using Ant Colony Optimization
-    std::vector<aco::Node> best_route = aco::solve_tsp(graph, params);
+    std::pair< std::vector<aco::Node>, double> best_route_and_fitness = aco::solve_tsp(graph);
+    
+    // Solve the VRP using Ant Colony Optimization
+    std::pair< std::vector<std::vector<aco::Node>>> best_routes_and_total_fitness = aco::solve_vrp(graph);
+```
+If the user wants to set an initial depot for the start point, they can do so by passing the node id to both the solvers for example:
+```
+    // Solve the VRP using Ant Colony Optimization
+    std::pair< std::vector<std::vector<aco::Node>>> best_routes_and_total_fitness = aco::solve_vrp(graph, init_node_id);
 ```
 
+The [Config File](https://github.com/YashTrikannad/aco_router/blob/master/config.cfg) contains the Parameters of Ant Colony Optimization and Opt2 Optimization that the user needs to set.
 
-Parameters of Ant Colony Optimization that the user needs to set:
-```
-    struct AcoParams
-    {
-        int n_ants; // Number of ants in each iteration 
-        int max_iters; // Max number of iterations
-        double alpha; // Exponential for weighting the pheromone value 
-        double beta; // Exponential for weighting the desirability of paths
-        double rho; // Evaporation Rate
-    };
-```
+Here you can check out an example usage of this library usage on an indoor office floor-map in my [auto mapping](https://github.com/YashTrikannad/auto_mapping_ros) project. 
+
+Note: In this case, the edges just are just for illustrative purpose to show the order of sequences (Light to Dark) and they are not equal to the actual distances between the two points. 
+
+Vehicle Route for Car1
+![Vehicle Route for Car 1](https://github.com/YashTrikannad/aco_router/blob/master/media/v1.png)
+
+Vehicle Route for Car2
+![Vehicle Route for Car 2](https://github.com/YashTrikannad/aco_router/blob/master/media/v2.png)
