@@ -3,8 +3,9 @@
 #include <random>
 #include <libconfig.h++>
 
-#include "utils.h"
+#include "opt2_solver.h"
 #include "tsp_solver.h"
+#include "utils.h"
 
 /**
  * Creates a colony of ants (set of improving sub optimal tsp paths)
@@ -170,6 +171,9 @@ std::pair<std::vector<aco::Node>, double> aco::solve_tsp(const Graph& graph, int
         // Evaporation
         tau = (1-params.rho)*tau;
     }
+
+    // Run Opt2 Local Search Algorithm
+    run_opt2(cost_matrix, best_route);
 
     return {best_route, find_fitness_values(cost_matrix, best_route)};
 }
