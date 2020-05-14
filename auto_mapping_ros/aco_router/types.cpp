@@ -63,7 +63,7 @@ aco::Graph::iterator aco::Graph::end()
  * Generic const begin std iterator for aco::Graph
  * @return c begin iterator
  */
-aco::Graph::const_iterator aco::Graph::cbegin()
+aco::Graph::const_iterator aco::Graph::cbegin() const
 {
     return graph_.cbegin();
 }
@@ -72,7 +72,7 @@ aco::Graph::const_iterator aco::Graph::cbegin()
  * Generic const end std iterator for aco::Graph
  * @return c end iterator
  */
-aco::Graph::const_iterator aco::Graph::cend()
+aco::Graph::const_iterator aco::Graph::cend() const
 {
     return graph_.cend();
 }

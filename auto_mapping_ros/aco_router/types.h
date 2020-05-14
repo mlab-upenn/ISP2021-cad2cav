@@ -58,8 +58,8 @@ namespace aco
         typedef NodeList::const_iterator const_iterator;
         iterator begin();
         iterator end();
-        const_iterator cbegin();
-        const_iterator cend();
+        const_iterator cbegin() const;
+        const_iterator cend() const;
 
         /**
          * Get the number of nodes in a graph
