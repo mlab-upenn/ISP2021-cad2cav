@@ -1,5 +1,6 @@
 #include <limits>
 #include <random>
+#include <libconfig.h++>
 
 #include "utils.h"
 #include "vrp_solver.h"
@@ -165,15 +166,17 @@ void update_pheromone_matrix(const std::vector<std::vector<std::vector<aco::Node
 }
 
 /**
- * TODO: Function to solve the traveling salesman problem for multiple salesman using ant colony optimization
+ * Function to solve the traveling salesman problem for multiple salesman using ant colony optimization
  * @param graph
  * @param params
  * @return
  */
-std::pair<std::vector<std::vector<aco::Node>>, double>
-        aco::solve_vrp(const aco::Graph& graph, aco::IacoParamas& params, int initial_node_id)
+std::pair<std::vector<std::vector<aco::Node>>, double> aco::solve_vrp(const aco::Graph& graph, int initial_node_id)
 {
     // Initialize Parameters
+
+    // Get ACO VRP Parameters
+    aco::IacoParamas params = aco::get_vrp_params();
 
     // Cost/Distance Matrix
     const Eigen::MatrixXd cost_matrix = aco::get_cost_matrix(graph);
@@ -241,3 +244,37 @@ std::pair<std::vector<std::vector<aco::Node>>, double>
     return {best_routes, find_fitness_values(cost_matrix, best_routes)};
 }
 
+/**
+ * Load the VRP configuration parameters from the config file
+ * @return TSP config parameters
+ */
+aco::IacoParamas aco::get_vrp_params()
+{
+    IacoParamas params{};
+    libconfig::Config cfg;
+    try {
+        const std::string package_name = "aco_router";
+        const std::string package_relative_path = "/config.cfg";
+        const std::string filename = aco::get_directory_path(package_name, package_relative_path);
+        char *tab2 = new char[filename.length() + 1];
+        strcpy(tab2, filename.c_str());
+        cfg.readFile(tab2);
+    }
+    catch (const libconfig::FileIOException &fioex) {
+        std::__throw_invalid_argument("I/O error while reading file.");
+    }
+
+    try {
+        params.n_ants = cfg.lookup("n_ants");
+        params.rho = cfg.lookup("rho");
+        cfg.lookup("alpha");
+        params.beta = cfg.lookup("beta");
+        params.max_iters = cfg.lookup("max_iters");
+        params.vehicles_available = cfg.lookup("vehicles_available");
+        params.max_route_per_vehicle = cfg.lookup("max_route_per_vehicle");
+    }
+    catch (const libconfig::SettingNotFoundException &nfex) {
+        std::cerr << "Missing setting in configuration file." << std::endl;
+    }
+    return params;
+}

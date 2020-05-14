@@ -23,8 +23,13 @@ namespace aco
      * @param params
      * @return
      */
-    std::pair<std::vector<std::vector<aco::Node>>, double>
-            solve_vrp(const Graph& graph, IacoParamas& params, int initial_node_id = -1);
+    std::pair<std::vector<std::vector<aco::Node>>, double> solve_vrp(const Graph& graph, int initial_node_id = -1);
+
+    /**
+     * Load the VRP configuration parameters from the config file
+     * @return TSP config parameters
+     */
+    aco::IacoParamas get_vrp_params();
 }
 
 #endif //ACO_TSP_VRP_SOLVER_H

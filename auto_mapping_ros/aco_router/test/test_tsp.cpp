@@ -24,11 +24,8 @@ int main()
     graph.add_edge(id_E, id_C);
     graph.add_edge(id_E, id_D);
 
-    // Set Parameters of the Ant Colony Optimization Problem
-    aco::AcoParams params{.n_ants = 2, .max_iters = 3, .alpha=1, .beta=1, .rho=0.05};
-
     // Solve the TSP using Ant Colony Optimization
-    const auto best_route = aco::solve_tsp(graph, params, id_A);
+    const auto best_route = aco::solve_tsp(graph, id_A);
     std::cout << "best fitness value: " << best_route.second << "\n";
     std::cout << "best route: ";
     for(const auto & node: best_route.first)

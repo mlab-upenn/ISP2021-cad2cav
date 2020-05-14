@@ -1,6 +1,7 @@
 #include <limits>
 #include <memory>
 #include <random>
+#include <libconfig.h++>
 
 #include "utils.h"
 #include "tsp_solver.h"
@@ -114,9 +115,16 @@ void update_pheromone_value(const std::vector<std::vector<aco::Node>>& colony,
  * @param params
  * @return
  */
-std::pair<std::vector<aco::Node>, double> aco::solve_tsp(const Graph& graph, const AcoParams& params, int initial_node_id)
+std::pair<std::vector<aco::Node>, double> aco::solve_tsp(const Graph& graph, int initial_node_id)
 {
     // Get Initial Parameters
+
+    // Get ACO TSP Parameters from config
+    aco::AcoParams params = aco::get_tsp_params();
+    if(params.n_ants < 0)
+    {
+        params.n_ants = graph.size();
+    }
 
     // Cost/Distance Matrix
     const Eigen::MatrixXd cost_matrix = aco::get_cost_matrix(graph);
@@ -164,5 +172,38 @@ std::pair<std::vector<aco::Node>, double> aco::solve_tsp(const Graph& graph, con
     }
 
     return {best_route, find_fitness_values(cost_matrix, best_route)};
+}
+
+/**
+ * Load the TSP configuration parameters from the config file
+ * @return TSP config parameters
+ */
+aco::AcoParams aco::get_tsp_params()
+{
+    AcoParams params{};
+    libconfig::Config cfg;
+    try {
+        const std::string package_name = "aco_router";
+        const std::string package_relative_path = "/config.cfg";
+        const std::string filename = aco::get_directory_path(package_name, package_relative_path);
+        char *tab2 = new char[filename.length() + 1];
+        strcpy(tab2, filename.c_str());
+        cfg.readFile(tab2);
+    }
+    catch (const libconfig::FileIOException &fioex) {
+        std::__throw_invalid_argument("I/O error while reading file.");
+    }
+
+    try {
+        params.n_ants = cfg.lookup("n_ants");
+        params.max_iters = cfg.lookup("max_iters");
+        params.alpha = cfg.lookup("alpha");
+        params.beta = cfg.lookup("beta");
+        params.rho = cfg.lookup("rho");
+    }
+    catch (const libconfig::SettingNotFoundException &nfex) {
+        std::cerr << "Missing setting in configuration file." << std::endl;
+    }
+    return params;
 }
 

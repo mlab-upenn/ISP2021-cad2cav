@@ -12,5 +12,5 @@ include_directories(test)
 add_executable(test_tsp test/test_tsp.cpp)
 add_executable(test_vrp test/test_vrp.cpp)
 
-target_link_libraries(test_tsp acolib)
-target_link_libraries(test_vrp acolib)
+target_link_libraries(test_tsp acolib -lconfig++)
+target_link_libraries(test_vrp acolib -lconfig++)

@@ -111,3 +111,32 @@ int aco::run_roulette_wheel(const Eigen::ArrayXd& probability_array)
 
     return i;
 }
+
+/**
+ * Get the directory path string
+ * @param package_name - name of the package/ project (eg. "Example Project)
+ * @param package_relative_path - path relative to the project (eg. "/config/abc.cfg"
+ * @return
+ */
+std::string aco::get_directory_path(const std::string& package_name, const std::string& package_relative_path)
+{
+    std::string cwd_str(__FILE__);
+    std::string package_dir;
+    std::string current_filename;
+    for(char i : cwd_str)
+    {
+        if(i != '/')
+        {
+            current_filename += i;
+            continue;
+        }
+        package_dir += current_filename + "/";
+        if(current_filename == package_name)
+        {
+            package_dir.pop_back();
+            break;
+        }
+        current_filename.clear();
+    }
+    return (package_dir+package_relative_path);
+}

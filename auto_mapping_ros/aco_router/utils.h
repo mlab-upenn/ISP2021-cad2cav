@@ -46,6 +46,14 @@ int run_roulette_wheel(const Eigen::ArrayXd& probability_array);
 template <typename GraphType>
 aco::Graph convert_to_aco_graph(const GraphType& graph);
 
+/**
+ * Get the directory path string
+ * @param package_name - name of the package/ project (eg. "Example Project)
+ * @param package_relative_path - path relative to the project (eg. "/config/abc.cfg"
+ * @return
+ */
+std::string get_directory_path(const std::string& package_name, const std::string& package_relative_path);
+
 } // namespace aco
 
 #endif //ACO_TSP_UTILS_H

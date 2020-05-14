@@ -23,10 +23,15 @@ namespace aco
     /**
      * Function to solve the traveling salesman problem using the ant colony optimization
      * @param graph
-     * @param params
      * @return
      */
-    std::pair<std::vector<aco::Node>, double> solve_tsp(const Graph& graph, const AcoParams& params, int initial_node_id = -1);
+    std::pair<std::vector<aco::Node>, double> solve_tsp(const Graph& graph, int initial_node_id = -1);
+
+    /**
+     * Load the configuration parameters from the config file
+     * @return TSP config parameters
+     */
+    AcoParams get_tsp_params();
 }
 
 #endif //ACO_TSP_TSP_SOLVER_H

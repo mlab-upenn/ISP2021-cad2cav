@@ -52,16 +52,8 @@ int main()
     graph.add_edge(id_I, id_G);
     graph.add_edge(id_I, id_H);
 
-    // Set Parameters of the Ant Colony Optimization Problem
-    aco::IacoParamas params{};
-    params.max_iters = 5;
-    params.alpha = 1;
-    params.beta = 1;
-    params.rho = 0.1;
-    params.vehicles_available = 4;
-
     // Solve the TSP using Ant Colony Optimization
-    const auto best_route = aco::solve_vrp(graph, params, id_I);
+    const auto best_route = aco::solve_vrp(graph, id_I);
     std::cout << "total fitness value: " << best_route.second << std::endl;
     for(int i=0; i<best_route.first.size(); i++)
     {
@@ -108,15 +100,7 @@ int main()
         }
     }
 
-    params.max_iters = 100;
-    params.alpha = 1;
-    params.beta = 1;
-    params.rho = 0.5;
-    params.vehicles_available = 4;
-    params.n_ants = -1;
-    params.max_route_per_vehicle = -1;
-
-    const auto google_best_route = aco::solve_vrp(google_graph, params, id[0]);
+    const auto google_best_route = aco::solve_vrp(google_graph, id[0]);
     std::cout << "total fitness value: " << google_best_route.second << std::endl;
     for(int i=0; i<google_best_route.first.size(); i++)
     {
