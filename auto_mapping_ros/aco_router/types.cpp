@@ -60,6 +60,24 @@ aco::Graph::iterator aco::Graph::end()
 }
 
 /**
+ * Generic const begin std iterator for aco::Graph
+ * @return c begin iterator
+ */
+aco::Graph::const_iterator aco::Graph::cbegin()
+{
+    return graph_.cbegin();
+}
+
+/**
+ * Generic const end std iterator for aco::Graph
+ * @return c end iterator
+ */
+aco::Graph::const_iterator aco::Graph::cend()
+{
+    return graph_.cend();
+}
+
+/**
  * Get the no. of nodes in the graph
  * @return
  */
