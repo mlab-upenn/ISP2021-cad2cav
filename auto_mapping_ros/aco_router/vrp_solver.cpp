@@ -1,7 +1,9 @@
+#include <eigen3/Eigen/Dense>
 #include <limits>
 #include <random>
 #include <libconfig.h++>
 
+#include "opt2_solver.h"
 #include "utils.h"
 #include "vrp_solver.h"
 
@@ -241,6 +243,12 @@ std::pair<std::vector<std::vector<aco::Node>>, double> aco::solve_vrp(const aco:
         update_pheromone_matrix(colony, cost_matrix, params, tau);
     }
 
+    // Use Opt-2 Local Search to improve the routes
+    for(auto& route: best_routes)
+    {
+        run_opt2(cost_matrix, route);
+    }
+
     return {best_routes, find_fitness_values(cost_matrix, best_routes)};
 }
 
@@ -260,20 +268,23 @@ aco::IacoParamas aco::get_vrp_params()
         strcpy(tab2, filename.c_str());
         cfg.readFile(tab2);
     }
-    catch (const libconfig::FileIOException &fioex) {
+    catch (const libconfig::FileIOException &fioex)
+    {
         std::__throw_invalid_argument("I/O error while reading file.");
     }
 
-    try {
+    try
+    {
         params.n_ants = cfg.lookup("n_ants");
         params.rho = cfg.lookup("rho");
-        cfg.lookup("alpha");
+        params.alpha = cfg.lookup("alpha");
         params.beta = cfg.lookup("beta");
         params.max_iters = cfg.lookup("max_iters");
         params.vehicles_available = cfg.lookup("vehicles_available");
         params.max_route_per_vehicle = cfg.lookup("max_route_per_vehicle");
     }
-    catch (const libconfig::SettingNotFoundException &nfex) {
+    catch (const libconfig::SettingNotFoundException &nfex)
+    {
         std::cerr << "Missing setting in configuration file." << std::endl;
     }
     return params;
