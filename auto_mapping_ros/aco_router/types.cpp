@@ -33,11 +33,36 @@ double aco::Node::get_distance_from_neighbor(int node_id) const
     return std::numeric_limits<double>::max();
 }
 
+/**
+ * Construct the graph
+ */
 aco::Graph::Graph()
 {
     n_nodes_ = 0;
 }
 
+/**
+ * Generic begin std iterator for aco::Graph
+ * @return begin iterator
+ */
+aco::Graph::iterator aco::Graph::begin()
+{
+    return graph_.begin();
+}
+
+/**
+ * Generic end std iterator for aco::Graph
+ * @return end iterator
+ */
+aco::Graph::iterator aco::Graph::end()
+{
+    return graph_.end();
+}
+
+/**
+ * Get the no. of nodes in the graph
+ * @return
+ */
 int aco::Graph::size() const
 {
     return n_nodes_;

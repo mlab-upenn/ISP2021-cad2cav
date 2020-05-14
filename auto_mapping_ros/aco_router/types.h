@@ -33,7 +33,8 @@ namespace aco
         /**
          * The main graph container (The graph is immutable)
          */
-        std::vector<Node> graph_;
+        typedef std::vector<Node> NodeList;
+        NodeList graph_;
 
         /**
          * Number of nodes in the graph
@@ -49,6 +50,15 @@ namespace aco
 
     public:
         Graph();
+
+        /**
+         * Define iterators for using std generic algorithms
+         */
+        typedef NodeList::iterator iterator;
+        typedef NodeList::const_iterator const_iterator;
+        iterator begin();
+        iterator end();
+
         /**
          * Get the number of nodes in a graph
          * @return
