@@ -108,10 +108,10 @@ public:
         node_handle_->getParam("switch_xy", switch_xy);
 
         std::vector<std::array<int, 2>> coverage_sequence_non_ros_map;
-        // const auto csv_filepath = ros::package::getPath(package_name) + csv_relative_filepath;
-        const auto csv_filepath = "/home/saumya/summer_2020/catkin_ws/src/auto_mapping_ros" + csv_relative_filepath;
-        // std::string csv_localtraj_path = ros::package::getPath(package_name) + csv_localtraj_filepath;
-        std::string csv_localtraj_path = "/home/saumya/summer_2020/catkin_ws/src/auto_mapping_ros" + csv_localtraj_filepath;
+        const auto csv_filepath = ros::package::getPath(package_name) + csv_relative_filepath;
+        // const auto csv_filepath = "/home/saumya/summer_2020/catkin_ws/src/auto_mapping_ros" + csv_relative_filepath;
+        std::string csv_localtraj_path = ros::package::getPath(package_name) + csv_localtraj_filepath;
+        // std::string csv_localtraj_path = "/home/saumya/summer_2020/catkin_ws/src/auto_mapping_ros" + csv_localtraj_filepath;
         amr::read_sequence_from_csv(&coverage_sequence_non_ros_map, csv_filepath);
 
         // Translate non ros sequence to ros
