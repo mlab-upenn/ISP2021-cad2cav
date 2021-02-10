@@ -1,0 +1,9 @@
+[submodule "auto_mapping_ros"]
+	path = auto_mapping_ros
+	url = git@github.com:shineyruan/auto_mapping_ros.git
+[submodule "f110-simulator-multi-agent"]
+	path = f110-simulator-multi-agent
+	url = git@github.com:shineyruan/f110-simulator-multi-agent.git
+[submodule "fmt_star_ros"]
+	path = fmt_star_ros
+	url = git@github.com:shineyruan/fmt_star_ros.git
