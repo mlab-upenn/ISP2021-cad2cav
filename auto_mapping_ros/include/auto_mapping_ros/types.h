@@ -1,12 +1,11 @@
 #ifndef AUTO_MAPPING_ROS_TYPES_H
 #define AUTO_MAPPING_ROS_TYPES_H
 
-#include <vector>
 #include <array>
+#include <vector>
 
 /// Basic Cell of the Graph
-struct Node
-{
+struct Node {
     explicit Node(const std::array<int, 2> &node, int id);
     explicit Node(int x, int y, int id);
 
@@ -26,15 +25,12 @@ struct Node
 };
 
 using Graph = std::vector<Node>;
-Graph deep_copy_graph(const Graph& graph);
+Graph deep_copy_graph(const Graph &graph);
 
-struct Plan
-{
+struct Plan {
     std::array<double, 2> start;
     std::array<double, 2> end;
     std::vector<std::array<double, 2>> plan;
 };
 
-#include "impl/types_impl.h"
-
-#endif //AUTO_MAPPING_ROS_TYPES_H
+#endif  //AUTO_MAPPING_ROS_TYPES_H

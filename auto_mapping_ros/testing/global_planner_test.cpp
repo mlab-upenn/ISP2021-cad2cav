@@ -1,16 +1,14 @@
+#include "auto_mapping_ros/global_planner.h"
+
+#include <ros/package.h>
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
+
 #include <memory>
-
-#include <ros/ros.h>
-#include <ros/package.h>
-
-#include "auto_mapping_ros/global_planner.h"
 
 static constexpr auto csv_filepath = "/home/yash/yasht_ws/src/auto_mapping_ros/csv/sequence.csv";
 
-int main(int argc, char **argv)
-{
+int main(int argc, char** argv) {
     const auto csv_filepath = ros::package::getPath("auto_mapping_ros") + "/csv/sequence.csv";
 
     ros::init(argc, argv, "global_planner");
@@ -24,12 +22,11 @@ int main(int argc, char **argv)
     amr::read_sequence_from_csv(&coverage_sequence_non_ros_map, csv_filepath);
 
     const auto coverage_sequence = amr::translate_vector_of_indices_to_xy(
-            coverage_sequence_non_ros_map, resolution);
+        coverage_sequence_non_ros_map, resolution);
 
     int i = 0;
     visualization_msgs::MarkerArray marker_array;
-    for(const auto& node: coverage_sequence)
-    {
+    for (const auto& node : coverage_sequence) {
         visualization_msgs::Marker marker;
         marker.header.frame_id = "map";
         marker.header.stamp = ros::Time();
@@ -56,8 +53,7 @@ int main(int argc, char **argv)
 
     amr::GlobalPlanner planner(coverage_sequence, nh);
 
-    for(auto j=0; j<coverage_sequence.size()-1; j++)
-    {
+    for (auto j = 0; j < coverage_sequence.size() - 1; j++) {
         planner.get_next_plan(coverage_sequence[j]);
     }
 

@@ -2,13 +2,13 @@
 #define STATE_H
 
 #include <ros/ros.h>
+
 #include <Eigen/Geometry>
 
 // Defines format of State used for MPC
 // Stores x,y coordinates and orientation of the car
 
-class State
-{
+class State {
 public:
     State();
     State(double x, double y, double ori);
@@ -21,12 +21,13 @@ public:
     void set_x(double x);
     void set_y(double y);
     void set_ori(double ori);
-    std::pair<float,float> GetPair();
+    std::pair<float, float> GetPair();
     // getters
     double x();
     double y();
     double ori();
     int size();
+
 private:
     double x_;
     double y_;

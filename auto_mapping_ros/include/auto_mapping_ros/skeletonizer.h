@@ -2,22 +2,18 @@
 #define AUTO_MAPPING_ROS_SKELETONIZER_H
 
 #include <iostream>
-
 #include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
-
-#include "opencv2/highgui.hpp"
-#include "opencv2/imgproc.hpp"
+#include <opencv2/imgproc.hpp>
 
 #ifndef DEBUG
 #define DEBUG 1
 #endif
 
-namespace amr
-{
+namespace amr {
 
-class Skeletonizer
-{
+class Skeletonizer {
 public:
     Skeletonizer();
 
@@ -31,8 +27,6 @@ private:
     cv::Mat map_jpg;
 };
 
-}
+}  // namespace amr
 
-#endif //AUTO_MAPPING_ROS_SKELETONIZER_H
-
-#include "impl/skeletonizer_impl.h"
+#endif  //AUTO_MAPPING_ROS_SKELETONIZER_H

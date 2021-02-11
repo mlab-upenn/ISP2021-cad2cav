@@ -1,7 +1,7 @@
 #define DEBUG 1
 
-#include <ros/ros.h>
 #include <ros/package.h>
+#include <ros/ros.h>
 
 #include "auto_mapping_ros/graph_builder.h"
 #include "auto_mapping_ros/landmarks.h"
@@ -11,22 +11,17 @@
 static constexpr int radius_of_interest = 20;
 static constexpr bool use_real_map = true;
 
-void print_cv_matrix(const cv::Mat& mat)
-{
-    for(int i=0; i<mat.rows; i++)
-    {
-        for(int j=0; j<mat.cols; j++)
-        {
+void print_cv_matrix(const cv::Mat& mat) {
+    for (int i = 0; i < mat.rows; i++) {
+        for (int j = 0; j < mat.cols; j++) {
             std::cout << static_cast<int>(mat.at<uchar>(i, j)) << "\t ";
         }
         std::cout << "\n";
     }
 }
 
-int main()
-{
-    if(use_real_map)
-    {
+int main() {
+    if (use_real_map) {
         const auto filepath = ros::package::getPath("auto_mapping_ros") + "/maps/levine.jpg";
 
         amr::Skeletonizer processor;
@@ -46,23 +41,19 @@ int main()
 
         map.convertTo(map, CV_8U);
 
-        for (const auto &node: graph)
-        {
+        for (const auto& node : graph) {
             auto ray_casted_map = finder.ray_cast_to_2d_map(node.get_location(), map);
             const auto frontiers = finder.find_frontiers(node.get_location(), map);
             const auto trimmed_frontiers = finder.remove_minor_frontiers(frontiers);
 
             std::cout << "No of Frontiers: " << trimmed_frontiers.size() << std::endl;
             std::cout << "Frontier Means: " << std::endl;
-            for(const auto& frontier: trimmed_frontiers)
-            {
+            for (const auto& frontier : trimmed_frontiers) {
                 std::cout << "x: " << frontier.frontier_mean[0] << " y: " << frontier.frontier_mean[1] << std::endl;
             }
 
-            for(const auto& frontier: trimmed_frontiers)
-            {
-                for(const auto& frontier_cell: frontier.frontier)
-                {
+            for (const auto& frontier : trimmed_frontiers) {
+                for (const auto& frontier_cell : frontier.frontier) {
                     ray_casted_map.at<uchar>(frontier_cell[0], frontier_cell[1]) = 100;
                 }
             }
@@ -71,12 +62,9 @@ int main()
             cv::imshow("Ray Casted Map", ray_casted_map);
             cv::waitKey(0);
         }
-    }
-    else
-    {
-        cv::Mat test_matrix  = cv::Mat(10, 10, CV_8U, cv::Scalar(255));
-        for(int i = 0; i<test_matrix.rows; i++)
-        {
+    } else {
+        cv::Mat test_matrix = cv::Mat(10, 10, CV_8U, cv::Scalar(255));
+        for (int i = 0; i < test_matrix.rows; i++) {
             test_matrix.at<uchar>(2, i) = 0;
             test_matrix.at<uchar>(7, i) = 0;
             test_matrix.at<uchar>(i, 0) = 216;
@@ -100,12 +88,10 @@ int main()
 
         std::cout << "No of Frontiers: " << frontiers.size() << std::endl;
         std::cout << "Frontier Means: " << std::endl;
-        for(const auto& frontier: frontiers)
-        {
+        for (const auto& frontier : frontiers) {
             std::cout << "x: " << frontier.frontier_mean[0] << " y: " << frontier.frontier_mean[1] << std::endl;
         }
     }
 
     return 0;
 }
-

@@ -1,12 +1,9 @@
 #include "auto_mapping_ros/trajectory_planner.hpp"
 
-
 using namespace std;
 namespace fs = experimental::filesystem;
 // FIXME: change lookahead to var
-TrajectoryPlanner::TrajectoryPlanner(ros::NodeHandle &nh) : distance_from_switch_(0), prev_rev_(false)
-{
-
+TrajectoryPlanner::TrajectoryPlanner(ros::NodeHandle &nh) : distance_from_switch_(0), prev_rev_(false) {
     int horizon;
     float lookahead_1, lookahead_2;
     nh.getParam("/horizon", horizon);
@@ -22,18 +19,14 @@ TrajectoryPlanner::TrajectoryPlanner(ros::NodeHandle &nh) : distance_from_switch
     std::string lane_name;
     int lane_number = 0;
 
-    while (true)
-    {
+    while (true) {
         lane_name = "lane_" + std::to_string(lane_number);
         lane_number++;
-        if (nh.getParam(lane_name, lane_file))
-        {
+        if (nh.getParam(lane_name, lane_file)) {
             Trajectory temporary_trajectory(lookahead_1, lookahead_2);
             temporary_trajectory.ReadCMAES(lane_file);
             lanes_.push_back(temporary_trajectory);
-        }
-        else
-        {
+        } else {
             break;
         }
     }
@@ -42,39 +35,31 @@ TrajectoryPlanner::TrajectoryPlanner(ros::NodeHandle &nh) : distance_from_switch
     ROS_INFO("planner created");
 }
 
-TrajectoryPlanner::~TrajectoryPlanner()
-{
+TrajectoryPlanner::~TrajectoryPlanner() {
     ROS_INFO("killing the planner");
 }
 
-void TrajectoryPlanner::ReadTrajectories(string path)
-{
+void TrajectoryPlanner::ReadTrajectories(string path) {
     // string path = ros::package::getPath("milestone-3")+"/csv/local_traj_50.csv";
     // string path = "/home/saumya/MPC_ws/src/F110-Final/csv/local_traj_50_fwd_rev.csv";
     cout << path << endl;
     ifstream input(path);
     string coordX, coordY;
-    if (input.is_open())
-    {
-        while (getline(input,coordX,','))
-        {
-            getline(input,coordY);
-            trajectories_.push_back(pair<float,float>(stof(coordY),stof(coordX)));
+    if (input.is_open()) {
+        while (getline(input, coordX, ',')) {
+            getline(input, coordY);
+            trajectories_.push_back(pair<float, float>(stof(coordY), stof(coordX)));
         }
-        cout<<"got trajectories \n";
-        cout<<trajectories_.size();
+        cout << "got trajectories \n";
+        cout << trajectories_.size();
         // each trajectory has 10 pairs of points, total 100 pairs are present for 10 trajectories
-    }
-    else
-    {
+    } else {
         cout << "Please run this from the root catkin_ws directory" << endl;
         exit(0);
     }
 }
 
-
-pair<float,float> TrajectoryPlanner::CarPoint2World(float x, float y, const geometry_msgs::Pose &current_pose)
-{
+pair<float, float> TrajectoryPlanner::CarPoint2World(float x, float y, const geometry_msgs::Pose &current_pose) {
     tf2::Transform car_to_world;
     geometry_msgs::Transform car_to_world_msg;
     geometry_msgs::TransformStamped car_to_world_stamped;
@@ -89,22 +74,19 @@ pair<float,float> TrajectoryPlanner::CarPoint2World(float x, float y, const geom
     tf2::doTransform(carPoint, worldPoint, car_to_world_stamped);
     float carPoseX = current_pose.position.x;
     float carPoseY = current_pose.position.y;
-    return pair<float,float>(worldPoint.x+carPoseX, worldPoint.y+carPoseY);
+    return pair<float, float>(worldPoint.x + carPoseX, worldPoint.y + carPoseY);
 }
 
-
-void TrajectoryPlanner::Trajectory2world(const geometry_msgs::Pose &current_pose)
-{
+void TrajectoryPlanner::Trajectory2world(const geometry_msgs::Pose &current_pose) {
     trajectories_world.clear();
-    for (unsigned int i=0; i<trajectories_.size(); i++)
-    {
-        trajectories_world.push_back(CarPoint2World(trajectories_[i].first, trajectories_[i].second,current_pose));
+    for (unsigned int i = 0; i < trajectories_.size(); i++) {
+        trajectories_world.push_back(CarPoint2World(trajectories_[i].first, trajectories_[i].second, current_pose));
     }
     // ROS_INFO("trajectories in world frame");
 }
 
-int TrajectoryPlanner::BestTrajectory(OccGrid &occ_grid, const geometry_msgs::Pose &current_pose, std::pair<float,float> &goal_to_track)
-{
+int TrajectoryPlanner::BestTrajectory(OccGrid &occ_grid, const geometry_msgs::Pose &current_pose,
+                                      std::pair<float, float> &goal_to_track) {
     float min_distance = std::numeric_limits<float>::max();
     float max_distance = -std::numeric_limits<float>::max();
 
@@ -112,119 +94,93 @@ int TrajectoryPlanner::BestTrajectory(OccGrid &occ_grid, const geometry_msgs::Po
     int best1 = -1;
     int best2 = -1;
     auto closest_cmaes = goal_to_track;
-    pair<float,float> car_pose(current_pose.position.x,current_pose.position.y);
-    for (int ii= 0; ii<num_traj_/2; ii++)
-    {
+    pair<float, float> car_pose(current_pose.position.x, current_pose.position.y);
+    for (int ii = 0; ii < num_traj_ / 2; ii++) {
         bool collision = true;
 
-        for (int l=0; l<horizon_ - 1; l++)
-        {
-            collision = occ_grid.CheckCollision(trajectories_world[max_horizon_*ii+l],trajectories_world[max_horizon_*ii+l+1]);
-            if (!collision)
-            {
-                //cout<<ii<<" collision"<<endl;
+        for (int l = 0; l < horizon_ - 1; l++) {
+            collision = occ_grid.CheckCollision(trajectories_world[max_horizon_ * ii + l],
+                                                trajectories_world[max_horizon_ * ii + l + 1]);
+            if (!collision) {
+                // cout << ii << " collision" << endl;
                 break;
             }
-            //cout << l << ",";
+            // cout << l << ",";
         }
 
         // 0 1.44218
 
-        if (collision)
-        {
-            // cout<<ii<<" no_collision"<<endl;
-            pair<float,float> end_point = trajectories_world[max_horizon_*ii + horizon_-1];
-            pair <float,float> temp = goal_to_track;
-            float dist1 = Transforms::CalcDist(end_point,temp);
-            float dist2 = Transforms::CalcDist(temp,car_pose);
-            collision = occ_grid.CheckCollision(end_point,temp);
-            // float eff_dist = dist2-close_weight*dist1;
+        if (collision) {
+            // cout << ii << " no_collision" << endl;
+            pair<float, float> end_point = trajectories_world[max_horizon_ * ii + horizon_ - 1];
+            pair<float, float> temp = goal_to_track;
+            float dist1 = Transforms::CalcDist(end_point, temp);
+            float dist2 = Transforms::CalcDist(temp, car_pose);
+            collision = occ_grid.CheckCollision(end_point, temp);
+            // float eff_dist = dist2 - close_weight * dist1;
             float eff_dist = dist1;
-            
-            if (eff_dist<min_distance && collision)
-            {
-                
+
+            if (eff_dist < min_distance && collision) {
                 min_distance = eff_dist;
                 closest_cmaes = temp;
                 best1 = ii;
-
             }
         }
-
     }
-    
-    for (int ii = (int){num_traj_/2}; ii<num_traj_; ii++)
-    {
+
+    for (int ii = (int){num_traj_ / 2}; ii < num_traj_; ii++) {
         bool collision = true;
 
-        for (int l=0; l<horizon_ - 1; l++)
-        {
-            collision = occ_grid.CheckCollision(trajectories_world[max_horizon_*ii+l],trajectories_world[max_horizon_*ii+l+1]);
-            if (!collision)
-            {
+        for (int l = 0; l < horizon_ - 1; l++) {
+            collision = occ_grid.CheckCollision(trajectories_world[max_horizon_ * ii + l], trajectories_world[max_horizon_ * ii + l + 1]);
+            if (!collision) {
                 break;
             }
         }
 
+        if (collision) {
+            pair<float, float> end_point = trajectories_world[max_horizon_ * ii + horizon_ - 1];
 
-        if (collision)
-        {
-            pair<float,float> end_point = trajectories_world[max_horizon_*ii + horizon_-1];
-
-            pair <float,float> temp = goal_to_track;
-            float dist1 = Transforms::CalcDist(end_point,temp);
-            float dist2 = Transforms::CalcDist(temp,car_pose);
-            collision = occ_grid.CheckCollision(end_point,temp);
+            pair<float, float> temp = goal_to_track;
+            float dist1 = Transforms::CalcDist(end_point, temp);
+            float dist2 = Transforms::CalcDist(temp, car_pose);
+            collision = occ_grid.CheckCollision(end_point, temp);
             float eff_dist = dist1;
-            
-            if (eff_dist>max_distance && collision)
-            {
-                
+
+            if (eff_dist > max_distance && collision) {
                 max_distance = eff_dist;
                 closest_cmaes = temp;
                 best2 = ii;
-
             }
         }
-
     }
     best = best1;
-    
-    if (min_distance >  max_distance + rev_threshold_ || best1 == -1)
-    {
+
+    if (min_distance > max_distance + rev_threshold_ || best1 == -1) {
         prev_rev_ = true;
         best = best2;
-    }
-    else if (prev_rev_)
-    {
-        if (min_distance >  max_distance - rev_threshold_ || best1 == -1)
-        {
+    } else if (prev_rev_) {
+        if (min_distance > max_distance - rev_threshold_ || best1 == -1) {
             prev_rev_ = true;
             best = best2;
-        }
-        else
-        {
+        } else {
             prev_rev_ = false;
             best = best1;
         }
-        
-    }
-    else if (best1 != -1)
-    {
+
+    } else if (best1 != -1) {
         prev_rev_ = false;
         best = best1;
     }
     // cout<<best<<endl;
-    
-    
-    if (!cmaes_point_pushed_)
-    {
+
+    if (!cmaes_point_pushed_) {
         geometry_msgs::Point curr_point;
         curr_point.x = closest_cmaes.first;
         curr_point.y = closest_cmaes.second;
         curr_point.z = 0.2;
         points_.push_back(curr_point);
-        std_msgs::ColorRGBA curr_color;//(1.0, 0.0, 1.0, 1.0);
+        std_msgs::ColorRGBA curr_color;  // (1.0, 0.0, 1.0, 1.0);
         curr_color.r = 0;
         curr_color.g = 0;
         curr_color.b = 1;
@@ -241,8 +197,7 @@ int TrajectoryPlanner::BestTrajectory(OccGrid &occ_grid, const geometry_msgs::Po
     push.set_ori(ori);
     best_minipath_.clear();
     best_minipath_.push_back(push);
-    for (int ii =  1; ii < horizon_; ++ii)
-    {
+    for (int ii = 1; ii < horizon_; ++ii) {
         push.set_x(trajectories_world[max_horizon_ * best + ii].first);
         push.set_y(trajectories_world[max_horizon_ * best + ii].second);
         dx = (trajectories_world[max_horizon_ * best + ii].first) - (trajectories_world[max_horizon_ * best + ii - 1].first);
@@ -252,28 +207,24 @@ int TrajectoryPlanner::BestTrajectory(OccGrid &occ_grid, const geometry_msgs::Po
         push.set_ori(ori);
         best_minipath_.push_back(push);
     }
-    best_cmaes_point_.set_x(trajectories_world[max_horizon_ * best + horizon_-1].first);
-    best_cmaes_point_.set_y(trajectories_world[max_horizon_ * best + horizon_-1].second);
-    dx = (trajectories_world[max_horizon_ * best + horizon_-1].first) - (trajectories_world[max_horizon_ * best + horizon_ - 2].first);
-    dy = (trajectories_world[max_horizon_ * best + horizon_-1].second) - (trajectories_world[max_horizon_ * best + horizon_ - 2].second);
+    best_cmaes_point_.set_x(trajectories_world[max_horizon_ * best + horizon_ - 1].first);
+    best_cmaes_point_.set_y(trajectories_world[max_horizon_ * best + horizon_ - 1].second);
+    dx = (trajectories_world[max_horizon_ * best + horizon_ - 1].first) - (trajectories_world[max_horizon_ * best + horizon_ - 2].first);
+    dy = (trajectories_world[max_horizon_ * best + horizon_ - 1].second) - (trajectories_world[max_horizon_ * best + horizon_ - 2].second);
     // ori = atan2(dy, dx);
     ori = 0;
     // cout << dx << "\t" << dy << "\t" << ori << endl;
     best_cmaes_point_.set_ori(ori);
-    // cout<<best<<"is the best"<<endl;
+    // cout << best << "is the best" << endl;
     return best;
 }
 
-void TrajectoryPlanner::SelectLane(const geometry_msgs::Pose pose, OccGrid &occ_grid)
-{
+void TrajectoryPlanner::SelectLane(const geometry_msgs::Pose pose, OccGrid &occ_grid) {
     unsigned int old_lane = current_lane_;
-    for (unsigned int lane = 0; lane < lanes_.size(); ++lane)
-    {
-        if (lane != current_lane_ && lanes_[lane].IsPathCollisionFree(pose, occ_grid))
-        {
+    for (unsigned int lane = 0; lane < lanes_.size(); ++lane) {
+        if (lane != current_lane_ && lanes_[lane].IsPathCollisionFree(pose, occ_grid)) {
             current_lane_ = lane;
-            if (old_lane < current_lane_)
-            {
+            if (old_lane < current_lane_) {
                 distance_from_switch_ = 0;
             }
             break;
@@ -282,21 +233,17 @@ void TrajectoryPlanner::SelectLane(const geometry_msgs::Pose pose, OccGrid &occ_
     // std::cout << "distance from switch " << distance_from_switch_ << std::endl;
 }
 
-vector<State> TrajectoryPlanner::best_minipath()
-{
+vector<State> TrajectoryPlanner::best_minipath() {
     return best_minipath_;
 }
 
-int TrajectoryPlanner::best_trajectory_index()
-{
+int TrajectoryPlanner::best_trajectory_index() {
     return best_trajectory_index_;
 }
 
-void TrajectoryPlanner::Visualize()
-{
-    std::vector<pair<float,float>> best_traj;
-    for (int i = max_horizon_*best_trajectory_index_; i<max_horizon_*best_trajectory_index_+horizon_; i++)
-    {
+void TrajectoryPlanner::Visualize() {
+    std::vector<pair<float, float>> best_traj;
+    for (int i = max_horizon_ * best_trajectory_index_; i < max_horizon_ * best_trajectory_index_ + horizon_; i++) {
         best_traj.push_back(trajectories_world[i]);
     }
     std::vector<geometry_msgs::Point> best_traj_points = Visualizer::GenerateVizPoints(best_traj);
@@ -319,16 +266,18 @@ void TrajectoryPlanner::Visualize()
     colors_.clear();
     // visualizeCmaes();
 }
-void TrajectoryPlanner::Update(const geometry_msgs::Pose &current_pose, OccGrid &occ_grid, std::pair<float,float>& goal_to_track)
-{
+void TrajectoryPlanner::Update(const geometry_msgs::Pose &current_pose, OccGrid &occ_grid,
+                               std::pair<float, float> &goal_to_track) {
     // trajectory2miniworld(current_pose);
-    // distance_from_switch_ += Transforms::CalcDist(std::pair<float,float>(last_pose_.position.x, last_pose_.position.y), std::pair<float,float>(current_pose.position.x, current_pose.position.y));
+    // distance_from_switch_ += Transforms::CalcDist(std::pair<float, float>(last_pose_.position.x, last_pose_.position.y),
+    //                                               std::pair<float, float>(current_pose.position.x, current_pose.position.y));
     Trajectory2world(current_pose);
 
-    // if (distance_from_switch_ > switch_distance_threshold_ || !lanes_[current_lane_].IsPathCollisionFree(current_pose, occ_grid))
-    // {
+    // if (distance_from_switch_ > switch_distance_threshold_ ||
+    //     !lanes_[current_lane_].IsPathCollisionFree(current_pose, occ_grid)) {
     //     SelectLane(current_pose, occ_grid);
     // }
+
     best_trajectory_index_ = BestTrajectory(occ_grid, current_pose, goal_to_track);
     last_pose_ = current_pose;
 }

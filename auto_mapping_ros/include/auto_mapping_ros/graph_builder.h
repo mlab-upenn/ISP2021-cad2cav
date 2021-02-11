@@ -134,5 +134,3 @@ private:
 }
 
 #endif //AUTO_MAPPING_ROS_GRAPH_BUILDER_H
-
-#include "impl/graph_builder_impl.h"

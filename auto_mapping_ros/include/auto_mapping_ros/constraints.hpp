@@ -1,19 +1,20 @@
 #ifndef CONSTRAINTS_H
 #define CONSTRAINTS_H
 
-#include <ros/ros.h>
-#include <Eigen/Geometry>
-#include "auto_mapping_ros/state.hpp"
 #include <OsqpEigen/OsqpEigen.h>
-#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Point.h>
+#include <geometry_msgs/Pose.h>
+#include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
+
+#include <Eigen/Geometry>
+
+#include "auto_mapping_ros/state.hpp"
 #include "auto_mapping_ros/visualizer.hpp"
 
 // Stores and manages constraints for running MPC
 
-class Constraints
-{
+class Constraints {
 public:
     Constraints(ros::NodeHandle &nh);
     virtual ~Constraints();
@@ -39,7 +40,7 @@ public:
     void SetXLims(State x);
 
     // Finds half spaces using a conical model with a preset FOV
-    void FindHalfSpaces(State &state,sensor_msgs::LaserScan &scan_msg_);
+    void FindHalfSpaces(State &state, sensor_msgs::LaserScan &scan_msg_);
 
 private:
     Eigen::VectorXd x_max_;
@@ -54,9 +55,9 @@ private:
     State state_;
     float d_;
     float ftg_thresh_;
-    std::pair <float,float> p1_;
-    std::pair <float,float> p2_;
-    std::pair <float,float> p_;
+    std::pair<float, float> p1_;
+    std::pair<float, float> p2_;
+    std::pair<float, float> p_;
     sensor_msgs::LaserScan scan_msg_;
     ros::Publisher points_pub_;
     float umax_val_;

@@ -4,9 +4,8 @@
 #include "auto_mapping_ros/skeletonizer.h"
 #include "auto_mapping_ros/utils.h"
 
-int main()
-{
-    const auto filepath = amr::get_package_directory() +"/maps/levine.jpg";
+int main() {
+    const auto filepath = amr::get_package_directory() + "/maps/levine.jpg";
 
     amr::Skeletonizer processor;
     processor.read_map(filepath);

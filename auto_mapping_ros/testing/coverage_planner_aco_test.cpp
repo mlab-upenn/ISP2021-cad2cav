@@ -1,12 +1,11 @@
 #define DEBUG 1
 
-#include "auto_mapping_ros/graph_builder.h"
-#include "auto_mapping_ros/skeletonizer.h"
 #include "../aco_router/utils.h"
 #include "../aco_router/vrp_solver.h"
+#include "auto_mapping_ros/graph_builder.h"
+#include "auto_mapping_ros/skeletonizer.h"
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     const auto filepath = "/home/yash/yasht_ws/src/auto_mapping_ros/maps/levine_4.jpg";
 
     amr::Skeletonizer processor;
@@ -28,11 +27,9 @@ int main(int argc, char* argv[])
     // Find Best Sequence
     const auto sequence_node = aco::solve_vrp(aco_graph);
 
-    for(const auto & i : sequence_node.first)
-    {
+    for (const auto& i : sequence_node.first) {
         std::vector<std::array<int, 2>> sequence;
-        for(const auto& node: i)
-        {
+        for (const auto& node : i) {
             sequence.emplace_back(std::array<int, 2>{static_cast<int>(node.x), static_cast<int>(node.y)});
         }
         std::cout << "size of sequence: " << sequence.size() << std::endl;

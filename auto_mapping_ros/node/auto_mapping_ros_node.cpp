@@ -4,8 +4,7 @@
 
 static constexpr int n_agents = 2;
 
-int main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
     ros::init(argc, argv, "auto_mapping_ros_node");
     ros::NodeHandle nh;
     std::array<amr::LocalPlanner, n_agents> local_planner;

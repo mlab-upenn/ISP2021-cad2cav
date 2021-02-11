@@ -1,25 +1,24 @@
 #ifndef MPC_H
 #define MPC_H
 
-#include <ros/ros.h>
-#include <Eigen/Geometry>
 #include <OsqpEigen/OsqpEigen.h>
-#include <Eigen/Dense>
-#include <visualization_msgs/Marker.h>
+#include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
+#include <visualization_msgs/Marker.h>
 
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
 
 #include "auto_mapping_ros/constraints.hpp"
-#include "auto_mapping_ros/state.hpp"
-#include "auto_mapping_ros/model.hpp"
 #include "auto_mapping_ros/cost.hpp"
+#include "auto_mapping_ros/model.hpp"
+#include "auto_mapping_ros/state.hpp"
 #include "auto_mapping_ros/visualizer.hpp"
 
 // Implements Model Predictive Control by minimizing a quadratic programming
 // problem given constraints. Uses OSQP for optimization.
 
-class MPC
-{
+class MPC {
 public:
     MPC();
     MPC(ros::NodeHandle &nh);
@@ -30,13 +29,14 @@ public:
     // Generates pretty lines
     void Visualize();
     // Updates scan_msg content
-    void UpdateScan(const sensor_msgs::LaserScan::ConstPtr& scan_msg);
+    void UpdateScan(const sensor_msgs::LaserScan::ConstPtr &scan_msg);
 
     // accessor functions
     Constraints constraints();
     float dt();
     int horizon();
     std::vector<Input> solved_trajectory();
+
 private:
     int horizon_;
     int input_size_;
@@ -73,7 +73,7 @@ private:
     void CreateHessianMatrix();
     // Updates the gradient vector for costs. The gradient vector is fully updated each time.
     void CreateGradientVector();
-    // Initializes the linear constraint matrix. 
+    // Initializes the linear constraint matrix.
     void CreateLinearConstraintMatrix();
     // Updated the non-constant parts of the linear constraint matrix
     void UpdateLinearConstraintMatrix();
@@ -83,10 +83,12 @@ private:
     // Updates the non-constant parts of the upper and lower bound constraint vectors
     void UpdateLowerBound();
     void UpdateUpperBound();
-    // Initiliaze a block in a sparse matrix
-    void SparseBlockInit(Eigen::SparseMatrix<double> &modify, const Eigen::MatrixXd &block, int row_start, int col_start);
+    // Initialize a block in a sparse matrix
+    void SparseBlockInit(Eigen::SparseMatrix<double> &modify,
+                         const Eigen::MatrixXd &block, int row_start, int col_start);
     // Sets an already initialized block in a sparse matrix
-    void SparseBlockSet(Eigen::SparseMatrix<double> &modify, const Eigen::MatrixXd &block, int row_start, int col_start);
+    void SparseBlockSet(Eigen::SparseMatrix<double> &modify, const Eigen::MatrixXd &block,
+                        int row_start, int col_start);
     // Sets just the ones of an identity block in a sparse matrix
     void SparseBlockEye(Eigen::SparseMatrix<double> &modify, int size, int row_start, int col_start, int number);
     // Pushes lines that create a state and input representation of the car for visualization

@@ -1,32 +1,31 @@
 #ifndef TRAJECTORY_H
 #define TRAJECTORY_H
 
-#include "transforms.hpp"
-#include "input.hpp"
-#include "state.hpp"
-#include "transforms.hpp"
-#include "input.hpp"
-#include "occgrid.hpp"
 #include <ros/package.h>
 
 #include <fstream>
 #include <limits>
 
+#include "input.hpp"
+#include "occgrid.hpp"
+#include "state.hpp"
+#include "transforms.hpp"
+
 using namespace std;
 
-class Trajectory
-{
+class Trajectory {
 public:
     Trajectory(float lookahead1, float lookahead2);
     ~Trajectory();
     // Converts trajectory of State objects to pairs of X,Y coordinates
-    vector<pair<float,float>> GetPairPoints();
+    vector<pair<float, float>> GetPairPoints();
     // Loads CSV of CMA-ES trajectories
     bool ReadCMAES(string filename);
     // Checks if path is collision free till lookahead distance
     bool IsPathCollisionFree(const geometry_msgs::Pose pose, OccGrid &occ_grid);
     // Finds the closest point in the CMA-ES trajectory
-    pair<pair<float,float>,int> FindClosest(pair<float,float> &globalPoint);
+    pair<pair<float, float>, int> FindClosest(pair<float, float> &globalPoint);
+
 private:
     vector<State> waypoints_;
     float lookahead_1_;

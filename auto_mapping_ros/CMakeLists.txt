@@ -91,10 +91,10 @@ find_package(Eigen3 REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs
- )
+#  generate_messages(
+#    DEPENDENCIES
+#    std_msgs
+#  )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -176,15 +176,66 @@ src/state.cpp
 src/trajectory_planner.cpp
 src/transforms.cpp
 src/visualizer.cpp
-src/trajectory.cpp)
+src/trajectory.cpp
+src/local_planner.cpp
+src/impl/types_impl.cpp
+src/impl/graph_builder_impl.cpp
+src/impl/landmarks_impl.cpp
+src/impl/utils_impl.cpp
+src/impl/maneuvers_impl.cpp
+src/global_planner.cpp)
 
-add_executable(skeletonizer_test testing/skeletonizer_test.cpp)
-add_executable(graph_builder_test testing/graph_builder_test.cpp)
-add_executable(frontier_finding_test testing/frontier_finding_test.cpp)
-add_executable(graph_builder_blueprint_test testing/graph_builder_blueprint_test.cpp)
-add_executable(coverage_planner_aco_test testing/coverage_planner_aco_test.cpp)
-add_executable(coverage_sequence_creator src/coverage_sequence_csv_creator.cpp)
-#add_executable(global_planner_test testing/global_planner_test.cpp)
+add_executable(skeletonizer_test testing/skeletonizer_test.cpp 
+        src/impl/utils_impl.cpp 
+        src/impl/types_impl.cpp
+        src/impl/skeletonizer_impl.cpp
+)
+
+add_executable(graph_builder_test testing/graph_builder_test.cpp 
+        src/impl/graph_builder_impl.cpp
+        src/impl/landmarks_impl.cpp
+        src/impl/utils_impl.cpp
+        src/impl/types_impl.cpp
+        src/impl/skeletonizer_impl.cpp
+)
+
+add_executable(frontier_finding_test 
+        testing/frontier_finding_test.cpp 
+        src/impl/graph_builder_impl.cpp
+        src/impl/landmarks_impl.cpp
+        src/impl/utils_impl.cpp
+        src/impl/types_impl.cpp
+        src/impl/skeletonizer_impl.cpp
+)
+
+add_executable(graph_builder_blueprint_test 
+        testing/graph_builder_blueprint_test.cpp 
+        src/impl/graph_builder_impl.cpp
+        src/impl/landmarks_impl.cpp
+        src/impl/utils_impl.cpp
+        src/impl/types_impl.cpp
+        src/impl/skeletonizer_impl.cpp
+)
+
+add_executable(coverage_planner_aco_test
+        testing/coverage_planner_aco_test.cpp 
+        src/impl/types_impl.cpp
+        src/impl/utils_impl.cpp
+        src/impl/graph_builder_impl.cpp
+        src/impl/landmarks_impl.cpp
+        src/impl/skeletonizer_impl.cpp
+)
+
+add_executable(coverage_sequence_creator 
+        src/coverage_sequence_csv_creator.cpp
+        src/impl/types_impl.cpp
+        src/impl/utils_impl.cpp
+        src/impl/graph_builder_impl.cpp
+        src/impl/landmarks_impl.cpp
+        src/impl/skeletonizer_impl.cpp
+)
+
+#add_executable(global_planner_test testing/global_planner_test.cpp src/global_planner.cpp)
 
 
 ## Rename C++ executable without prefix
@@ -204,10 +255,11 @@ add_dependencies(${PROJECT_NAME}_node ${fmt_star_EXXPORTED_TARGETS} fmt_star_gen
 target_link_libraries(${PROJECT_NAME}_node
     ${catkin_LIBRARIES}
     ${OpenCV_LIBS}
+    OsqpEigen::OsqpEigen
+    osqp::osqp
     acolib
     config++
     stdc++fs
-    OsqpEigen::OsqpEigen osqp::osqp
     )
 
 target_link_libraries(graph_builder_test

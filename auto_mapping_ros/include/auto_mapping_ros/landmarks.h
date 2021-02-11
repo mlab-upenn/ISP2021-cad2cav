@@ -1,14 +1,13 @@
 #ifndef AUTO_MAPPING_LANDMARKS_H
 #define AUTO_MAPPING_LANDMARKS_H
 
-#include <opencv2/opencv.hpp>
 #include <sensor_msgs/LaserScan.h>
 
-namespace amr
-{
+#include <opencv2/opencv.hpp>
 
-struct Frontier
-{
+namespace amr {
+
+struct Frontier {
     std::vector<std::array<int, 2>> frontier;
     std::array<int, 2> frontier_mean;
 
@@ -21,17 +20,15 @@ struct Frontier
     void remove_minor_frontiers();
 };
 
-struct RayCastingConfig
-{
+struct RayCastingConfig {
     double fov = 6.28;
     int n_rays = 1080;
     double max_valid_range = 3;
     double grid_size = 0.05;
-    double step_size = grid_size*0.9;
+    double step_size = grid_size * 0.9;
 };
 
-struct FrontierConfig
-{
+struct FrontierConfig {
     int max_occupied_threshold = 120;
     int min_free_threshold = 230;
     int occupied_value = 0;
@@ -40,8 +37,7 @@ struct FrontierConfig
     int dilation_size = 2;
 };
 
-class FrontierFinder
-{
+class FrontierFinder {
 public:
     FrontierFinder(){};
 
@@ -135,14 +131,11 @@ private:
     /// @param map
     /// @param ray_cast_map
     void single_ray_cast(const std::array<int, 2>& point,
-                                         const double current_angle,
-                                         const cv::Mat& map,
-                                         cv::Mat* ray_cast_map) const;
+                         const double current_angle,
+                         const cv::Mat& map,
+                         cv::Mat* ray_cast_map) const;
 };
 
+}  // namespace amr
 
-}
-
-#include "impl/landmarks_impl.h"
-
-#endif //AUTO_MAPPING_LANDMARKS_H
+#endif  //AUTO_MAPPING_LANDMARKS_H

@@ -1,14 +1,13 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-
 #include <ros/ros.h>
+
 #include <Eigen/Geometry>
 
 // Specifies the format for the Input object of velocity and steering angle
 
-class Input
-{
+class Input {
 public:
     Input();
     Input(double v, double steer_ang);
