@@ -70,7 +70,7 @@ void GlobalPlanner::start_global_planner() {
                 current_tracking_node_index_++;
             }
             const auto new_plan = get_next_plan(updated_position);
-            {
+            if (!new_plan.empty()) {
                 std::lock_guard<std::mutex> copy_lock(new_plan_mutex_);
                 new_plan_.clear();
                 new_plan_ = new_plan;
