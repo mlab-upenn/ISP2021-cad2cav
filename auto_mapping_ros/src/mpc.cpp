@@ -14,7 +14,7 @@ MPC::MPC(ros::NodeHandle &nh) : input_size_(2),
     nh_.getParam("/q2", q2);
     nh_.getParam("/r0", r0);
     nh_.getParam("/r1", r1);
-    std::cout << r1 << std::endl;
+
     desired_input_.set_v(desired_vel);
     desired_input_.set_steer_ang(desired_steer);
     Eigen::DiagonalMatrix<double, 3> q;

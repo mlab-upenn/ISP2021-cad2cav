@@ -4,18 +4,22 @@ package_name: "auto_mapping_ros"
 csv_filepath: "/csv/sequence"
 csv_localtraj: "/csv/local_traj_50_fwd_rev.csv"
 
+# Local planner option
+#   "pure_pursuit" or "mpc"
+local_planner_mode: "mpc"
+
 # Parameter for pure pursuit algorithm
 # A good estimate is 0-2r (According to the implementation explanation given in RI, CMU)
-lookahead_distance : 1
+lookahead_distance: 1
 
 # Non ROS Map Values
 # (User needs to change these values when changing maps)
-non_ros_map_width : 1355
-non_ros_map_height : 1134
-switch_xy : true
+non_ros_map_width: 1355
+non_ros_map_height: 1134
+switch_xy: true
 
 # Distance threshold to start planning for the next node
-distance_threshold : 3.0
+distance_threshold: 3.0
 
 # Topics to publish and subscribe to
 pose_topic: "gt_pose"
@@ -74,6 +78,6 @@ lane_0: "csv/temp.csv"
 # desired input
 des_vel: 0.5
 des_steer: 0
-#constraints 
+#constraints
 umax: 0.5 #change dt if you change this
 umin: -0.5

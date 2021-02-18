@@ -20,7 +20,7 @@ public:
     // Converts trajectory of State objects to pairs of X,Y coordinates
     vector<pair<float, float>> GetPairPoints();
     // Loads CSV of CMA-ES trajectories
-    bool ReadCMAES(string filename);
+    bool ReadCMAES(string filename, const string package_name);
     // Checks if path is collision free till lookahead distance
     bool IsPathCollisionFree(const geometry_msgs::Pose pose, OccGrid &occ_grid);
     // Finds the closest point in the CMA-ES trajectory

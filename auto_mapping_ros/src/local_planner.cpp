@@ -12,7 +12,8 @@ LocalPlanner::LocalPlanner() : node_handle_(std::make_shared<ros::NodeHandle>(ro
                                global_planner_(node_handle_),
                                coverage_sequence_(),
                                last_updated_pose_(),
-                               current_plan_() {
+                               current_plan_(),
+                               local_planning_mode_("mpc") {
     local_planner_id_ = ++local_planner_counter_;
 
     std::string package_name, csv_relative_filepath, csv_localtraj_filepath;
@@ -21,7 +22,7 @@ LocalPlanner::LocalPlanner() : node_handle_(std::make_shared<ros::NodeHandle>(ro
     node_handle_->getParam("csv_localtraj", csv_localtraj_filepath);
     csv_relative_filepath = csv_relative_filepath + "_" + std::to_string(local_planner_id_) + ".csv";
 
-    std::string pose_topic, drive_topic, brake_topic, scan_topic;
+    std::string pose_topic, drive_topic, brake_topic, scan_topic, plan_topic;
     node_handle_->getParam("pose_topic", pose_topic);
     pose_topic = pose_topic + "_" + std::to_string(local_planner_id_);
     node_handle_->getParam("drive_topic", drive_topic);
@@ -30,16 +31,22 @@ LocalPlanner::LocalPlanner() : node_handle_(std::make_shared<ros::NodeHandle>(ro
     brake_topic = brake_topic + "_" + std::to_string(local_planner_id_);
     node_handle_->getParam("scan_topic", scan_topic);
     scan_topic = scan_topic + "_" + std::to_string(local_planner_id_);
+    plan_topic = "current_plan_" + std::to_string(local_planner_id_);
 
     node_handle_->getParam("base_frame", base_frame_);
     base_frame_ = "racecar" + std::to_string(local_planner_id_) + "/" + base_frame_;
     node_handle_->getParam("map_frame", map_frame_);
 
+    std::string local_planning_mode;
+    node_handle_->getParam("local_planner_mode", local_planning_mode);
+    local_planning_mode_ = local_planning_mode;
+    ROS_WARN_STREAM("Local planner " << local_planner_id_ << " mode: " << local_planning_mode_);
+
     pose_sub_ = node_handle_->subscribe(pose_topic, 5, &LocalPlanner::pose_callback, this);
     scan_sub_ = node_handle_->subscribe(scan_topic, 5, &LocalPlanner::scan_callback, this);
     drive_pub_ = node_handle_->advertise<ackermann_msgs::AckermannDriveStamped>(drive_topic, 1);
     brake_pub_ = node_handle_->advertise<std_msgs::Bool>(brake_topic, 1);
-    plan_pub_ = node_handle_->advertise<visualization_msgs::Marker>("current_plan", 1);
+    plan_pub_ = node_handle_->advertise<visualization_msgs::Marker>(plan_topic, 1);
 
     node_handle_->getParam("lookahead_distance", lookahead_distance_);
 
@@ -124,9 +131,18 @@ void LocalPlanner::pose_callback(const geometry_msgs::PoseStamped::ConstPtr& pos
     State current_state(current_pose_.position.x, current_pose_.position.y, current_angle);
 
     if (first_scan_estimate_) {
-        run_mpc(current_plan_, last_updated_pose_, current_state);
+        // Decide on using which controller to pursue the waypoints
+        //  Options: MPC (Model Predictive Control) or Pure Pursuit Algorithm
+        //
+        if (local_planning_mode_ == "mpc")
+            run_mpc(current_plan_, last_updated_pose_, current_state);
+        else if (local_planning_mode_ == "pure_pursuit")
+            run_pure_pursuit(current_plan_, last_updated_pose_);
+        else {
+            ROS_ERROR("Unidentified local planning mode! Options: mpc/pure_pursuit");
+            exit(1);
+        }
     }
-    // run_pure_pursuit(current_plan_, last_updated_pose_);
 }
 
 void LocalPlanner::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
@@ -178,7 +194,6 @@ int LocalPlanner::get_best_track_point(const std::vector<PlannerNode>& way_point
 
     for (const auto& way_point : way_point_data) {
         index++;
-        // std::cout<<way_point[0]<<" ,"<<way_point[1]<<std::endl;
         if (way_point[0] < 0) continue;
         double distance = sqrt(way_point[0] * way_point[0] + way_point[1] * way_point[1]);
         double lookahead_diff = distance - lookahead_distance_;
@@ -188,14 +203,11 @@ int LocalPlanner::get_best_track_point(const std::vector<PlannerNode>& way_point
             best_node = way_point;
         }
     }
-    // std::cout<<"best index after first loop "<<best_index<<std::endl;
 
     if (best_node == PlannerNode{-1, -1}) {
-        // TODO: Execute Reverse
-        // std::cout<<way_point_data.size()<<std::endl;
+        // Execute Reverse
         index = -1;
         best_index = -1;
-        ROS_INFO("Pure Pursuit Failed to Find a Point in Front. Executing Stop.");
         for (const auto& way_point : way_point_data) {
             index++;
             double distance = sqrt(way_point[0] * way_point[0] + way_point[1] * way_point[1]);
@@ -252,33 +264,34 @@ void LocalPlanner::run_pure_pursuit(const std::vector<PlannerNode>& reference_wa
                                     const PlannerNode& current_way_point) {
     const auto transformed_way_points = transform(reference_way_points, current_way_point);
     const auto goal_way_point_index = get_best_track_point(transformed_way_points);
-    const auto goal_way_point = reference_way_points[goal_way_point_index];
-    const auto steering_angle = 2 * (goal_way_point[1]) / (lookahead_distance_ * lookahead_distance_);
-    // std::cout<<goal_way_point[0]<<", "<<goal_way_point[1]<<std::endl;
-    ackermann_msgs::AckermannDriveStamped drive_msg;
-    drive_msg.header.stamp = ros::Time::now();
-    drive_msg.header.frame_id = base_frame_;
-    drive_msg.drive.steering_angle =
-        steering_angle > 0.4 ? steering_angle : ((steering_angle < -0.4) ? -0.4 : steering_angle);
-    ROS_DEBUG("steering angle: %f", steering_angle);
-    drive_msg.drive.speed = velocity_;
-    drive_pub_.publish(drive_msg);
+
+    if (goal_way_point_index != -1) {
+        const auto goal_way_point = transformed_way_points[goal_way_point_index];
+        const auto steering_angle = 2 * (goal_way_point[1]) / (lookahead_distance_ * lookahead_distance_);
+
+        ackermann_msgs::AckermannDriveStamped drive_msg;
+        drive_msg.header.stamp = ros::Time::now();
+        drive_msg.header.frame_id = base_frame_;
+        drive_msg.drive.steering_angle =
+            steering_angle > 0.4 ? steering_angle : ((steering_angle < -0.4) ? -0.4 : steering_angle);
+        ROS_DEBUG("steering angle: %f", steering_angle);
+        drive_msg.drive.speed = velocity_;
+        drive_pub_.publish(drive_msg);
+    }
 }
 
 void LocalPlanner::run_mpc(const std::vector<PlannerNode>& reference_way_points,
                            const PlannerNode& current_way_point, const State current_state) {
     const auto transformed_way_points = transform(reference_way_points, current_way_point);
     const auto goal_way_point_index = get_best_track_point(transformed_way_points);
-    // std::cout<<"way point size "<<reference_way_points.size()<<" , best index "<<goal_way_point_index<<std::endl;
+
     if (goal_way_point_index != -1) {
         const auto goal_way_point = reference_way_points[goal_way_point_index];
         std::pair<float, float> goal_to_track((float)goal_way_point[0], (float)goal_way_point[1]);
         Input input_to_pass = GetNextInput();
-        // input_to_pass.set_v(0);
 
         trajp_.Update(current_pose_, occ_grid_, goal_to_track);
         trajp_.Visualize();
-        // std::cout<<goal_way_point[0]<<", "<<goal_way_point[1]<<std::endl;
 
         if (trajp_.best_trajectory_index() > -1) {
             vector<State> bestMiniPath = trajp_.best_minipath();
@@ -288,7 +301,7 @@ void LocalPlanner::run_mpc(const std::vector<PlannerNode>& reference_way_points,
             inputs_idx_ = 0;
             ackermann_msgs::AckermannDriveStamped drive_msg;
             Input input = GetNextInput();
-            // std::cout<<"Best trajectory "<<trajp_.best_trajectory_index()<<std::endl;
+
             if (trajp_.best_trajectory_index() < 0) {
                 input.set_v(0.2);
             }

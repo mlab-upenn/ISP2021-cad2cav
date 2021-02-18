@@ -75,6 +75,7 @@ private:
 
     std::string base_frame_;
     std::string map_frame_;
+    std::string local_planning_mode_;  // "pure_pursuit" or "mpc". Default to "mpc".
 
     std::vector<PlannerNode> transform(const std::vector<PlannerNode>& reference_way_points,
                                        const PlannerNode& current_way_point);

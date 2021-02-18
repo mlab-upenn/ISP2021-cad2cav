@@ -6,6 +6,8 @@ namespace fs = experimental::filesystem;
 TrajectoryPlanner::TrajectoryPlanner(ros::NodeHandle &nh) : distance_from_switch_(0), prev_rev_(false) {
     int horizon;
     float lookahead_1, lookahead_2;
+    std::string package_name;
+    nh.getParam("package_name", package_name);
     nh.getParam("/horizon", horizon);
     nh.getParam("/num_traj", num_traj_);
     nh.getParam("/MAX_HORIZON", max_horizon_);
@@ -24,7 +26,7 @@ TrajectoryPlanner::TrajectoryPlanner(ros::NodeHandle &nh) : distance_from_switch
         lane_number++;
         if (nh.getParam(lane_name, lane_file)) {
             Trajectory temporary_trajectory(lookahead_1, lookahead_2);
-            temporary_trajectory.ReadCMAES(lane_file);
+            temporary_trajectory.ReadCMAES(lane_file, package_name);
             lanes_.push_back(temporary_trajectory);
         } else {
             break;
@@ -32,17 +34,15 @@ TrajectoryPlanner::TrajectoryPlanner(ros::NodeHandle &nh) : distance_from_switch
     }
     horizon_ = horizon;
     traj_pub_ = nh.advertise<visualization_msgs::Marker>("trajectory_planner", 1);
-    ROS_INFO("planner created");
+    ROS_INFO("trajectory planner created");
 }
 
 TrajectoryPlanner::~TrajectoryPlanner() {
-    ROS_INFO("killing the planner");
+    ROS_INFO("killing the trajectory planner");
 }
 
 void TrajectoryPlanner::ReadTrajectories(string path) {
-    // string path = ros::package::getPath("milestone-3")+"/csv/local_traj_50.csv";
-    // string path = "/home/saumya/MPC_ws/src/F110-Final/csv/local_traj_50_fwd_rev.csv";
-    cout << path << endl;
+    ROS_WARN_STREAM("Waiting to read trajectories: " << path);
     ifstream input(path);
     string coordX, coordY;
     if (input.is_open()) {
@@ -50,11 +50,11 @@ void TrajectoryPlanner::ReadTrajectories(string path) {
             getline(input, coordY);
             trajectories_.push_back(pair<float, float>(stof(coordY), stof(coordX)));
         }
-        cout << "got trajectories \n";
-        cout << trajectories_.size();
+        ROS_INFO_STREAM("got trajectories. Size: " << trajectories_.size());
         // each trajectory has 10 pairs of points, total 100 pairs are present for 10 trajectories
     } else {
-        cout << "Please run this from the root catkin_ws directory" << endl;
+        ROS_ERROR_STREAM("Trajectory read failed. "
+                         << "Please run this from the root catkin_ws directory");
         exit(0);
     }
 }
@@ -132,7 +132,8 @@ int TrajectoryPlanner::BestTrajectory(OccGrid &occ_grid, const geometry_msgs::Po
         bool collision = true;
 
         for (int l = 0; l < horizon_ - 1; l++) {
-            collision = occ_grid.CheckCollision(trajectories_world[max_horizon_ * ii + l], trajectories_world[max_horizon_ * ii + l + 1]);
+            collision = occ_grid.CheckCollision(trajectories_world[max_horizon_ * ii + l],
+                                                trajectories_world[max_horizon_ * ii + l + 1]);
             if (!collision) {
                 break;
             }
@@ -191,8 +192,10 @@ int TrajectoryPlanner::BestTrajectory(OccGrid &occ_grid, const geometry_msgs::Po
     State push;
     push.set_x(trajectories_world[max_horizon_ * best].first);
     push.set_y(trajectories_world[max_horizon_ * best].second);
-    double dx = (trajectories_world[max_horizon_ * best + 1].first) - (trajectories_world[max_horizon_ * best].first);
-    double dy = (trajectories_world[max_horizon_ * best + 1].second) - (trajectories_world[max_horizon_ * best].second);
+    double dx = (trajectories_world[max_horizon_ * best + 1].first) -
+                (trajectories_world[max_horizon_ * best].first);
+    double dy = (trajectories_world[max_horizon_ * best + 1].second) -
+                (trajectories_world[max_horizon_ * best].second);
     double ori = atan2(dy, dx);
     push.set_ori(ori);
     best_minipath_.clear();
@@ -200,8 +203,10 @@ int TrajectoryPlanner::BestTrajectory(OccGrid &occ_grid, const geometry_msgs::Po
     for (int ii = 1; ii < horizon_; ++ii) {
         push.set_x(trajectories_world[max_horizon_ * best + ii].first);
         push.set_y(trajectories_world[max_horizon_ * best + ii].second);
-        dx = (trajectories_world[max_horizon_ * best + ii].first) - (trajectories_world[max_horizon_ * best + ii - 1].first);
-        dy = (trajectories_world[max_horizon_ * best + ii].second) - (trajectories_world[max_horizon_ * best + ii - 1].second);
+        dx = (trajectories_world[max_horizon_ * best + ii].first) -
+             (trajectories_world[max_horizon_ * best + ii - 1].first);
+        dy = (trajectories_world[max_horizon_ * best + ii].second) -
+             (trajectories_world[max_horizon_ * best + ii - 1].second);
         // ori = atan2(dy, dx);
         ori = 0;
         push.set_ori(ori);
@@ -209,8 +214,10 @@ int TrajectoryPlanner::BestTrajectory(OccGrid &occ_grid, const geometry_msgs::Po
     }
     best_cmaes_point_.set_x(trajectories_world[max_horizon_ * best + horizon_ - 1].first);
     best_cmaes_point_.set_y(trajectories_world[max_horizon_ * best + horizon_ - 1].second);
-    dx = (trajectories_world[max_horizon_ * best + horizon_ - 1].first) - (trajectories_world[max_horizon_ * best + horizon_ - 2].first);
-    dy = (trajectories_world[max_horizon_ * best + horizon_ - 1].second) - (trajectories_world[max_horizon_ * best + horizon_ - 2].second);
+    dx = (trajectories_world[max_horizon_ * best + horizon_ - 1].first) -
+         (trajectories_world[max_horizon_ * best + horizon_ - 2].first);
+    dy = (trajectories_world[max_horizon_ * best + horizon_ - 1].second) -
+         (trajectories_world[max_horizon_ * best + horizon_ - 2].second);
     // ori = atan2(dy, dx);
     ori = 0;
     // cout << dx << "\t" << dy << "\t" << ori << endl;

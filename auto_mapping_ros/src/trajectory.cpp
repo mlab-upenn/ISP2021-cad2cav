@@ -32,10 +32,10 @@ Trajectory::Trajectory(float lookahead1, float lookahead2)
 
 Trajectory::~Trajectory() {}
 
-bool Trajectory::ReadCMAES(string filename) {
-    // string path = ros::package::getPath("milestone-3")+"/"+filename;
-    string path = "/home/saumya/MPC_ws/src/F110-Final/" + filename;
-    cout << path << endl;
+bool Trajectory::ReadCMAES(string filename, const string package_name) {
+    string path = ros::package::getPath(package_name) + "/" + filename;
+    ROS_INFO_STREAM("CMA-ES MPC trajectory loading: " << path);
+
     ifstream input(path);
     string coordX, coordY;
     vector<pair<float, float>> temp;
@@ -45,7 +45,7 @@ bool Trajectory::ReadCMAES(string filename) {
             temp.push_back(pair<float, float>(stof(coordX), stof(coordY)));
         }
     } else {
-        cout << "Please run this from the root catkin_ws directory" << endl;
+        ROS_ERROR("CMA-ES trajectory file not found");
         return false;
     }
     for (unsigned int i = 0; i < temp.size(); i++) {
