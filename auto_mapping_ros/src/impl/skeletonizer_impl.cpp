@@ -7,14 +7,14 @@ amr::Skeletonizer::Skeletonizer() {}
 int amr::Skeletonizer::read_map(const std::string &map_filename) {
     map_jpg = cv::imread(map_filename, 0);
     if (map_jpg.data == nullptr) {
-        std::cout << "Failed to read the image file: " << map_filename << std::endl;
+        ROS_FATAL_STREAM("Failed to read the image file: " << map_filename);
         return -1;
     }
     return 0;
 }
 
 void amr::Skeletonizer::display_img(cv::Mat img, std::string name) {
-    namedWindow(name, cv::WINDOW_AUTOSIZE);
+    cv::namedWindow(name, cv::WINDOW_AUTOSIZE);
     cv::imshow(name, img);
     cv::waitKey(0);
 }
@@ -41,9 +41,9 @@ cv::Mat Skeletonizer::skeletonize() {
 
     } while (!done);
 
-    if (DEBUG) {
-        display_img(skel);
-    }
+#ifdef DEBUG
+    display_img(skel);
+#endif
 
     return skel;
 }

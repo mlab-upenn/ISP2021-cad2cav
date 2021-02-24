@@ -1,6 +1,8 @@
 #ifndef AUTO_MAPPING_ROS_SKELETONIZER_H
 #define AUTO_MAPPING_ROS_SKELETONIZER_H
 
+#include <ros/ros.h>
+
 #include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>

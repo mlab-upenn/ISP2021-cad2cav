@@ -3,7 +3,6 @@ project(auto_mapping_ros)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
-set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall")
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
@@ -284,12 +283,14 @@ target_link_libraries(skeletonizer_test
         )
 
 target_link_libraries(graph_builder_blueprint_test
+        ${catkin_LIBRARIES}
         ${OpenCV_LIBS}
         -lconfig++
         acolib
         )
 
 target_link_libraries(coverage_planner_aco_test
+        ${catkin_LIBRARIES}
         ${OpenCV_LIBS}
         -lconfig++
         acolib
