@@ -1,6 +1,8 @@
 #ifndef AUTO_MAPPING_ROS_UTILS_IMPL_H
 #define AUTO_MAPPING_ROS_UTILS_IMPL_H
 
+#include <ros/console.h>
+
 #include "../aco_router/types.h"
 #include "auto_mapping_ros/types.h"
 #include "auto_mapping_ros/utils.h"
@@ -61,7 +63,7 @@ static bool clicked;
 void get_clicked_point(int event, int x, int y, int flags, void* userdata) {
     if (event == cv::EVENT_LBUTTONDOWN) {
         clicked_point = std::array<int, 2>{y, x};
-        std::cout << "Registered click at: (" << clicked_point[0] << ", " << clicked_point[1] << ")\n";
+        ROS_INFO_STREAM("Registered click at: (" << clicked_point[0] << ", " << clicked_point[1] << ")");
         clicked = true;
     }
 }
@@ -83,7 +85,7 @@ int get_closest_clicked_node_on_map(const cv::Mat& map, aco::Graph& graph) {
         cv::circle(visual_graph, {static_cast<int>(node.y), static_cast<int>(node.x)}, 4, cv::Scalar(100, 0, 0));
     }
 
-    const std::string window_name = "Initial Depot Registration";
+    const std::string window_name = "Initial Depot Registration - Please click on the window";
     cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
     cv::setMouseCallback(window_name, get_clicked_point, NULL);
     while (true) {

@@ -1,14 +1,16 @@
 #ifndef AUTO_MAPPING_ROS_GRAPH_BUILDER_H
 #define AUTO_MAPPING_ROS_GRAPH_BUILDER_H
 
+#include <ros/ros.h>
+
 #include <array>
 #include <iostream>
 #include <libconfig.h++>
 #include <limits>
 #include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
 #include <set>
 #include <unordered_set>
 #include <utility>
@@ -21,21 +23,19 @@
 #define DEBUG 1
 #endif
 
-namespace amr
-{
+namespace amr {
 
 void visualize_graph(const cv::Mat& map, const Graph& graph);
 
 /// Class for constructing the graph from skeleton image and blueprint
-class GraphBuilder
-{
+class GraphBuilder {
 public:
     /// Constructs GraphBuilder class
     /// @param skeletonized_image - image obtained from skeletonization and subtracting the blueprint
     /// @param map - Original blueprint of the map
-    GraphBuilder(cv::Mat skeletonized_image, cv::Mat map) :
-            skeletonized_image_(std::move(skeletonized_image)), map_(std::move(map))
-    {
+    GraphBuilder(cv::Mat skeletonized_image, cv::Mat map)
+        : skeletonized_image_(std::move(skeletonized_image)),
+          map_(std::move(map)) {
         init_config();
     }
 
@@ -81,8 +81,7 @@ private:
     /// Filters the corners vector by finding sparse matrices using morphological techniques
     /// @param corners - vector of features detected
     /// @return sparse vector of features
-    std::vector<std::array<int, 2>> find_sparse_centroid(
-            const std::vector<std::array<int, 2>>& corners) const;
+    std::vector<std::array<int, 2>> find_sparse_centroid(const std::vector<std::array<int, 2>>& corners) const;
 
     static bool is_within_specified_region(int x, int y);
 
@@ -116,11 +115,11 @@ private:
     /// @param current_node
     /// @param neighbor_node
     /// @return true if there is a collision else false
-    bool check_collision(const Node &current_node, const Node &neighbor_node) const;
+    bool check_collision(const Node& current_node, const Node& neighbor_node) const;
 
     /// Constructs the graph using the input feature cells (corners)
     /// @param corners
-    void construct_graph(const std::vector<std::array<int, 2>> &corners);
+    void construct_graph(const std::vector<std::array<int, 2>>& corners);
 
     void run_dfs(Node* node, std::unordered_set<int>& visited_nodes, std::vector<Node>& current_connected_component);
 
@@ -131,6 +130,6 @@ private:
     Graph find_largest_connected_component();
 };
 
-}
+}  // namespace amr
 
-#endif //AUTO_MAPPING_ROS_GRAPH_BUILDER_H
+#endif  //AUTO_MAPPING_ROS_GRAPH_BUILDER_H

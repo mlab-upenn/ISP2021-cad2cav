@@ -30,7 +30,7 @@ void GraphBuilder::init_config() {
         distance_threshold_ = cfg.lookup("distance_threshold");
         obstacle_threshold_ = cfg.lookup("obstacle_threshold");
     } catch (const libconfig::SettingNotFoundException &nfex) {
-        std::cerr << "Missing setting in configuration file." << std::endl;
+        ROS_FATAL("Missing setting in configuration file.");
     }
 }
 
@@ -39,9 +39,10 @@ void GraphBuilder::build_graph() {
     register_boundary();
     const auto corners = find_corners();
     construct_graph(corners);
-    if (DEBUG) {
-        visualize_graph(map_, graph_);
-    }
+
+#ifdef DEBUG
+    visualize_graph(map_, graph_);
+#endif
 }
 
 /// Get the graph if it is constructed
@@ -61,14 +62,14 @@ Graph GraphBuilder::get_graph() {
 /// \param userdata
 void GraphBuilder::CallBackFunc(int event, int x, int y, int flags, void *userdata) {
     if (event == cv::EVENT_LBUTTONDOWN) {
-        std::cout << "Boundary corner selected: (" << x << ", " << y << ") \n";
+        ROS_INFO_STREAM("Boundary corner selected: (" << x << ", " << y << ") ");
         boundary_corners_.emplace_back(std::array<int, 2>{x, y});
     }
 }
 
 /// Register boundary around the map where the graph is built
 void GraphBuilder::register_boundary() {
-    const std::string window_name = "Functional Area Registration";
+    const std::string window_name = "Functional Area Registration - Please click on the window";
     cv::namedWindow(window_name, 1);
     cv::setMouseCallback(window_name, this->CallBackFunc, NULL);
     while (true) {
@@ -110,7 +111,7 @@ std::vector<std::array<int, 2>> GraphBuilder::compute_blob_centers(const cv::Mat
     // get the moments
     std::vector<cv::Moments> mu(contours.size());
     for (size_t i = 0; i < contours.size(); i++) {
-        mu[i] = moments(contours[i], false);
+        mu[i] = cv::moments(contours[i], false);
     }
 
     // get the centroid of figures.
@@ -119,20 +120,20 @@ std::vector<std::array<int, 2>> GraphBuilder::compute_blob_centers(const cv::Mat
         mc[i] = cv::Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
     }
 
-    if (DEBUG) {
-        // draw contours
-        cv::Mat drawing(canny_output.size(), CV_8UC3, cv::Scalar(255, 255, 255));
-        for (size_t i = 0; i < contours.size(); i++) {
-            cv::Scalar color = cv::Scalar(167, 151, 0);  // B G R values
-            drawContours(drawing, contours, i, color, 2, 8, hierarchy, 0, cv::Point());
-            circle(drawing, mc[i], 4, color, -1, 8, 0);
-        }
-
-        // show the resultant image
-        namedWindow("Contours", cv::WINDOW_AUTOSIZE);
-        imshow("Contours", drawing);
-        cv::waitKey(0);
+#ifdef DEBUG
+    // draw contours
+    cv::Mat drawing(canny_output.size(), CV_8UC3, cv::Scalar(255, 255, 255));
+    for (size_t i = 0; i < contours.size(); i++) {
+        cv::Scalar color = cv::Scalar(167, 151, 0);  // B G R values
+        cv::drawContours(drawing, contours, i, color, 2, 8, hierarchy, 0, cv::Point());
+        cv::circle(drawing, mc[i], 4, color, -1, 8, 0);
     }
+
+    // show the resultant image
+    cv::namedWindow("Contours", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Contours", drawing);
+    cv::waitKey(0);
+#endif
 
     std::vector<std::array<int, 2>> centroids;
     for (const auto &mc_points : mc) {
@@ -170,10 +171,10 @@ std::vector<std::array<int, 2>> GraphBuilder::find_corners() const {
     cv::cornerHarris(skeletonized_image_, dst, block_size_, aperture_size_, k_);
 
     cv::Mat dst_norm, dst_norm_scaled;
-    normalize(dst, dst_norm, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
-    convertScaleAbs(dst_norm, dst_norm_scaled);
+    cv::normalize(dst, dst_norm, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
+    cv::convertScaleAbs(dst_norm, dst_norm_scaled);
 
-    namedWindow("harris corner", cv::WINDOW_AUTOSIZE);
+    cv::namedWindow("harris corner", cv::WINDOW_AUTOSIZE);
     cv::imshow("harris corner", dst_norm_scaled);
     cv::waitKey(0);
 
@@ -193,7 +194,7 @@ std::vector<std::array<int, 2>> GraphBuilder::find_corners() const {
     std::set<std::array<int, 2>> sparse_centroid_set(dense_corner_centroids.begin(), dense_corner_centroids.end());
     unique_sparse_centroids.assign(sparse_centroid_set.begin(), sparse_centroid_set.end());
 
-    std::cout << "There are " << unique_sparse_centroids.size() << " features detected in this image.\n";
+    ROS_INFO_STREAM("There are " << unique_sparse_centroids.size() << " features detected in this image.");
     return unique_sparse_centroids;
 }
 
