@@ -2,3 +2,6 @@
 	path = aco_router
 	url = git@github.com:YashTrikannad/aoc_tsp.git
 	branch = master
+[submodule "include/fast-csv-parser"]
+	path = include/fast-csv-parser
+	url = git@github.com:ben-strasser/fast-cpp-csv-parser.git
