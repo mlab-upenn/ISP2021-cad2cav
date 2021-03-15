@@ -366,11 +366,13 @@ void GraphBuilder::graph_subset(std::vector<Node> &subset_nodes) {
     auto get_node_ptr = [&](int id, Graph &graph) {
         for (auto &node : graph)
             if (node.id == id) return &node;
+        return (Node *)nullptr;  // node not found (should never be executed)
     };
 
     for (unsigned int i = 0; i < subset_nodes.size(); i++) {
         std::vector<Node *> neighbors;
         Node *main_graph_current_node = get_node_ptr(subset_nodes[i].id, graph_);
+        if (!main_graph_current_node) throw std::runtime_error("empty node ptr in GraphBuilder");
 
         for (const auto &neighbor_node : main_graph_current_node->neighbors) {
             neighbors.emplace_back(get_node_ptr(neighbor_node->id, subset_nodes));
