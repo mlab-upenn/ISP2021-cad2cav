@@ -35,6 +35,7 @@ find_package(
 
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(Threads REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -226,7 +227,7 @@ add_executable(coverage_planner_aco_test
 )
 
 add_executable(coverage_sequence_creator 
-        src/coverage_sequence_csv_creator.cpp
+        node/coverage_sequence_csv_creator.cpp
         src/impl/types_impl.cpp
         src/impl/utils_impl.cpp
         src/impl/graph_builder_impl.cpp
