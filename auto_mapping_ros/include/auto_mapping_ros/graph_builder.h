@@ -34,8 +34,8 @@ public:
     /// @param skeletonized_image - image obtained from skeletonization and subtracting the blueprint
     /// @param map - Original blueprint of the map
     GraphBuilder(cv::Mat skeletonized_image, cv::Mat map)
-        : skeletonized_image_(std::move(skeletonized_image)),
-          map_(std::move(map)) {
+        : map_(std::move(map)),
+          skeletonized_image_(std::move(skeletonized_image)) {
         init_config();
     }
 
@@ -52,10 +52,16 @@ public:
     static std::vector<std::array<int, 2>> boundary_corners_;
     static void CallBackFunc(int event, int x, int y, int flags, void* userdata);
 
-private:
-    cv::Mat skeletonized_image_;
+protected:
     cv::Mat map_;
     std::vector<Node> graph_;
+
+    /// Constructs the graph using the input feature cells (corners)
+    /// @param corners
+    void construct_graph(const std::vector<std::array<int, 2>>& corners);
+
+private:
+    cv::Mat skeletonized_image_;
     int unique_id_gen_ = 0;
 
     int dilation_size_;
@@ -116,10 +122,6 @@ private:
     /// @param neighbor_node
     /// @return true if there is a collision else false
     bool check_collision(const Node& current_node, const Node& neighbor_node) const;
-
-    /// Constructs the graph using the input feature cells (corners)
-    /// @param corners
-    void construct_graph(const std::vector<std::array<int, 2>>& corners);
 
     void run_dfs(Node* node, std::unordered_set<int>& visited_nodes, std::vector<Node>& current_connected_component);
 

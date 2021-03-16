@@ -235,6 +235,14 @@ add_executable(coverage_sequence_creator
         src/impl/skeletonizer_impl.cpp
 )
 
+add_executable(coverage_sequence_creator_cad
+        node/coverage_sequence_cad.cpp
+        src/impl/types_impl.cpp
+        src/impl/utils_impl.cpp
+        src/impl/graph_builder_impl.cpp
+        src/impl/graph_builder_bp_impl.cpp
+)
+
 #add_executable(global_planner_test testing/global_planner_test.cpp src/global_planner.cpp)
 
 
@@ -303,6 +311,14 @@ target_link_libraries(coverage_sequence_creator
         -lconfig++
         acolib
         )
+
+target_link_libraries(coverage_sequence_creator_cad
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBS}
+        Threads::Threads
+        -lconfig++
+        acolib
+)
 
 #target_link_libraries(global_planner_test
 #        ${catkin_LIBRARIES}

@@ -203,9 +203,9 @@ std::vector<std::array<int, 2>> GraphBuilder::find_corners() const {
 /// @param neighbor_node
 /// @return true if there is a collision else false
 bool GraphBuilder::check_collision(const Node &current_node, const Node &neighbor_node) const {
-    if (current_node.x == 535 && neighbor_node.y == 996) {
-        int x = 1;
-    }
+    // if (current_node.x == 535 && neighbor_node.y == 996) {
+    //     int x = 1;
+    // }
     const int dx = neighbor_node.x - current_node.x;
     const int dy = neighbor_node.y - current_node.y;
 
