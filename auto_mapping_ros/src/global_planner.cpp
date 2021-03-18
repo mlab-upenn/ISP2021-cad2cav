@@ -104,6 +104,11 @@ void GlobalPlanner::update_start(const PlannerNode& current_position) {
     start_.pose.orientation.z = 1;
 }
 
+void GlobalPlanner::update_start() {
+    start_ = end_;
+    ROS_INFO("Start Position: %f, %f", start_.pose.position.x, start_.pose.position.y);
+}
+
 void GlobalPlanner::update_end() {
     ROS_INFO("End Position: %f, %f", sequence_[current_goal_index_][0], sequence_[current_goal_index_][1]);
     end_.pose.position.x = sequence_[current_goal_index_][0];

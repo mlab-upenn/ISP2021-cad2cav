@@ -65,6 +65,12 @@ private:
     /// @param current_position
     void update_start(const PlannerNode &current_position);
 
+    /**
+     * @brief Update the start position as the previous end position
+     * 
+     */
+    void update_start();
+
     /// Update the end position to the next index in the sequence
     void update_end();
 
