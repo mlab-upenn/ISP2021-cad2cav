@@ -17,6 +17,7 @@ int main(int argc, char const* argv[]) {
     const fs::path unreal_waypoints_path = amr_package_path / "csv/actorLocation.csv";
 
     cv::Mat map = cv::imread(cad_map_filepath, cv::IMREAD_GRAYSCALE);
+    ROS_INFO_STREAM("Read in map of size (col*row): " << map.cols << "x" << map.rows);
 
     amr::GraphBuilderBP graph_builder(map);
     graph_builder.build_graph(unreal_waypoints_path);
