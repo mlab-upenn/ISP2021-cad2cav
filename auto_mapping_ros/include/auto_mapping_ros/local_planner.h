@@ -52,6 +52,7 @@ private:
     ros::Publisher drive_pub_;
     ros::Publisher brake_pub_;
     ros::Publisher plan_pub_;
+    ros::Publisher cov_seq_pub_;
     tf2_ros::Buffer tf_buffer_;
     tf2_ros::TransformListener tf_listener_;
 
@@ -82,7 +83,6 @@ private:
 
     Input GetNextInput();
     int get_best_track_point(const std::vector<PlannerNode>& way_point_data);
-    PlannerNode get_closest(const std::vector<PlannerNode>& way_point_data);
 
     void run_pure_pursuit(const std::vector<PlannerNode>& reference_way_points,
                           const PlannerNode& current_way_point);
@@ -92,6 +92,7 @@ private:
 
     void drive_loop();
     void VisualizePlan();
+    void VisualizeCoverageSeq();
 };
 
 }  // namespace amr

@@ -22,7 +22,7 @@ LocalPlanner::LocalPlanner() : node_handle_(std::make_shared<ros::NodeHandle>(ro
     node_handle_->getParam("csv_localtraj", csv_localtraj_filepath);
     csv_relative_filepath = csv_relative_filepath + "_" + std::to_string(local_planner_id_) + ".csv";
 
-    std::string pose_topic, drive_topic, brake_topic, scan_topic, plan_topic;
+    std::string pose_topic, drive_topic, brake_topic, scan_topic, plan_topic, seq_topic;
     node_handle_->getParam("pose_topic", pose_topic);
     pose_topic = pose_topic + "_" + std::to_string(local_planner_id_);
     node_handle_->getParam("drive_topic", drive_topic);
@@ -32,6 +32,7 @@ LocalPlanner::LocalPlanner() : node_handle_(std::make_shared<ros::NodeHandle>(ro
     node_handle_->getParam("scan_topic", scan_topic);
     scan_topic = scan_topic + "_" + std::to_string(local_planner_id_);
     plan_topic = "current_plan_" + std::to_string(local_planner_id_);
+    seq_topic = "coverage_sequence_" + std::to_string(local_planner_id_);
 
     node_handle_->getParam("base_frame", base_frame_);
     base_frame_ = "racecar" + std::to_string(local_planner_id_) + "/" + base_frame_;
@@ -47,6 +48,7 @@ LocalPlanner::LocalPlanner() : node_handle_(std::make_shared<ros::NodeHandle>(ro
     drive_pub_ = node_handle_->advertise<ackermann_msgs::AckermannDriveStamped>(drive_topic, 1);
     brake_pub_ = node_handle_->advertise<std_msgs::Bool>(brake_topic, 1);
     plan_pub_ = node_handle_->advertise<visualization_msgs::Marker>(plan_topic, 1);
+    cov_seq_pub_ = node_handle_->advertise<visualization_msgs::Marker>(seq_topic, 1);
 
     node_handle_->getParam("lookahead_distance", lookahead_distance_);
 
@@ -78,9 +80,7 @@ LocalPlanner::LocalPlanner() : node_handle_(std::make_shared<ros::NodeHandle>(ro
 
     std::vector<std::array<int, 2>> coverage_sequence_non_ros_map;
     const auto csv_filepath = ros::package::getPath(package_name) + csv_relative_filepath;
-    // const auto csv_filepath = "/home/saumya/summer_2020/catkin_ws/src/auto_mapping_ros" + csv_relative_filepath;
     std::string csv_localtraj_path = ros::package::getPath(package_name) + csv_localtraj_filepath;
-    // std::string csv_localtraj_path = "/home/saumya/summer_2020/catkin_ws/src/auto_mapping_ros" + csv_localtraj_filepath;
     amr::read_sequence_from_csv(&coverage_sequence_non_ros_map, csv_filepath);
 
     // Translate non ros sequence to ros
@@ -94,6 +94,11 @@ LocalPlanner::LocalPlanner() : node_handle_(std::make_shared<ros::NodeHandle>(ro
                                                                                       origin_y);
 
     coverage_sequence_ = global_planner_.init(coverage_sequence_ros_map, distance_threshold_);
+
+    ROS_WARN("Coverage sequence in RViz coords for car %d", local_planner_id_);
+    for (const auto& p : coverage_sequence_) {
+        std::cout << "(" << p[0] << ", " << p[1] << ")" << std::endl;
+    }
 
     std::thread global_planning_thread(&GlobalPlanner::start_global_planner, &global_planner_);
     global_planning_thread.detach();
@@ -127,6 +132,7 @@ void LocalPlanner::pose_callback(const geometry_msgs::PoseStamped::ConstPtr& pos
         current_plan_ = new_plan.value();
     }
     VisualizePlan();
+    VisualizeCoverageSeq();
     float current_angle = Transforms::GetCarOrientation(current_pose_);
     State current_state(current_pose_.position.x, current_pose_.position.y, current_angle);
 
@@ -204,6 +210,8 @@ int LocalPlanner::get_best_track_point(const std::vector<PlannerNode>& way_point
         }
     }
 
+    /*********************************************************************************/
+    /* Execute the reverse path is another good option... Save it here for later use */
     if (best_node == PlannerNode{-1, -1}) {
         // Execute Reverse
         index = -1;
@@ -220,44 +228,10 @@ int LocalPlanner::get_best_track_point(const std::vector<PlannerNode>& way_point
         }
         return best_index;
     }
+    /*********************************************************************************/
 
     ROS_DEBUG("closest_way_point: %f, %f", static_cast<double>(best_node[0]), static_cast<double>(best_node[1]));
     return best_index;
-}
-
-PlannerNode LocalPlanner::get_closest(const std::vector<PlannerNode>& way_point_data) {
-    double closest_distance = std::numeric_limits<double>::max();
-    PlannerNode best_node{-1, -1};
-    int index = -1;
-    int best_index = -1;
-    for (const auto& way_point : way_point_data) {
-        index++;
-        // if(way_point[0] < 0) continue;
-        double distance = sqrt((way_point[0] - (current_pose_.position.x)) *
-                                   (way_point[0] - (current_pose_.position.x)) +
-                               (way_point[1] - (current_pose_.position.y)) *
-                                   (way_point[1] - (current_pose_.position.y)));
-
-        double lookahead_diff = std::abs(distance - lookahead_distance_);
-
-        if (distance > lookahead_distance_) {
-            if (lookahead_diff < closest_distance) {
-                closest_distance = lookahead_diff;
-                best_node = way_point;
-                best_index = index;
-            }
-        }
-    }
-
-    if (best_node == PlannerNode{-1, -1}) {
-        // TODO: Execute Reverse
-
-        ROS_INFO("Pure Pursuit Failed to Find a Point in Front. Executing Stop.");
-        stop_vehicle(&brake_pub_);
-    }
-
-    ROS_DEBUG("closest_way_point: %f, %f", static_cast<double>(best_node[0]), static_cast<double>(best_node[1]));
-    return best_node;
 }
 
 void LocalPlanner::run_pure_pursuit(const std::vector<PlannerNode>& reference_way_points,
@@ -275,6 +249,13 @@ void LocalPlanner::run_pure_pursuit(const std::vector<PlannerNode>& reference_wa
         drive_msg.drive.steering_angle =
             steering_angle > 0.4 ? steering_angle : ((steering_angle < -0.4) ? -0.4 : steering_angle);
         ROS_DEBUG("steering angle: %f", steering_angle);
+        drive_msg.drive.speed = velocity_;
+        drive_pub_.publish(drive_msg);
+    } else {
+        ackermann_msgs::AckermannDriveStamped drive_msg;
+        drive_msg.header.stamp = ros::Time::now();
+        drive_msg.header.frame_id = base_frame_;
+        drive_msg.drive.steering_angle = 0;
         drive_msg.drive.speed = velocity_;
         drive_pub_.publish(drive_msg);
     }
@@ -343,6 +324,18 @@ void LocalPlanner::VisualizePlan() {
     std::vector<std_msgs::ColorRGBA> best_traj_colors = Visualizer::GenerateVizColors(best_traj, 0, 1, 0);
     plan_pub_.publish(Visualizer::GenerateList(best_traj_points, best_traj_colors));
     // visualizeCmaes();
+}
+
+void LocalPlanner::VisualizeCoverageSeq() {
+    std::vector<std::pair<float, float>> list_coverage_seq;
+    for (const auto& node : coverage_sequence_) {
+        std::pair<float, float> node_pair(node[0], node[1]);
+        list_coverage_seq.push_back(node_pair);
+    }
+    auto list_CovSeq_points = Visualizer::GenerateVizPoints(list_coverage_seq);
+    auto list_CovSeq_colors = Visualizer::GenerateVizColors(list_coverage_seq, 0, 0, 1);
+    cov_seq_pub_.publish(Visualizer::GenerateList(list_CovSeq_points, list_CovSeq_colors,
+                                                  visualization_msgs::Marker::LINE_STRIP));
 }
 
 }  // namespace amr
