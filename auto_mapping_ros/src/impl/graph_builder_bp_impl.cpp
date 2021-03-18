@@ -11,9 +11,10 @@ std::vector<cv::Point2f> GraphBuilderBP::readUnrealWaypoints(const std::string& 
     std::vector<cv::Point2f> ret;
 
     try {
-        io::CSVReader<3> waypoint_reader(path_to_csv);
+        io::CSVReader<5> waypoint_reader(path_to_csv);
+        std::string category, family;
         float x = 0.f, y = 0.f, z = 0.f;
-        while (waypoint_reader.read_row(x, y, z)) {
+        while (waypoint_reader.read_row(category, family, x, y, z)) {
             // simply discard z position & store into array
             ret.emplace_back(x, y);
         }

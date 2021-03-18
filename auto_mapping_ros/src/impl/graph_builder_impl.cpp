@@ -246,7 +246,7 @@ void GraphBuilder::construct_graph(const std::vector<std::array<int, 2>> &corner
         std::vector<Node *> neighbor_nodes;
         std::vector<double> neighbor_nodes_cost;
         for (auto &candidate_neighbor_node : graph_) {
-            if (node == candidate_neighbor_node || check_collision(node, candidate_neighbor_node)) {
+            if (node == candidate_neighbor_node /* || check_collision(node, candidate_neighbor_node) */) {
                 continue;
             }
             neighbor_nodes.emplace_back(&candidate_neighbor_node);
