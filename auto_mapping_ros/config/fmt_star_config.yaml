@@ -7,7 +7,8 @@ n_samples: 10000
 near_radius: 0.8
 
 # Obstacle Inflation Radius (Note: Calculated In cells)
-obstacle_inflation_radius: 11 # works best for levine_4 map in simulation
+# obstacle_inflation_radius: 11 # works best for levine_4 map in simulation
+obstacle_inflation_radius: 7 # works best for levine_4_cad map in simulation
 
 # No. of Collision checks between 2 points
 n_collision_checks: 5

@@ -14,12 +14,12 @@ lookahead_distance: 1
 
 # Non ROS Map Values
 # (User needs to change these values when changing maps)
-non_ros_map_width: 1355
-non_ros_map_height: 1134
+non_ros_map_width: 1388 # map: levine_4_cad
+non_ros_map_height: 952
 switch_xy: true
 
 # Distance threshold to start planning for the next node
-distance_threshold: 3.0
+distance_threshold: 2.0 # map: levine_4_cad
 
 # Topics to publish and subscribe to
 pose_topic: "gt_pose"
@@ -70,7 +70,7 @@ switch_distance_threshold: 3.0
 num_traj: 20
 close_weight: 0.5
 MAX_HORIZON: 50
-rev_threshold: 2
+rev_threshold: 1
 
 # Lanes
 lane_0: "csv/temp.csv"
