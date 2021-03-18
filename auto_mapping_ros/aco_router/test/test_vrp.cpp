@@ -1,8 +1,8 @@
 #include <iostream>
+
 #include "../vrp_solver.h"
 
-int main()
-{
+int main() {
     std::cout << "Basic VRP Problem 9 Nodes: " << std::endl;
 
     aco::Graph graph;
@@ -55,32 +55,30 @@ int main()
     // Solve the TSP using Ant Colony Optimization
     const auto best_route = aco::solve_vrp(graph, id_I);
     std::cout << "total fitness value: " << best_route.second << std::endl;
-    for(int i=0; i<best_route.first.size(); i++)
-    {
-        std::cout<< "route " << i << " : ";
-        for(const auto& node: best_route.first[i])
-        {
+    for (int i = 0; i < best_route.first.size(); i++) {
+        std::cout << "route " << i << " : ";
+        for (const auto& node : best_route.first[i]) {
             std::cout << node.id << "-";
         }
         std::cout << std::endl;
     }
 
-    std::cout<< "\nGoogle OR Tools Dataset: " << std::endl;
+    std::cout << "\nGoogle OR Tools Dataset: " << std::endl;
     // https://developers.google.com/optimization/routing/vrp#c++
 
     aco::Graph google_graph{};
 
     std::array<int, 17> id;
-    id[0] = google_graph.create_node_in_graph(456, 320);
-    id[1] = google_graph.create_node_in_graph(228, 0);
-    id[2] = google_graph.create_node_in_graph(912, 0);
-    id[3] = google_graph.create_node_in_graph(0, 80);
-    id[4] = google_graph.create_node_in_graph(114, 80);
-    id[5] = google_graph.create_node_in_graph(570, 160);
-    id[6] = google_graph.create_node_in_graph(798, 160);
-    id[7] = google_graph.create_node_in_graph(342, 240);
-    id[8] = google_graph.create_node_in_graph(684, 240);
-    id[9] = google_graph.create_node_in_graph(570, 400);
+    id[0]  = google_graph.create_node_in_graph(456, 320);
+    id[1]  = google_graph.create_node_in_graph(228, 0);
+    id[2]  = google_graph.create_node_in_graph(912, 0);
+    id[3]  = google_graph.create_node_in_graph(0, 80);
+    id[4]  = google_graph.create_node_in_graph(114, 80);
+    id[5]  = google_graph.create_node_in_graph(570, 160);
+    id[6]  = google_graph.create_node_in_graph(798, 160);
+    id[7]  = google_graph.create_node_in_graph(342, 240);
+    id[8]  = google_graph.create_node_in_graph(684, 240);
+    id[9]  = google_graph.create_node_in_graph(570, 400);
     id[10] = google_graph.create_node_in_graph(912, 400);
     id[11] = google_graph.create_node_in_graph(114, 480);
     id[12] = google_graph.create_node_in_graph(228, 480);
@@ -89,24 +87,20 @@ int main()
     id[15] = google_graph.create_node_in_graph(0, 640);
     id[16] = google_graph.create_node_in_graph(798, 640);
 
-    for(int i=0; i<17; i++)
-    {
-        for(int j=0; j<17; j++)
-        {
-            if(i!=j)
-            {
+    for (int i = 0; i < 17; i++) {
+        for (int j = 0; j < 17; j++) {
+            if (i != j) {
                 google_graph.add_edge(id[i], id[j]);
             }
         }
     }
 
     const auto google_best_route = aco::solve_vrp(google_graph, id[0]);
-    std::cout << "total fitness value: " << google_best_route.second << std::endl;
-    for(int i=0; i<google_best_route.first.size(); i++)
-    {
-        std::cout<< "route " << i << " : ";
-        for(const auto& node: google_best_route.first[i])
-        {
+    std::cout << "total fitness value: " << google_best_route.second
+              << std::endl;
+    for (int i = 0; i < google_best_route.first.size(); i++) {
+        std::cout << "route " << i << " : ";
+        for (const auto& node : google_best_route.first[i]) {
             std::cout << node.id << "-";
         }
         std::cout << std::endl;

@@ -1,8 +1,8 @@
 #include <iostream>
+
 #include "../tsp_solver.h"
 
-int main()
-{
+int main() {
     aco::Graph graph;
 
     // Create nodes in graph
@@ -28,8 +28,7 @@ int main()
     const auto best_route = aco::solve_tsp(graph, id_A);
     std::cout << "best fitness value: " << best_route.second << "\n";
     std::cout << "best route: ";
-    for(const auto & node: best_route.first)
-    {
+    for (const auto& node : best_route.first) {
         std::cout << node.id << "-";
     }
 

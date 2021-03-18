@@ -6,32 +6,34 @@
 
 #include "types.h"
 
-namespace aco
-{
-    /**
-     * Parameters for solving the Ant Colony Optimzation Problem for TSP
-     */
-    struct AcoParams
-    {
-        int n_ants = -1;
-        int max_iters;
-        double alpha;
-        double beta;
-        double rho;
-    };
+namespace aco {
 
-    /**
-     * Function to solve the traveling salesman problem using the ant colony optimization
-     * @param graph
-     * @return
-     */
-    std::pair<std::vector<aco::Node>, double> solve_tsp(const Graph& graph, int initial_node_id = -1);
+/**
+ * Parameters for solving the Ant Colony Optimzation Problem for TSP
+ */
+struct AcoParams {
+    int n_ants = -1;
+    int max_iters;
+    double alpha;
+    double beta;
+    double rho;
+};
 
-    /**
-     * Load the configuration parameters from the config file
-     * @return TSP config parameters
-     */
-    AcoParams get_tsp_params();
-}
+/**
+ * Function to solve the traveling salesman problem using the ant colony
+ * optimization
+ * @param graph
+ * @return
+ */
+std::pair<std::vector<aco::Node>, double> solve_tsp(const Graph& graph,
+                                                    int initial_node_id = -1);
 
-#endif //ACO_TSP_TSP_SOLVER_H
+/**
+ * Load the configuration parameters from the config file
+ * @return TSP config parameters
+ */
+AcoParams get_tsp_params();
+
+}  // namespace aco
+
+#endif  // ACO_TSP_TSP_SOLVER_H

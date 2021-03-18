@@ -1,40 +1,33 @@
+#include "utils.h"
+
 #include <iostream>
 #include <random>
 
-#include "utils.h"
-
 /**
  * Get Cost Matrix for the graph required by Ant Colony Optimization
- * @details This function runs the Floyd-Warshall Algorithm for finding shortest path between each pair of the graph
+ * @details This function runs the Floyd-Warshall Algorithm for finding shortest
+ * path between each pair of the graph
  * @param graph
  * @return
  */
-Eigen::MatrixXd aco::get_cost_matrix(const aco::Graph& graph)
-{
-    const int n_nodes = graph.size();
+Eigen::MatrixXd aco::get_cost_matrix(const aco::Graph& graph) {
+    const int n_nodes           = graph.size();
     Eigen::MatrixXd cost_matrix = Eigen::MatrixXd::Zero(n_nodes, n_nodes);
 
-    for(int i=0; i<n_nodes; i++)
-    {
+    for (int i = 0; i < n_nodes; i++) {
         const auto node_i = graph.get_node_from_graph(i);
-        for(int j=0; j<n_nodes; j++)
-        {
-            if(i != j)
-            {
+        for (int j = 0; j < n_nodes; j++) {
+            if (i != j) {
                 cost_matrix(i, j) = node_i.get_distance_from_neighbor(j);
             }
         }
     }
 
-    for(int k=0; k<n_nodes; k++)
-    {
-        for(int i=0; i<n_nodes; i++)
-        {
-            for(int j=0; j<n_nodes; j++)
-            {
-                if(i == j) continue;
-                if(cost_matrix(i, j) > cost_matrix(i, k) + cost_matrix(k, j))
-                {
+    for (int k = 0; k < n_nodes; k++) {
+        for (int i = 0; i < n_nodes; i++) {
+            for (int j = 0; j < n_nodes; j++) {
+                if (i == j) continue;
+                if (cost_matrix(i, j) > cost_matrix(i, k) + cost_matrix(k, j)) {
                     cost_matrix(i, j) = cost_matrix(i, k) + cost_matrix(k, j);
                 }
             }
@@ -50,13 +43,12 @@ Eigen::MatrixXd aco::get_cost_matrix(const aco::Graph& graph)
  * @param ant_path
  * @return
  */
-double aco::find_fitness_values(const Eigen::MatrixXd& cost_matrix, const std::vector<aco::Node>& ant_path)
-{
+double aco::find_fitness_values(const Eigen::MatrixXd& cost_matrix,
+                                const std::vector<aco::Node>& ant_path) {
     double fitness_value = 0;
-    for(int i=0; i<ant_path.size()-1; i++)
-    {
+    for (int i = 0; i < ant_path.size() - 1; i++) {
         const auto from_node_id = ant_path[i].id;
-        const auto to_node_id = ant_path[i+1].id;
+        const auto to_node_id   = ant_path[i + 1].id;
         fitness_value += cost_matrix(from_node_id, to_node_id);
     }
     return fitness_value;
@@ -68,11 +60,11 @@ double aco::find_fitness_values(const Eigen::MatrixXd& cost_matrix, const std::v
  * @param ant_path
  * @return
  */
-double aco::find_fitness_values(const Eigen::MatrixXd& cost_matrix, const std::vector<std::vector<aco::Node>>& ant_paths)
-{
+double aco::find_fitness_values(
+    const Eigen::MatrixXd& cost_matrix,
+    const std::vector<std::vector<aco::Node>>& ant_paths) {
     double total_fitness_value = 0;
-    for(const auto& route: ant_paths)
-    {
+    for (const auto& route : ant_paths) {
         total_fitness_value += aco::find_fitness_values(cost_matrix, route);
     }
     return total_fitness_value;
@@ -83,12 +75,11 @@ double aco::find_fitness_values(const Eigen::MatrixXd& cost_matrix, const std::v
  * @param probability_array
  * @return
  */
-int aco::run_roulette_wheel(const Eigen::ArrayXd& probability_array)
-{
-    Eigen::ArrayXd cumulative_sum = Eigen::ArrayXd::Zero(probability_array.size());
+int aco::run_roulette_wheel(const Eigen::ArrayXd& probability_array) {
+    Eigen::ArrayXd cumulative_sum =
+        Eigen::ArrayXd::Zero(probability_array.size());
     double current_sum = 0;
-    for(int i=0; i<probability_array.size(); i++)
-    {
+    for (int i = 0; i < probability_array.size(); i++) {
         current_sum += probability_array(i);
         cumulative_sum(i) = current_sum;
     }
@@ -99,11 +90,9 @@ int aco::run_roulette_wheel(const Eigen::ArrayXd& probability_array)
 
     double rolled_value = real_dist(mt);
 
-    int i=0;
-    while(rolled_value > cumulative_sum(i))
-    {
-        if(i >= cumulative_sum.size())
-        {
+    int i = 0;
+    while (rolled_value > cumulative_sum(i)) {
+        if (i >= cumulative_sum.size()) {
             std::cout << "invalid: logical error in roulette wheel. \n";
         }
         i++;
@@ -115,28 +104,26 @@ int aco::run_roulette_wheel(const Eigen::ArrayXd& probability_array)
 /**
  * Get the directory path string
  * @param package_name - name of the package/ project (eg. "Example Project)
- * @param package_relative_path - path relative to the project (eg. "/config/abc.cfg"
+ * @param package_relative_path - path relative to the project (eg.
+ * "/config/abc.cfg"
  * @return
  */
-std::string aco::get_directory_path(const std::string& package_name, const std::string& package_relative_path)
-{
+std::string aco::get_directory_path(const std::string& package_name,
+                                    const std::string& package_relative_path) {
     std::string cwd_str(__FILE__);
     std::string package_dir;
     std::string current_filename;
-    for(char i : cwd_str)
-    {
-        if(i != '/')
-        {
+    for (char i : cwd_str) {
+        if (i != '/') {
             current_filename += i;
             continue;
         }
         package_dir += current_filename + "/";
-        if(current_filename == package_name)
-        {
+        if (current_filename == package_name) {
             package_dir.pop_back();
             break;
         }
         current_filename.clear();
     }
-    return (package_dir+package_relative_path);
+    return (package_dir + package_relative_path);
 }

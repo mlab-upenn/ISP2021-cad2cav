@@ -3,99 +3,96 @@
 
 #include <vector>
 
-namespace aco
-{
+namespace aco {
+/**
+ * Node used by the graph
+ */
+struct Node {
+    Node(double x, double y, int id);
+
+    int id;
+    double x{};
+    double y{};
+    std::vector<std::pair<int, double>> neighbors;
+
+    bool operator==(const Node &other) const;
+
     /**
-     * Node used by the graph
+     * Get distance between current node and node with node id as node_id
+     * @param node_id
+     * @return distance
      */
-    struct Node
-    {
-        Node(double x, double y, int id);
+    double get_distance_from_neighbor(int node_id) const;
+};
 
-        int id;
-        double x{};
-        double y{};
-        std::vector<std::pair<int, double>> neighbors;
+struct Graph {
+private:
+    /**
+     * The main graph container (The graph is immutable)
+     */
+    typedef std::vector<Node> NodeList;
+    NodeList graph_;
 
-        bool operator==(const Node &other) const;
+    /**
+     * Number of nodes in the graph
+     */
+    int n_nodes_;
 
-        /**
-         * Get distance between current node and node with node id as node_id
-         * @param node_id
-         * @return distance
-         */
-        double get_distance_from_neighbor(int node_id) const;
-    };
+    /**
+     * Get node pointer from graph corresponding to the node id
+     * @param node_id
+     * @return
+     */
+    aco::Node *get_node_from_graph(int node_id);
 
-    struct Graph
-    {
-    private:
-        /**
-         * The main graph container (The graph is immutable)
-         */
-        typedef std::vector<Node> NodeList;
-        NodeList graph_;
+public:
+    Graph();
 
-        /**
-         * Number of nodes in the graph
-         */
-        int n_nodes_;
+    /**
+     * Define iterators for using std generic algorithms
+     */
+    typedef NodeList::iterator iterator;
+    typedef NodeList::const_iterator const_iterator;
+    iterator begin();
+    iterator end();
+    const_iterator cbegin() const;
+    const_iterator cend() const;
 
-        /**
-         * Get node pointer from graph corresponding to the node id
-         * @param node_id
-         * @return
-         */
-        aco::Node *get_node_from_graph(int node_id);
+    /**
+     * Get the number of nodes in a graph
+     * @return
+     */
+    int size() const;
 
-    public:
-        Graph();
+    /**
+     * Get the mean of all edge weights in the graph
+     * @return
+     */
+    double mean_edge_weight() const;
 
-        /**
-         * Define iterators for using std generic algorithms
-         */
-        typedef NodeList::iterator iterator;
-        typedef NodeList::const_iterator const_iterator;
-        iterator begin();
-        iterator end();
-        const_iterator cbegin() const;
-        const_iterator cend() const;
+    /**
+     * Create a new node in Graph with co-ordinates x and y
+     * @param x - x coordinate
+     * @param y - y coordinate
+     * @return
+     */
+    int create_node_in_graph(double x, double y);
 
-        /**
-         * Get the number of nodes in a graph
-         * @return
-         */
-        int size() const;
+    /**
+     * Add edge (onw way) from node_id_from to node_id_to in the graph
+     * @param node_id_from
+     * @param node_id_to
+     */
+    void add_edge(int node_id_from, int node_id_to);
 
-        /**
-         * Get the mean of all edge weights in the graph
-         * @return
-         */
-        double mean_edge_weight() const;
+    /**
+     * Get node from graph corresponding to the node id
+     * @param node_id
+     * @return
+     */
+    aco::Node get_node_from_graph(int node_id) const;
+};
 
-        /**
-         * Create a new node in Graph with co-ordinates x and y
-         * @param x - x coordinate
-         * @param y - y coordinate
-         * @return
-         */
-        int create_node_in_graph(double x, double y);
+}  // namespace aco
 
-        /**
-         * Add edge (onw way) from node_id_from to node_id_to in the graph
-         * @param node_id_from
-         * @param node_id_to
-         */
-        void add_edge(int node_id_from, int node_id_to);
-
-        /**
-         * Get node from graph corresponding to the node id
-         * @param node_id
-         * @return
-         */
-        aco::Node get_node_from_graph(int node_id) const;
-    };
-
-} // namespace aco
-
-#endif //ACO_TSP_TYPES_H
+#endif  // ACO_TSP_TYPES_H
