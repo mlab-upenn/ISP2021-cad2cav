@@ -2,6 +2,9 @@
 
 using namespace std;
 namespace fs = experimental::filesystem;
+
+int TrajectoryPlanner::trajectory_planner_counter_ = 0;
+
 // FIXME: change lookahead to var
 TrajectoryPlanner::TrajectoryPlanner(ros::NodeHandle &nh) : distance_from_switch_(0), prev_rev_(false) {
     int horizon;
@@ -16,6 +19,8 @@ TrajectoryPlanner::TrajectoryPlanner(ros::NodeHandle &nh) : distance_from_switch
     nh.getParam("/cmaes_lookahead_2", lookahead_2);
     nh.getParam("/switch_distance_threshold", switch_distance_threshold_);
     nh.getParam("/rev_threshold", rev_threshold_);
+
+    trajectory_planner_id_ = ++trajectory_planner_counter_;
 
     std::string lane_file;
     std::string lane_name;
@@ -33,7 +38,10 @@ TrajectoryPlanner::TrajectoryPlanner(ros::NodeHandle &nh) : distance_from_switch
         }
     }
     horizon_ = horizon;
-    traj_pub_ = nh.advertise<visualization_msgs::Marker>("trajectory_planner", 1);
+
+    std::string traj_pub_topic = std::string("trajectory_planner_") + std::to_string(trajectory_planner_id_);
+    traj_pub_ = nh.advertise<visualization_msgs::Marker>(traj_pub_topic, 1);
+
     ROS_INFO("trajectory planner created");
 }
 
@@ -254,7 +262,7 @@ void TrajectoryPlanner::Visualize() {
         best_traj.push_back(trajectories_world[i]);
     }
     std::vector<geometry_msgs::Point> best_traj_points = Visualizer::GenerateVizPoints(best_traj);
-    std::vector<std_msgs::ColorRGBA> best_traj_colors = Visualizer::GenerateVizColors(best_traj, 0, 1, 0);
+    std::vector<std_msgs::ColorRGBA> best_traj_colors = Visualizer::GenerateVizColors(best_traj, 1, 1, 0);
     points_.insert(points_.end(), best_traj_points.begin(), best_traj_points.end());
     colors_.insert(colors_.end(), best_traj_colors.begin(), best_traj_colors.end());
     best_traj_pushed_ = true;
@@ -265,7 +273,7 @@ void TrajectoryPlanner::Visualize() {
     points_.insert(points_.end(), cmaes_points.begin(), cmaes_points.end());
     colors_.insert(colors_.end(), cmaes_colors.begin(), cmaes_colors.end());
     cmaes_pushed_ = true;
-    // traj_pub_.publish(Visualizer::GenerateList(points_, colors_));
+    traj_pub_.publish(Visualizer::GenerateList(points_, colors_));
     cmaes_point_pushed_ = false;
     best_traj_pushed_ = false;
     cmaes_pushed_ = false;

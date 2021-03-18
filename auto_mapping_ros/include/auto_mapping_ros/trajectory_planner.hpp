@@ -75,6 +75,9 @@ private:
     bool cmaes_point_pushed_ = false;
     bool cmaes_pushed_ = false;
     bool best_traj_pushed_ = false;
+
+    static int trajectory_planner_counter_;
+    int trajectory_planner_id_;
 };
 
 #endif
