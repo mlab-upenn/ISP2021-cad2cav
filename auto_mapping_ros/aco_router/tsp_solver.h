@@ -9,7 +9,7 @@
 namespace aco {
 
 /**
- * Parameters for solving the Ant Colony Optimzation Problem for TSP
+ * Parameters for solving the Ant Colony Optimization Problem for TSP
  */
 struct AcoParams {
     int n_ants = -1;

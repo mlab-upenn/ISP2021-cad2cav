@@ -11,8 +11,8 @@
 /**
  * Creates a colony of ants (set of improving sub optimal tsp paths)
  * @param colony - colony of ants
- * @param tau - pheromene (desirability obtained till now)
- * @param eta - desirabiliyu of path (inverse of the cost matrix)
+ * @param tau - pheromone (desirability obtained till now)
+ * @param eta - desirability of path (inverse of the cost matrix)
  * @param params - ant colony optimization parameters
  */
 void create_colony(const aco::Graph& graph,
@@ -23,7 +23,7 @@ void create_colony(const aco::Graph& graph,
     // TODO: Use previous elements from the colony
     colony.clear();
 
-    // Find whether the user wants to set intial node for the ants to start or
+    // Find whether the user wants to set initial node for the ants to start or
     // random
     bool use_random_start = true;
     if (initial_node_id >= 0 && initial_node_id < tau.rows()) {
@@ -31,7 +31,7 @@ void create_colony(const aco::Graph& graph,
     }
 
     // Find the initial node for the ant to start
-    auto get_intial_node = [&]() {
+    auto get_initial_node = [&]() {
         if (use_random_start) {
             std::random_device rd;
             std::mt19937 mt(rd());
@@ -54,7 +54,7 @@ void create_colony(const aco::Graph& graph,
         std::vector<aco::Node> current_ant_route{};
         double current_capacity_left = params.max_route_per_vehicle;
 
-        const auto init_node  = get_intial_node();
+        const auto init_node  = get_initial_node();
         visited(init_node.id) = 1;
         current_ant_route.emplace_back(init_node);
 
@@ -189,7 +189,7 @@ std::pair<std::vector<std::vector<aco::Node>>, double> aco::solve_vrp(
     // Cost/Distance Matrix
     const Eigen::MatrixXd cost_matrix = aco::get_cost_matrix(graph);
 
-    // Get the initial pheromene matrix
+    // Get the initial pheromone matrix
     double tau0         = 10 / (graph.size() * graph.mean_edge_weight());
     int n_nodes         = graph.size();
     Eigen::MatrixXd tau = Eigen::MatrixXd::Constant(n_nodes, n_nodes, tau0);
@@ -211,7 +211,7 @@ std::pair<std::vector<std::vector<aco::Node>>, double> aco::solve_vrp(
         }
     }
 
-    // Initializ Number of ants
+    // Initialize Number of ants
     if (params.n_ants < 0) {
         params.n_ants = graph.size();
     }
@@ -220,7 +220,7 @@ std::pair<std::vector<std::vector<aco::Node>>, double> aco::solve_vrp(
     std::vector<std::vector<aco::Node>> best_routes{};
     double best_fitness_value = std::numeric_limits<double>::max();
 
-    // Intialize Colony
+    // Initialize Colony
     std::vector<std::vector<std::vector<aco::Node>>> colony;
 
     // Main ACO Loop
