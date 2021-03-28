@@ -1,5 +1,5 @@
-#ifndef ACO_TSP_UTILS_IMPL_H
-#define ACO_TSP_UTILS_IMPL_H
+#ifndef ACO_TSP_UTILS_IMPL_HPP
+#define ACO_TSP_UTILS_IMPL_HPP
 
 #include <iostream>
 
@@ -22,6 +22,7 @@ aco::Graph aco::convert_to_aco_graph(const GraphType& graph) {
                 return og_node.second;
             }
         }
+        return -1;
     };
 
     for (const auto& node : graph) {
@@ -31,9 +32,11 @@ aco::Graph aco::convert_to_aco_graph(const GraphType& graph) {
 
     for (const auto& node : graph) {
         int aco_cur_id = find_node_id(node);
+        assert(aco_cur_id >= 0);
 
         for (const auto& neighbor : node.neighbors) {
             int aco_nbr_id = find_node_id(*neighbor);
+            assert(aco_nbr_id >= 0);
             aco_graph.add_edge(aco_cur_id, aco_nbr_id);
         }
     }
@@ -41,4 +44,4 @@ aco::Graph aco::convert_to_aco_graph(const GraphType& graph) {
     return aco_graph;
 }
 
-#endif  // ACO_TSP_UTILS_IMPL_H
+#endif  // ACO_TSP_UTILS_IMPL_HPP
