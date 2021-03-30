@@ -250,6 +250,7 @@ add_executable(graph_partitioner_test
         src/impl/utils_impl.cpp
         src/impl/graph_builder_impl.cpp
         src/impl/graph_builder_bp_impl.cpp
+        src/impl/skeletonizer_impl.cpp
 )
 
 #add_executable(global_planner_test testing/global_planner_test.cpp src/global_planner.cpp)
