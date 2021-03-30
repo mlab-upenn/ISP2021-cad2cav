@@ -18,6 +18,14 @@ namespace graph_partitioner {
  */
 enum AdjMatrixMetricType { DISTANCE = 0, SIMILARITY };
 
+/**
+ * @brief Specifies the graph partitioning algorithms to generate subgraphs.
+ *
+ *  1. SPECTRAL:        spectral clustering
+ *  2. KERNIGHAN_LIN:   Kernighan-Lin algorithm
+ */
+enum PartitionType { SPECTRAL = 0, KERNIGHAN_LIN };
+
 class GraphPartitioner {
 public:
     GraphPartitioner() = default;
@@ -32,9 +40,12 @@ public:
     /**
      * @brief Get the k-way partition of the graph
      *
+     * @param type:         partition algorithms to use
+     * @param k:            no. of partitions to generate
      * @return std::vector<Graph>:  k subgraphs of the original graph
      */
-    std::vector<Graph> getPartition(const int k) const;
+    std::vector<Graph> getPartition(
+        const int k, PartitionType type = PartitionType::SPECTRAL) const;
 
     /**
      * @brief Constructs an adjacency matrix for spectral clustering
@@ -58,6 +69,14 @@ public:
 
 private:
     Graph graph_;
+
+    /**
+     * @brief Runs spectral clustering on current graph and generate subgraphs.
+     *
+     * @param k:                    No. of subgraphs (clusters)
+     * @return std::vector<Graph>:  List of subgraphs
+     */
+    std::vector<Graph> spectralClustering(const int k) const;
 };
 
 }  // namespace graph_partitioner

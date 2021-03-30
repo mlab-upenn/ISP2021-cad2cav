@@ -35,9 +35,24 @@ Eigen::MatrixXd GraphPartitioner::adjacencyMatrix(
     return adj_matrix;
 }
 
-std::vector<Graph> GraphPartitioner::getPartition(const int k) const {
-    // Performs spectral clustering for graph partition task
+std::vector<Graph> GraphPartitioner::getPartition(const int k,
+                                                  PartitionType type) const {
+    std::vector<Graph> list_subgraphs;
 
+    switch (type) {
+        case PartitionType::SPECTRAL:
+            // Performs spectral clustering on graph partition task
+            list_subgraphs = spectralClustering(k);
+            break;
+
+        default:
+            break;
+    }
+
+    return list_subgraphs;
+}
+
+std::vector<Graph> GraphPartitioner::spectralClustering(const int k) const {
     // adjacency matrix of the graph
     //  for spectral clustering, we should use similarity in adj matrix
     //  (closer nodes have higher edge weights)
@@ -53,7 +68,7 @@ std::vector<Graph> GraphPartitioner::getPartition(const int k) const {
     const auto node_feature_vectors =
         es_laplacian.eigenvectors().leftCols(k).transpose();
     ROS_INFO_STREAM("Feature vectors from graph Laplacian:\n"
-                    << node_feature_vectors);
+                    << node_feature_vectors.transpose());
     ROS_INFO_STREAM("Corresponding eigenvalues:\n"
                     << es_laplacian.eigenvalues().head(k).transpose());
     // run k-means clustering on feature vectors
