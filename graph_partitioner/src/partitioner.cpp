@@ -72,7 +72,7 @@ std::vector<Graph> GraphPartitioner::spectralClustering(const int k) const {
     ROS_INFO_STREAM("Corresponding eigenvalues:\n"
                     << es_laplacian.eigenvalues().head(k).transpose());
     // run k-means clustering on feature vectors
-    const auto assignments = kMeans(node_feature_vectors, k);
+    const auto assignments = utils::kMeans(node_feature_vectors, k);
 
     // construct subgraphs based on assignments
     std::vector<Graph> list_subgraphs;
@@ -119,8 +119,9 @@ std::vector<Graph> GraphPartitioner::spectralClustering(const int k) const {
     return list_subgraphs;
 }
 
-std::vector<int> GraphPartitioner::kMeans(const Eigen::MatrixXd& fv,
-                                          const int k) {
+namespace utils {
+
+std::vector<int> kMeans(const Eigen::MatrixXd& fv, const int k) {
     int num_points = fv.cols();
     int dim        = fv.rows();  // dimension of feature vector
     std::vector<int> assignments_vec(num_points, 0);
@@ -187,5 +188,7 @@ std::vector<int> GraphPartitioner::kMeans(const Eigen::MatrixXd& fv,
 
     return assignments_vec;
 }
+
+}  // namespace utils
 
 }  // namespace graph_partitioner

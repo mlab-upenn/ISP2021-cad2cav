@@ -57,16 +57,6 @@ public:
      */
     Eigen::MatrixXd adjacencyMatrix(const AdjMatrixMetricType metric) const;
 
-    /**
-     * @brief Runs k-means clustering on a matrix of feature vectors
-     *
-     * @param fv:                   feature vectors. Each column is a data point
-     * @param k:                    number of clusters
-     * @return std::vector<int>:    assignments of each feature vector
-     *                              each assignment is in [0,len(fv)-1]
-     */
-    static std::vector<int> kMeans(const Eigen::MatrixXd& fv, const int k);
-
 private:
     Graph graph_;
 
@@ -78,6 +68,18 @@ private:
      */
     std::vector<Graph> spectralClustering(const int k) const;
 };
+
+namespace utils {
+/**
+ * @brief Runs k-means clustering on a matrix of feature vectors
+ *
+ * @param fv:                   feature vectors. Each column is a data point
+ * @param k:                    number of clusters
+ * @return std::vector<int>:    assignments of each feature vector.
+ *                              Each assignment is in [0,k-1]
+ */
+std::vector<int> kMeans(const Eigen::MatrixXd& fv, const int k);
+}  // namespace utils
 
 }  // namespace graph_partitioner
 
