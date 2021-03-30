@@ -23,6 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   actionlib
   actionlib_msgs
+  graph_partitioner
 )
 
 set(CMAKE_PREFIX_PATH /usr/local/lib/cmake)
@@ -243,6 +244,14 @@ add_executable(coverage_sequence_creator_cad
         src/impl/graph_builder_bp_impl.cpp
 )
 
+add_executable(graph_partitioner_test
+        node/coverage_sequence_graph_partitioner.cpp
+        src/impl/types_impl.cpp
+        src/impl/utils_impl.cpp
+        src/impl/graph_builder_impl.cpp
+        src/impl/graph_builder_bp_impl.cpp
+)
+
 #add_executable(global_planner_test testing/global_planner_test.cpp src/global_planner.cpp)
 
 
@@ -313,6 +322,14 @@ target_link_libraries(coverage_sequence_creator
         )
 
 target_link_libraries(coverage_sequence_creator_cad
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBS}
+        Threads::Threads
+        -lconfig++
+        acolib
+)
+
+target_link_libraries(graph_partitioner_test
         ${catkin_LIBRARIES}
         ${OpenCV_LIBS}
         Threads::Threads
