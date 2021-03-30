@@ -9,6 +9,15 @@
 
 namespace graph_partitioner {
 
+/**
+ * @brief Specifies the metric for setting edge weights between two graph nodes
+ * in adjacency matrix.
+ *
+ *  1. DISTANCE: edge weights would be plain distance between two nodes
+ *  2. SIMILARITY: edge weights would be similarity (1/distance) between nodes
+ */
+enum AdjMatrixMetricType { DISTANCE = 0, SIMILARITY };
+
 class GraphPartitioner {
 public:
     GraphPartitioner() = default;
@@ -28,11 +37,14 @@ public:
     std::vector<Graph> getPartition(const int k) const;
 
     /**
-     * @brief Constructs an adjacency matrix based on current graph
+     * @brief Constructs an adjacency matrix for spectral clustering
+     *       based on current graph
      *
+     * @param metric:           metric for setting edge weights.
+     *                          DISTANCE or SIMILARITY.
      * @return Eigen::MatrixXd
      */
-    Eigen::MatrixXd adjacencyMatrix() const;
+    Eigen::MatrixXd adjacencyMatrix(const AdjMatrixMetricType metric) const;
 
     /**
      * @brief Runs k-means clustering on a matrix of feature vectors

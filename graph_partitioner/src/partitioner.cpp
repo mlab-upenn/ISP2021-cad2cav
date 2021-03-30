@@ -7,13 +7,25 @@ namespace graph_partitioner {
 
 GraphPartitioner::GraphPartitioner(const Graph& graph) : graph_(graph) {}
 
-Eigen::MatrixXd GraphPartitioner::adjacencyMatrix() const {
+Eigen::MatrixXd GraphPartitioner::adjacencyMatrix(
+    const AdjMatrixMetricType metric) const {
     Eigen::MatrixXd adj_matrix =
         Eigen::MatrixXd::Identity(graph_.size(), graph_.size());
 
     for (int i = 0; i < graph_.size(); ++i) {
         for (const auto edge : graph_.getNode(i).neighbors) {
-            adj_matrix(i, edge.first) = edge.second;
+            switch (metric) {
+                case AdjMatrixMetricType::DISTANCE:
+                    adj_matrix(i, edge.first) = edge.second;
+                    break;
+
+                case AdjMatrixMetricType::SIMILARITY:
+                    adj_matrix(i, edge.first) = 1 / edge.second;
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 
@@ -24,19 +36,23 @@ std::vector<Graph> GraphPartitioner::getPartition(const int k) const {
     // Performs spectral clustering for graph partition task
 
     // adjacency matrix of the graph
-    const auto adj_matrix = adjacencyMatrix();
+    //  for spectral clustering, we should use similarity in adj matrix
+    //  (closer nodes have higher edge weights)
+    const auto adj_matrix = adjacencyMatrix(AdjMatrixMetricType::SIMILARITY);
     // degree matrix of the graph
     const Eigen::MatrixXd deg_matrix = adj_matrix.rowwise().sum().asDiagonal();
     // compute Laplacian matrix
-    const auto laplacian = adj_matrix - deg_matrix;
+    const auto laplacian = deg_matrix - adj_matrix;
     // solve the eigenvalues & eigenvectors of Laplacian
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es_laplacian(laplacian);
-    // transpose of k-th eigenvectors corr. to largest k eigenvalues
+    // transpose of k-th eigenvectors corr. to smallest k eigenvalues
     //  denotes the feature vector for each graph node
     const auto node_feature_vectors =
-        es_laplacian.eigenvectors().rightCols(k).transpose();
+        es_laplacian.eigenvectors().leftCols(k).transpose();
     ROS_INFO_STREAM("Feature vectors from graph Laplacian:\n"
                     << node_feature_vectors);
+    ROS_INFO_STREAM("Corresponding eigenvalues:\n"
+                    << es_laplacian.eigenvalues().head(k).transpose());
     // run k-means clustering on feature vectors
     const auto assignments = kMeans(node_feature_vectors, k);
 
