@@ -4,6 +4,11 @@ namespace graph_partitioner {
 
 Graph::Graph() : n_nodes_(0) {}
 
+Graph::Graph(const Graph& other)
+    : nodes_(other.nodes_), n_nodes_(other.n_nodes_) {}
+
+const int Graph::size() const noexcept { return n_nodes_; }
+
 int Graph::addNewNode(const double node_x, const double node_y) noexcept {
     int new_node_id = this->n_nodes_++;
     this->nodes_.emplace_back(node_x, node_y, new_node_id);
@@ -13,6 +18,8 @@ int Graph::addNewNode(const double node_x, const double node_y) noexcept {
 Node& Graph::getNode(const int id) {
     try {
         return this->nodes_.at(id);
+    } catch (const std::out_of_range& e) {
+        throw ros::Exception("node is not in the graph");
     } catch (const std::exception& e) {
         throw ros::Exception(e.what());
     }
@@ -21,6 +28,8 @@ Node& Graph::getNode(const int id) {
 const Node& Graph::getNode(const int id) const {
     try {
         return this->nodes_.at(id);
+    } catch (const std::out_of_range& e) {
+        throw ros::Exception("node is not in the graph");
     } catch (const std::exception& e) {
         throw ros::Exception(e.what());
     }

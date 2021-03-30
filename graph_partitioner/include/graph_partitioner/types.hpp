@@ -40,6 +40,28 @@ struct Node {
      */
     explicit Node(std::array<double, 2> coord, int in_id)
         : id(in_id), x(coord[0]), y(coord[1]) {}
+
+    /**
+     * @brief Construct a new Node object
+     *
+     * @param other
+     */
+    Node(const Node& other)
+        : id(other.id), x(other.x), y(other.y), neighbors(other.neighbors) {}
+
+    /**
+     * @brief Copy id, x, y, neighbors
+     *
+     * @param other_node
+     * @return Node&
+     */
+    Node& operator=(const Node& other) {
+        id        = other.id;
+        x         = other.x;
+        y         = other.y;
+        neighbors = other.neighbors;
+        return *this;
+    }
 };
 
 class Graph {
@@ -49,6 +71,13 @@ public:
      *
      */
     Graph();
+
+    /**
+     * @brief Copy constructor.
+     *
+     * @param other
+     */
+    Graph(const Graph& other);
 
     /**
      * @brief Adds a new node into graph
@@ -68,10 +97,20 @@ public:
     const Node& getNode(const int id) const;
 
     /**
-     * @brief Adds an edge between two nodes
+     * @brief Gets the size of the graph (no. of nodes)
      *
-     * @param node_from_id:     unique id of the start of edge
-     * @param node_to_id:       unique id of the end of edge
+     * @return const int
+     */
+    const int size() const noexcept;
+
+    /**
+     * @brief Adds an edge between two nodes.
+     *
+     * NOTE. Upon adding the edge, node_from_id and node_to_id must be present
+     * in the graph.
+     *
+     * @param node_from_id:     unique id of the start of edge.
+     * @param node_to_id:       unique id of the end of edge.
      * @param edge_weight:      customized edge weight.
      *                          Default is the Euclidean distance between nodes.
      *                          Edge weight must be non-negative.
