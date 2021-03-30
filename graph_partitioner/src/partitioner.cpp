@@ -1,5 +1,6 @@
 #include "graph_partitioner/partitioner.hpp"
 
+#include <algorithm>
 #include <boost/range/counting_range.hpp>
 #include <set>
 
@@ -12,19 +13,21 @@ Eigen::MatrixXd GraphPartitioner::adjacencyMatrix(
     Eigen::MatrixXd adj_matrix =
         Eigen::MatrixXd::Identity(graph_.size(), graph_.size());
 
-    for (int i = 0; i < graph_.size(); ++i) {
-        for (const auto edge : graph_.getNode(i).neighbors) {
-            switch (metric) {
-                case AdjMatrixMetricType::DISTANCE:
-                    adj_matrix(i, edge.first) = edge.second;
-                    break;
-
-                case AdjMatrixMetricType::SIMILARITY:
-                    adj_matrix(i, edge.first) = 1 / edge.second;
-                    break;
-
-                default:
-                    break;
+    if (metric == AdjMatrixMetricType::DISTANCE) {
+        for (int i = 0; i < graph_.size(); ++i) {
+            for (const auto edge : graph_.getNode(i).neighbors) {
+                adj_matrix(i, edge.first) = edge.second;
+            }
+        }
+    } else if (metric == AdjMatrixMetricType::SIMILARITY) {
+        const double max_distance = *std::max_element(
+            graph_.edge_weights.begin(), graph_.edge_weights.end());
+        for (int i = 0; i < graph_.size(); ++i) {
+            for (const auto edge : graph_.getNode(i).neighbors) {
+                // uses Gaussian similarity function,
+                //  sets std dev to max_distance/2
+                adj_matrix(i, edge.first) = std::exp(
+                    -1 * std::pow(edge.second / (max_distance / 2), 2) / 2);
             }
         }
     }

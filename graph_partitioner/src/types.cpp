@@ -2,10 +2,18 @@
 
 namespace graph_partitioner {
 
-Graph::Graph() : n_nodes_(0) {}
+Graph::Graph()
+    : edge_directions(edge_directions_),
+      edge_weights(edge_weights_),
+      n_nodes_(0) {}
 
 Graph::Graph(const Graph& other)
-    : nodes_(other.nodes_), n_nodes_(other.n_nodes_) {}
+    : edge_directions(edge_directions_),
+      edge_weights(edge_weights_),
+      nodes_(other.nodes_),
+      n_nodes_(other.n_nodes_),
+      edge_directions_(other.edge_directions_),
+      edge_weights_(other.edge_weights_) {}
 
 const int Graph::size() const noexcept { return n_nodes_; }
 
@@ -50,6 +58,9 @@ double Graph::addEdge(const int node_from_id, const int node_to_id,
                                 std::pow(end_node.y - start_node.y, 2));
 
     start_node.neighbors[node_to_id] = edge_weight;
+
+    this->edge_directions_.emplace_back(node_from_id, node_to_id);
+    this->edge_weights_.push_back(edge_weight);
 
     return edge_weight;
 }

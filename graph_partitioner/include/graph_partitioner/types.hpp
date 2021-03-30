@@ -6,6 +6,7 @@
 #include <array>
 #include <iostream>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace graph_partitioner {
@@ -66,6 +67,10 @@ struct Node {
 
 class Graph {
 public:
+    // Read-only const references of private data
+    const std::vector<std::pair<int, int>>& edge_directions;
+    const std::vector<double>& edge_weights;
+
     /**
      * @brief Construct a new Graph object
      *
@@ -134,6 +139,14 @@ protected:
 private:
     std::vector<Node> nodes_;
     int n_nodes_;
+
+    /****************************************/
+    // Edge information (for quick lookup)
+    // {start_node_id, end_node_id}
+    std::vector<std::pair<int, int>> edge_directions_;
+    // edge weights corresponding to {start_node_id, end_node_id}
+    // in edge_directions_
+    std::vector<double> edge_weights_;
 };
 
 std::ostream& operator<<(std::ostream& o, const Graph& graph);
