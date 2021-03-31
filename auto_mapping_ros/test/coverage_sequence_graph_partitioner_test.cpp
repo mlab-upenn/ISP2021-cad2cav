@@ -66,12 +66,8 @@ int main(int argc, char const* argv[]) {
 
     // visualize subgraphs
     for (const auto& subgraph : subgraphs) {
-        std::vector<std::array<int, 2>> current_sequence;
-        for (int i = 0; i < subgraph.size(); ++i) {
-            current_sequence.emplace_back(std::array<int, 2>{static_cast<int>(subgraph.getNode(i).y),
-                                                             static_cast<int>(subgraph.getNode(i).x)});
-        }
-        amr::visualize_sequence_on_graph(map, graph, current_sequence);
+        const auto current_sequence = subgraph.getTSPSequence();
+        amr::visualize_sequence_on_graph(map, graph, current_sequence, true);
     }
 
     return 0;
