@@ -107,6 +107,19 @@ int get_closest_clicked_node_on_map(const cv::Mat& map, aco::Graph& graph) {
     return closest_node_id;
 }
 
+void visualize_sequence_on_graph(const cv::Mat& map, const Graph& graph,
+                                 const std::vector<std::array<double, 2>>& sequence,
+                                 bool switch_xy) {
+    std::vector<std::array<int, 2>> int_sequence;
+    for (const auto& p : sequence) {
+        if (switch_xy)
+            int_sequence.push_back({static_cast<int>(p[1]), static_cast<int>(p[0])});
+        else
+            int_sequence.push_back({static_cast<int>(p[0]), static_cast<int>(p[1])});
+    }
+    visualize_sequence_on_graph(map, graph, int_sequence);
+}
+
 void visualize_sequence_on_graph(
     const cv::Mat& map, const Graph& graph, const std::vector<std::array<int, 2>>& sequence) {
     cv::Mat visual_graph(map.size(), CV_8UC3, cv::Vec3b(0, 0, 0));

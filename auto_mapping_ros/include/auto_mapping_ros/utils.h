@@ -27,6 +27,10 @@ int get_closest_clicked_node_on_map(const cv::Mat& map, aco::Graph& graph);
 void visualize_sequence_on_graph(const cv::Mat& map, const Graph& graph,
                                  const std::vector<std::array<int, 2>>& sequence);
 
+void visualize_sequence_on_graph(const cv::Mat& map, const Graph& graph,
+                                 const std::vector<std::array<double, 2>>& sequence,
+                                 bool switch_xy = false);
+
 void write_plans_to_csv(const std::vector<Plan>& plans, std::string filename);
 
 void read_sequence_from_csv(std::vector<std::array<int, 2>>* sequence, const std::string& filename = "sequence.csv");
