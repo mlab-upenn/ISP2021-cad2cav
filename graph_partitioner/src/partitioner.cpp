@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <boost/range/counting_range.hpp>
 #include <set>
+#include <unordered_map>
 
 namespace graph_partitioner {
 
@@ -78,9 +79,13 @@ std::vector<Graph> GraphPartitioner::spectralClustering(const int k) const {
     std::vector<Graph> list_subgraphs;
     for (int j = 0; j < k; ++j) {
         Graph subgraph;
+        // a set of node ids that remembers the node unvisited
+        // (not added to node_id_map)
         std::set<int> unvisited_nodes(
             boost::counting_iterator<int>(0),
             boost::counting_iterator<int>(assignments.size()));
+        // a mapping from old node id to new node id
+        std::unordered_map<int, int> node_id_map;
 
         while (!unvisited_nodes.empty()) {
             int i = *unvisited_nodes.begin();
@@ -88,28 +93,32 @@ std::vector<Graph> GraphPartitioner::spectralClustering(const int k) const {
             if (assignments[i] != j) continue;
 
             const Node node = this->graph_.getNode(i);
-            int node_new_id = subgraph.addNewNode(node.x, node.y);
+            int node_new_id;
+            if (node_id_map.count(i) > 0)
+                node_new_id = node_id_map.at(i);
+            else {
+                node_new_id = subgraph.addNewNode(node.x, node.y);
+                node_id_map.insert({i, node_new_id});
+            }
 
             for (const auto& [neighbor_id, distance] : node.neighbors) {
-                if (unvisited_nodes.count(neighbor_id) == 0) continue;
                 // if node's neighbor is also in the same cluster, add it to
                 // current subgraph. Otherwise, discard it
                 if (assignments[neighbor_id] == j) {
                     const Node neighbor = this->graph_.getNode(neighbor_id);
-                    int neighbor_new_id =
-                        subgraph.addNewNode(neighbor.x, neighbor.y);
+                    int neighbor_new_id;
+                    if (node_id_map.count(neighbor_id) > 0)
+                        neighbor_new_id = node_id_map.at(neighbor_id);
+                    else {
+                        neighbor_new_id =
+                            subgraph.addNewNode(neighbor.x, neighbor.y);
+                        node_id_map.insert({neighbor_id, neighbor_new_id});
+                    }
 
                     // add an edge between node and its current neighbor in new
                     // graph
                     subgraph.addEdge(node_new_id, neighbor_new_id, distance);
-                    if (neighbor.neighbors.count(i) > 0) {
-                        // distance in both directions must be the same
-                        assert(distance == neighbor.neighbors.at(i));
-                        subgraph.addEdge(neighbor_new_id, node_new_id,
-                                         distance);
-                    }
                 }
-                unvisited_nodes.erase(neighbor_id);
             }
         }
 
