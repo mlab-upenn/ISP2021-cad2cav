@@ -1,7 +1,8 @@
+#include "graph_partitioner/graph.hpp"
+
 #include <algorithm>
 #include <boost/range/algorithm_ext/push_back.hpp>
 #include <boost/range/irange.hpp>
-#include <graph_partitioner/types.hpp>
 
 namespace graph_partitioner {
 
@@ -60,7 +61,8 @@ double Graph::addEdge(const int node_from_id, const int node_to_id,
         edge_weight = std::sqrt(std::pow(end_node.x - start_node.x, 2) +
                                 std::pow(end_node.y - start_node.y, 2));
 
-    start_node.neighbors[node_to_id] = edge_weight;
+    start_node.neighbors_.insert({node_to_id, edge_weight});
+    start_node.distances_.insert({edge_weight, node_to_id});
 
     this->edge_directions_.emplace_back(node_from_id, node_to_id);
     this->edge_weights_.push_back(edge_weight);

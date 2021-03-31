@@ -126,7 +126,8 @@ include_directories(
 
 # Declare a C++ library
 add_library(${PROJECT_NAME}
-  src/types.cpp
+  src/graph.cpp
+  src/node.cpp
   src/partitioner.cpp
 )
 
