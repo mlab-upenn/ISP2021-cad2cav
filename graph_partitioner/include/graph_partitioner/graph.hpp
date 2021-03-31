@@ -1,6 +1,10 @@
 #ifndef __GRAPH_PARTITIONER_GRAPH_HPP__
 #define __GRAPH_PARTITIONER_GRAPH_HPP__
 
+#include <ortools/constraint_solver/routing.h>
+#include <ortools/constraint_solver/routing_enums.pb.h>
+#include <ortools/constraint_solver/routing_index_manager.h>
+#include <ortools/constraint_solver/routing_parameters.h>
 #include <ros/ros.h>
 
 #include <array>
@@ -14,6 +18,8 @@ namespace graph_partitioner {
 
 class Graph {
 public:
+    enum TSPSolver { GOOGLE_ORTOOLS = 0, BRANCH_AND_BOUND };
+
     // Read-only const references of private data
     const std::vector<std::pair<int, int>>& edge_directions;
     const std::vector<double>& edge_weights;
@@ -77,9 +83,10 @@ public:
      * @brief Regernerate the TSP sequence that covers all the nodes in the
      * graph. Sequence empty means failure.
      *
-     * @return const Path
+     * @param solver:   specify solver type. Default is Google OR Tools
+     * @return double:  new TSP path cost
      */
-    void updateTSPSequence() noexcept;
+    double updateTSPSequence(TSPSolver solver = GOOGLE_ORTOOLS) noexcept;
 
     /**
      * @brief Gets the current TSP sequence
@@ -116,6 +123,27 @@ private:
     double tsp_min_cost_;
     // TSP sequence in node IDs
     std::vector<int> tsp_sequence_;
+
+    /**
+     * @brief Solves TSP with Google OR tools
+     *
+     * Reference: https://developers.google.com/optimization/routing/tsp#c++
+     *
+     * @param start_node_id:        starting node of the TSP path
+     * @return std::pair<double, std::vector<int>>: total cost and sequence
+     */
+    std::pair<double, std::vector<int>> tsp_ortools_solver(
+        const int start_node_id);
+
+    /**
+     * @brief Applies branch-and-bound method for solving TSP.
+     *      Assumes graph undirected and only works for n_nodes_< 10.
+     *
+     * Reference:
+     * https://www.geeksforgeeks.org/traveling-salesman-problem-using-branch-and-bound-2/
+     *
+     */
+    void tsp_branch_and_bound() noexcept;
 
     /**
      * @brief recursive helper function for TSP Branch and Bound solver.

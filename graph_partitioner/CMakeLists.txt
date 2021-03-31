@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(ortools CONFIG REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -154,6 +155,7 @@ add_library(${PROJECT_NAME}
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
+  ortools::ortools
 )
 
 #############

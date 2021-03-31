@@ -95,7 +95,76 @@ const Graph::Path Graph::getTSPSequence() const noexcept {
     return path;
 }
 
-void Graph::updateTSPSequence() noexcept {
+double Graph::updateTSPSequence(TSPSolver solver) noexcept {
+    if (solver == TSPSolver::GOOGLE_ORTOOLS) {
+        // clears previous TSP solutions
+        tsp_min_cost_ = std::numeric_limits<double>::infinity();
+        tsp_sequence_.clear();
+
+        for (int i = 0; i < n_nodes_; ++i) {
+            const auto [cost, sequence] = tsp_ortools_solver(i);
+            if (static_cast<double>(cost) < tsp_min_cost_) {
+                tsp_min_cost_ = static_cast<double>(cost);
+                tsp_sequence_ = sequence;
+            }
+        }
+    } else if (solver == TSPSolver::BRANCH_AND_BOUND) {
+        tsp_branch_and_bound();
+    }
+
+    return tsp_min_cost_;
+}
+
+std::pair<double, std::vector<int>> Graph::tsp_ortools_solver(
+    const int start_node_id) {
+    // starting node of TSP
+    operations_research::RoutingIndexManager::NodeIndex depot{start_node_id};
+    // TSP solver manager
+    operations_research::RoutingIndexManager manager(n_nodes_, 1, depot);
+    // TSP solver model
+    operations_research::RoutingModel routing(manager);
+
+    // initialize a callback for retrieving distances between two nodes
+    const int transit_callback_index = routing.RegisterTransitCallback(
+        [&](int64_t from_node, int64_t to_node) -> int64_t {
+            // convert from OR Tools node id to Graph node id
+            const auto start_node_id = manager.IndexToNode(from_node).value();
+            const auto end_node_id   = manager.IndexToNode(to_node).value();
+
+            // retrieve neighboring distance
+            const auto node  = getNode(start_node_id);
+            int64_t distance = node.neighbors.count(end_node_id) > 0
+                                   ? static_cast<int64_t>(std::ceil(
+                                         node.neighbors.at(end_node_id)))
+                                   : std::numeric_limits<int>::max();
+            return distance;
+        });
+    routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index);
+
+    // define routing search parametes
+    operations_research::RoutingSearchParameters param =
+        operations_research::DefaultRoutingSearchParameters();
+    param.set_first_solution_strategy(
+        operations_research::FirstSolutionStrategy::PATH_CHEAPEST_ARC);
+
+    // solve the problem
+    const operations_research::Assignment* solution =
+        routing.SolveWithParameters(param);
+
+    // get best sequence
+    std::vector<int> sequence;
+    // Get sequence.
+    int64_t index = routing.Start(0);
+    sequence.push_back(manager.IndexToNode(index).value());
+    while (!routing.IsEnd(index)) {
+        index = solution->Value(routing.NextVar(index));
+        sequence.push_back(manager.IndexToNode(index).value());
+    }
+
+    return {solution->ObjectiveValue(), sequence};
+}
+
+void Graph::tsp_branch_and_bound() noexcept {
     // Assumes the problem size is small; use branch and bound search
     // Also assumes the graph is undirected.
     //  Reference:
