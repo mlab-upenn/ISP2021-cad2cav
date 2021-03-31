@@ -65,7 +65,8 @@ int main(int argc, char const* argv[]) {
     auto subgraphs = gp.getPartition(2, graph_partitioner::PartitionType::SPECTRAL);
 
     // visualize subgraphs
-    for (const auto& subgraph : subgraphs) {
+    for (auto& subgraph : subgraphs) {
+        subgraph.updateTSPSequence();
         const auto current_sequence = subgraph.getTSPSequence();
         amr::visualize_sequence_on_graph(map, graph, current_sequence, true);
     }
