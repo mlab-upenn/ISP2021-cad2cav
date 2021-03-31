@@ -74,8 +74,15 @@ public:
                    double edge_weight = -1);
 
     /**
-     * @brief Returns a TSP sequence that covers all the nodes in the graph.
-     *      Sequence empty means failure.
+     * @brief Regernerate the TSP sequence that covers all the nodes in the
+     * graph. Sequence empty means failure.
+     *
+     * @return const Path
+     */
+    void updateTSPSequence() noexcept;
+
+    /**
+     * @brief Gets the current TSP sequence
      *
      * @return const Path
      */
@@ -104,6 +111,23 @@ private:
     // edge weights corresponding to {start_node_id, end_node_id}
     // in edge_directions_
     std::vector<double> edge_weights_;
+
+    // TSP path minimal cost
+    double tsp_min_cost_;
+    // TSP sequence in node IDs
+    std::vector<int> tsp_sequence_;
+
+    /**
+     * @brief recursive helper function for TSP Branch and Bound solver.
+     *
+     * @param current_bound:    lower bound estimate
+     * @param current_cost:     running path cost
+     * @param level:            recursion level
+     * @param visited:          visited nodes (in node ID)
+     * @param current_path:     running TSP path
+     */
+    void tsp_explore(double current_bound, double current_cost, double level,
+                     std::set<int>& visited, std::vector<int>& current_path);
 };
 
 std::ostream& operator<<(std::ostream& o, const Graph& graph);
