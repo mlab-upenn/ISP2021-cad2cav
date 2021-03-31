@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <boost/range/algorithm_ext/push_back.hpp>
+#include <boost/range/irange.hpp>
 #include <graph_partitioner/types.hpp>
 
 namespace graph_partitioner {
@@ -73,6 +76,56 @@ std::ostream& operator<<(std::ostream& o, const Graph& graph) {
     o << "] }";
 
     return o;
+}
+
+const Graph::Path Graph::getTSPSequence() const noexcept {
+    Graph::Path path;
+
+    // Assumes the problem size is small; use brute force search
+    //  (generate all permutations)
+    // initialize possible sequence
+    std::vector<int> sequence;
+    boost::push_back(sequence, boost::irange(n_nodes_));
+
+    // initialize best sequence
+    double min_cost = std::numeric_limits<double>::infinity();
+    std::vector<int> min_cost_sequence;
+
+    do {
+        double total_cost = 0.0;
+        bool valid_path   = true;
+
+        for (unsigned int i = 0; i < sequence.size(); ++i) {
+            int current_node_id = sequence[i];
+            int next_node_id =
+                (i == sequence.size() - 1) ? sequence.front() : sequence[i + 1];
+            const auto& node = getNode(current_node_id);
+
+            if (node.neighbors.count(next_node_id) > 0) {
+                total_cost += node.neighbors.at(next_node_id);
+            } else {
+                valid_path = false;
+                break;
+            }
+        }
+
+        if (!valid_path)
+            continue;
+        else if (total_cost < min_cost) {
+            min_cost          = total_cost;
+            min_cost_sequence = sequence;
+        }
+
+    } while (std::next_permutation(sequence.begin(), sequence.end()));
+
+    for (const auto& id : min_cost_sequence) {
+        const auto& n = getNode(id);
+        path.push_back({n.x, n.y});
+    }
+    path.push_back({getNode(min_cost_sequence.front()).x,
+                    getNode(min_cost_sequence.front()).y});
+
+    return path;
 }
 
 }  // namespace graph_partitioner

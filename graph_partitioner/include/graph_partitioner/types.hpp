@@ -71,6 +71,8 @@ public:
     const std::vector<std::pair<int, int>>& edge_directions;
     const std::vector<double>& edge_weights;
 
+    typedef std::vector<std::array<double, 2>> Path;
+
     /**
      * @brief Construct a new Graph object
      *
@@ -123,6 +125,14 @@ public:
      */
     double addEdge(const int node_from_id, const int node_to_id,
                    double edge_weight = -1);
+
+    /**
+     * @brief Returns a TSP sequence that covers all the nodes in the graph.
+     *      Sequence empty means failure.
+     *
+     * @return const Path
+     */
+    const Path getTSPSequence() const noexcept;
 
     /**
      * @brief Overloaded operator<< for graph debug purposes
