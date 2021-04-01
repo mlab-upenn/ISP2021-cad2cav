@@ -56,16 +56,17 @@ cd ${UE4_ROOT}/Engine/Binaries/Linux
 
 ## Running the code
 1. **Get landmark locations from UE4 gameplay.** Open the UE4 project and hit "Play". During gameplay, one should right-click on the landmarks in UE4 scene and the game would automatically save their locations in `~/unreal_levine_4/csv/actorLocation.csv`.
-2. Copy the CSV file into ROS system
+2. **Copy the CSV file into ROS project**
 ```bash
 cp ~/unreal_levine_4/csv/actorLocation.csv ~/catkin_ws/src/ISP2021-cad2cav/auto_mapping_ros/csv
 ```
-3. Run Automapper to generate waypoint sequences for vehicles to follow. 
+3. **Run Automapper to generate waypoint sequences** for vehicles to follow. 
 ```bash
 rosrun auto_mapping_ros coverage_sequence_creator_cad
 ```
 Click on the pop-up window to specify the location of the first-3 landmarks in UE4 scene. This step is meant to calculate the transformation of coordinates from UE4 scene to ROS map. When the program finishes, you should have multiple files `csv/sequence_1.csv`, `csv/sequence_2.csv`, depending on how many vehicles you have specified.
-4. To run the Automapper simulations, one should run:
+
+4. **Run the Automapper simulations**:
    - In Terminal 1:
 ```bash
 roslaunch f110_simulator simulator.launch
