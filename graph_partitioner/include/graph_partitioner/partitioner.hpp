@@ -79,6 +79,18 @@ namespace utils {
  *                              Each assignment is in [0,k-1]
  */
 std::vector<int> kMeans(const Eigen::MatrixXd& fv, const int k);
+
+/**
+ * @brief Construct and return Subgraph from node assignments.
+ *
+ * @param orig_graph:           original graph before partition
+ * @param k:                    number of partitions
+ * @param assignments:          vector of length n_nodes that stores the
+ *                              assignment [0, k-1] of subgraph for each vertex
+ * @return std::vector<Graph>:  list of subgraphs
+ */
+std::vector<Graph> getSubgraphFromAssignments(
+    const Graph& orig_graph, const int k, const std::vector<int>& assignments);
 }  // namespace utils
 
 }  // namespace graph_partitioner
