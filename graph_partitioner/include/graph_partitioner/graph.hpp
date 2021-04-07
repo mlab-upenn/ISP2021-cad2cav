@@ -96,6 +96,19 @@ public:
     const Path getTSPSequence() const noexcept;
 
     /**
+     * @brief Returns the CSR (Compressed Storage) format of the graph.
+     *      Variable name is consistent with METIS manual 5.1.0 Section 5.5,
+     *      which can be retrieved here:
+     *      http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
+     *
+     * @param out_xadj:     adjacency list index array. Length: n_nodes_ + 1
+     * @param out_adjncy:   adjacency list. Length: 2*num_edges
+     * @param out_adjwgt:   edge weight. Length: 2*num_edges
+     */
+    void getCSRFormat(std::vector<int>& out_xadj, std::vector<int>& out_adjncy,
+                      std::vector<int>& out_adjwgt) const noexcept;
+
+    /**
      * @brief Overloaded operator<< for graph debug purposes
      *
      * @param o

@@ -1,6 +1,8 @@
 #ifndef __GRAPH_PARTITIONER_PARTITIONER_HPP__
 #define __GRAPH_PARTITIONER_PARTITIONER_HPP__
 
+#include <metis.h>
+
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Eigenvalues>
 #include <vector>
@@ -23,8 +25,10 @@ enum AdjMatrixMetricType { DISTANCE = 0, SIMILARITY };
  *
  *  1. SPECTRAL:        spectral clustering
  *  2. KERNIGHAN_LIN:   Kernighan-Lin algorithm
+ *  3. METIS:           METIS partitioner software. Uses multilevel k-way
+ *                      partitioning
  */
-enum PartitionType { SPECTRAL = 0, KERNIGHAN_LIN };
+enum PartitionType { SPECTRAL = 0, KERNIGHAN_LIN, METIS };
 
 class GraphPartitioner {
 public:
@@ -67,6 +71,14 @@ private:
      * @return std::vector<Graph>:  List of subgraphs
      */
     std::vector<Graph> spectralClustering(const int k) const;
+
+    /**
+     * @brief Calls METIS graph partitioner software on current graph.
+     *
+     * @param k:                    No. of subgraphs
+     * @return std::vector<Graph>:  List of subgraphs
+     */
+    std::vector<Graph> use_metis(const int k) const;
 };
 
 namespace utils {

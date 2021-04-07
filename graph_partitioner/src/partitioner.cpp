@@ -42,8 +42,14 @@ std::vector<Graph> GraphPartitioner::getPartition(const int k,
 
     switch (type) {
         case PartitionType::SPECTRAL:
-            // Performs spectral clustering on graph partition task
+            ROS_INFO("Using spectral clustering as graph partitioning method");
+            // Performs spectral clustering on graph partitioning task
             list_subgraphs = spectralClustering(k);
+            break;
+        case PartitionType::METIS:
+            ROS_INFO("Using METIS as graph partitioning method");
+            // Calls METIS software on graph partitioning task
+            list_subgraphs = use_metis(k);
             break;
 
         default:
@@ -51,6 +57,61 @@ std::vector<Graph> GraphPartitioner::getPartition(const int k,
     }
 
     return list_subgraphs;
+}
+
+std::vector<Graph> GraphPartitioner::use_metis(const int k) const {
+    // prepare CSR graph format
+    //  Variable name is consistent with METIS manual 5.1.0 Section 5.5, which
+    //  can be retrieved here:
+    //  http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
+    int n_nodes = graph_.size();
+    std::vector<int> xadj, adjncy, adjwgt;
+    graph_.getCSRFormat(xadj, adjncy, adjwgt);
+
+    // assignment vector for all graph nodes
+    std::vector<int> assignments(n_nodes, 0);
+    int partition_cost = 0;
+
+    // set METIS partitioning option code
+    //  see METIS manual 5.1.0 section 5.4
+    std::vector<int> metis_option_codes(METIS_NOPTIONS, 0);
+    METIS_SetDefaultOptions(metis_option_codes.data());
+    metis_option_codes[METIS_OPTION_DBGLVL] = METIS_DBG_INFO | METIS_DBG_TIME;
+    metis_option_codes[METIS_OPTION_NITER]  = 20;  // increate no. of iterations
+    metis_option_codes[METIS_OPTION_CONTIG] = 1;   // force contiguous subgraphs
+
+    // run METIS graph partitioner
+    //  default: multilevel k-way graph partitioning
+    //  reference paper:
+    //  https://www-sciencedirect-com.proxy.library.upenn.edu/science/article/pii/S0743731597914040
+    int n_constraints    = 1;
+    int num_parts        = k;
+    int partition_result = METIS_PartGraphKway(
+        &n_nodes, &n_constraints, xadj.data(), adjncy.data(), NULL, NULL,
+        adjwgt.data(), &num_parts, NULL, NULL, metis_option_codes.data(),
+        &partition_cost, assignments.data());
+
+    switch (partition_result) {
+        case METIS_OK:
+            ROS_INFO_STREAM("METIS partitioning finished with no errors."
+                            << " Partition cost: " << partition_cost);
+            break;
+        case METIS_ERROR_INPUT:
+            ROS_ERROR("METIS partitioning failed: input error");
+            break;
+        case METIS_ERROR_MEMORY:
+            ROS_ERROR(
+                "METIS partitioning failed: could not allocate enough memory");
+            break;
+        case METIS_ERROR:
+            ROS_ERROR("METIS partitioning failed: other general errors");
+            break;
+
+        default:
+            break;
+    }
+
+    return utils::getSubgraphFromAssignments(this->graph_, k, assignments);
 }
 
 std::vector<Graph> GraphPartitioner::spectralClustering(const int k) const {

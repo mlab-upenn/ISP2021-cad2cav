@@ -95,6 +95,20 @@ const Graph::Path Graph::getTSPSequence() const noexcept {
     return path;
 }
 
+void Graph::getCSRFormat(std::vector<int>& out_xadj,
+                         std::vector<int>& out_adjncy,
+                         std::vector<int>& out_adjwgt) const noexcept {
+    out_xadj.push_back(out_adjncy.size());
+    for (int i = 0; i < n_nodes_; ++i) {
+        const Node& node = getNode(i);
+        for (const auto& p : node.neighbors) {
+            out_adjncy.push_back(p.first);
+            out_adjwgt.push_back(static_cast<int>(std::round(p.second)));
+        }
+        out_xadj.push_back(out_adjncy.size());
+    }
+}
+
 double Graph::updateTSPSequence(TSPSolver solver) noexcept {
     if (solver == TSPSolver::GOOGLE_ORTOOLS) {
         // clears previous TSP solutions

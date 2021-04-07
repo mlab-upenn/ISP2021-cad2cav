@@ -5,6 +5,7 @@ project(graph_partitioner)
 add_compile_options(-std=c++17)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -18,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(ortools CONFIG REQUIRED)
+find_package(Metis REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -123,6 +125,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${Boost_INCLUDE_DIR}
+  ${METIS_INCLUDE_DIRS}
 )
 
 # Declare a C++ library
@@ -156,6 +159,7 @@ add_library(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ortools::ortools
+  ${METIS_LIBRARIES}
 )
 
 #############
