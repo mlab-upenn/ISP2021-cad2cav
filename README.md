@@ -15,6 +15,7 @@ This is the github project for the F1Tenth Independent Study Projects 2021. In t
 - [Google OR-Tools 8.2](https://github.com/google/or-tools/releases/tag/v8.2)
 - [OSQP 0.6.2](https://github.com/oxfordcontrol/osqp/releases/tag/v0.6.2)
 - [OSQP-Eigen 0.6.3](https://github.com/robotology/osqp-eigen/releases/tag/v0.6.3)
+- [METIS 5.1.0](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview)
 
 This project also depends on [another UE software](https://github.com/shineyruan/unreal_levine_4) that provides initial landmark locations for the planner to plan. One should also have the following:
 - Autodesk Revit 2019
@@ -33,9 +34,9 @@ catkin_make
 source devel/setup.bash
 ```
 
-You can install LibConfig++ and Boost library through apt repository:
+You can install LibConfig++, Boost and METIS library through apt repository:
 ```bash
-sudo apt install libconfig++-dev libboost-all-dev
+sudo apt install libconfig++-dev libboost-all-dev libmetis-dev
 ```
 
 Other dependencies (OpenCV, Google OR-Tools, OSQP, OSQP-Eigen) has to be built from source manually. 
@@ -90,7 +91,7 @@ To be continued...
 
 ## Files
 To be continued...
-<!-- |    | File                           | Description |
+| <!--    |                                | File | Description |
 | ------- | ------------------------------ |
 | main.py | Is used to start the algorithm |
-| test.py | Is used to create the results  |         | -->
+| test.py | Is used to create the results  |      | -->         |
