@@ -93,6 +93,15 @@ namespace utils {
 std::vector<int> kMeans(const Eigen::MatrixXd& fv, const int k);
 
 /**
+ * @brief Returns an initialization of centroids using k-means++ scheme
+ *
+ * @param fv:               feature vectors. Each column is a data point
+ * @param k:                number of clusters (centroids)
+ * @return Eigen::MatrixXd: coordinates of centroids. Size = (fv.size(0), k)
+ */
+Eigen::MatrixXd kmeanspp_init(const Eigen::MatrixXd& fv, const int k);
+
+/**
  * @brief Construct and return Subgraph from node assignments.
  *
  * @param orig_graph:           original graph before partition

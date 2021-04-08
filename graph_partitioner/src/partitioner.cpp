@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <boost/range/counting_range.hpp>
+#include <random>
 #include <set>
 #include <unordered_map>
 
@@ -147,17 +148,9 @@ std::vector<int> kMeans(const Eigen::MatrixXd& fv, const int k) {
     int dim        = fv.rows();  // dimension of feature vector
     std::vector<int> assignments_vec(num_points, 0);
 
-    // compute feature points statictics
-    const Eigen::VectorXd half_spread =
-        (fv.rowwise().maxCoeff() - fv.rowwise().minCoeff()) / 2;
-    const Eigen::VectorXd center = fv.rowwise().mean();
-
     // initialize centroids
-    //  bias the initialization to be around the center of data,
-    //  with no more than the L2 norm of half_spread of data
-    Eigen::MatrixXd centroids = Eigen::MatrixXd::Random(dim, k);
-    centroids.array().colwise() *= half_spread.array();
-    centroids.colwise() += center;
+    //  use k-means++ initialization scheme
+    Eigen::MatrixXd centroids = kmeanspp_init(fv, k);
 
     // initialize assignment results
     // Eigen::Map ensures that `assignments` and `assignments_vec` share the
@@ -208,6 +201,51 @@ std::vector<int> kMeans(const Eigen::MatrixXd& fv, const int k) {
                     << assignments.transpose());
 
     return assignments_vec;
+}
+
+Eigen::MatrixXd kmeanspp_init(const Eigen::MatrixXd& fv, const int k) {
+    int num_points = fv.cols();
+    int dim        = fv.rows();
+
+    // initialize centroids
+    Eigen::MatrixXd centroids = Eigen::MatrixXd::Zero(dim, k);
+    int n_chosen_centroids    = 0;
+
+    // initialize random engine
+    std::random_device rd;
+    std::mt19937 generator(rd());
+
+    // 1. Randomly choose one data point as the first centroid
+    std::uniform_int_distribution<int> initial_distribution(0, num_points - 1);
+    centroids.col(0) = fv.col(initial_distribution(generator));
+    ++n_chosen_centroids;
+
+    // 2. Loop until all k centroids have been chosen
+    for (int j = 1; j < k; ++j) {
+        std::vector<double> closest_dist_to_centroids;
+        // 2a. Loop over all data points & find its closest distance to centoids
+        for (int i = 0; i < num_points; ++i) {
+            const Eigen::VectorXd data_point = fv.col(i);
+            double min_dist = std::numeric_limits<double>::infinity();
+            for (int k = 0; k < n_chosen_centroids; ++k) {
+                Eigen::VectorXd centroid = centroids.col(k);
+                if ((data_point - centroid).squaredNorm() < min_dist) {
+                    min_dist = (data_point - centroid).squaredNorm();
+                }
+            }
+            closest_dist_to_centroids.push_back(min_dist);
+        }
+        // 2b. Choose a new data point as a new centroid, according to the
+        // distribution where farthest data point has the largest probability to
+        // be chosen
+        std::discrete_distribution distribution(
+            closest_dist_to_centroids.begin(), closest_dist_to_centroids.end());
+        centroids.col(j) = fv.col(distribution(generator));
+        ++n_chosen_centroids;
+    }
+
+    // 3. Loop until all centroids have been chosen. Return the result
+    return centroids;
 }
 
 std::vector<Graph> getSubgraphFromAssignments(
