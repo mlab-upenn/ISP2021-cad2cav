@@ -17,7 +17,8 @@ This is the github project for the F1Tenth Independent Study Projects 2021. In t
 - [OSQP-Eigen 0.6.3](https://github.com/robotology/osqp-eigen/releases/tag/v0.6.3)
 - [METIS 5.1.0](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview)
 
-This project also depends on [another UE software](https://github.com/shineyruan/unreal_levine_4) that provides initial landmark locations for the planner to plan. One should also have the following:
+This project also depends on another UE4 software that provides initial landmark locations for the planner to plan. One should also have the following:
+- [shineyruan/unreal_levine_4](https://github.com/shineyruan/unreal_levine_4)
 - Autodesk Revit 2019
 - Autodesk AutoCAD 2019
 - Unreal Engine 4.23.1
