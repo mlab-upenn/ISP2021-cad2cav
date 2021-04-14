@@ -61,9 +61,9 @@ cd ${UE4_ROOT}/Engine/Binaries/Linux
 ```bash
 cp ~/unreal_levine_4/csv/actorLocation.csv ~/catkin_ws/src/ISP2021-cad2cav/auto_mapping_ros/csv
 ```
-3. **Run Automapper to generate waypoint sequences** for vehicles to follow. 
+3. **Run Automapper coverage sequence creator** to generate waypoint sequences for vehicles to follow. 
 ```bash
-rosrun auto_mapping_ros coverage_sequence_creator_cad
+roslaunch auto_mapping_ros coverage_sequence_creator.launch
 ```
 Click on the pop-up window to specify the location of the first-3 landmarks in UE4 scene. This step is meant to calculate the transformation of coordinates from UE4 scene to ROS map. When the program finishes, you should have multiple files `csv/sequence_1.csv`, `csv/sequence_2.csv`, depending on how many vehicles you have specified.
 
