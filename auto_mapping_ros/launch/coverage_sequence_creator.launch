@@ -1,0 +1,5 @@
+<launch>
+    <!--    Launch coverage sequence generator node-->
+    <rosparam command="load" file="$(find auto_mapping_ros)/config/auto_mapping.yaml" />
+    <node pkg="auto_mapping_ros" name="coverage_sequence_creator_cad" type="coverage_sequence_creator_cad" output="screen"/>
+</launch>
