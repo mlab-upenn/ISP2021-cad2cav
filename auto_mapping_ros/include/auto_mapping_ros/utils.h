@@ -53,14 +53,21 @@ std::string get_package_directory();
 namespace amr {
 
 template <typename T>
-void write_sequence_to_csv(const std::vector<std::array<T, 2>>& sequence, std::string filename) {
+void write_sequence_to_csv(const std::vector<std::array<T, 2>>& sequence, std::string filename,
+                           bool switch_xy = false) {
     std::ofstream file_to_write;
     file_to_write.open(filename);
     if (!file_to_write) {
         throw std::runtime_error("Invalid Path for csv file.");
     }
-    for (const auto& node : sequence) {
-        file_to_write << node[0] << ", " << node[1] << "\n";
+    if (!switch_xy) {
+        for (const auto& node : sequence) {
+            file_to_write << node[0] << ", " << node[1] << "\n";
+        }
+    } else {
+        for (const auto& node : sequence) {
+            file_to_write << node[1] << ", " << node[0] << "\n";
+        }
     }
     file_to_write.close();
 }
