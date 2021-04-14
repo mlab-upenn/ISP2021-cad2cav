@@ -67,7 +67,10 @@ std::vector<Graph> GraphPartitioner::use_metis(const int k) const {
     //  http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
     int n_nodes = graph_.size();
     std::vector<int> xadj, adjncy, adjwgt;
-    graph_.getCSRFormat(xadj, adjncy, adjwgt);
+    // use Gaussian similarity metric of orig. edges as adjwgt b/c we would like
+    //  to maximize edge cut as our objective
+    // need to tweak the graph for METIS solver compliance (minimize edge cut)
+    graph_.getCSRFormat(xadj, adjncy, adjwgt, Graph::CSR_Type::GAUSSIAN);
 
     // assignment vector for all graph nodes
     std::vector<int> assignments(n_nodes, 0);

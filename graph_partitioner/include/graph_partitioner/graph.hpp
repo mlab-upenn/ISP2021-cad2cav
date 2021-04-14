@@ -19,6 +19,12 @@ namespace graph_partitioner {
 class Graph {
 public:
     enum TSPSolver { GOOGLE_ORTOOLS = 0, BRANCH_AND_BOUND };
+    enum CSR_Type {
+        LINEAR = 0,  // linear mapping from output CSR edge weight to graph edge
+                     // weight
+        GAUSSIAN  // Gaussian similarity of graph edge weight as CSR output edge
+                  // weight
+    };
 
     // Read-only const references of private data
     const std::vector<std::pair<int, int>>& edge_directions;
@@ -104,9 +110,11 @@ public:
      * @param out_xadj:     adjacency list index array. Length: n_nodes_ + 1
      * @param out_adjncy:   adjacency list. Length: 2*num_edges
      * @param out_adjwgt:   edge weight. Length: 2*num_edges
+     * @param edge_type:    calculation mode for elements of out_adjwgt.
+     *                      Can be LINEAR or GAUSSIAN
      */
     void getCSRFormat(std::vector<int>& out_xadj, std::vector<int>& out_adjncy,
-                      std::vector<int>& out_adjwgt) const noexcept;
+                      std::vector<int>& out_adjwgt, CSR_Type edge_type) const;
 
     /**
      * @brief Overloaded operator<< for graph debug purposes

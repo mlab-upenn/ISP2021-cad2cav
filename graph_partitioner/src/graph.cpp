@@ -97,15 +97,46 @@ const Graph::Path Graph::getTSPSequence() const noexcept {
 
 void Graph::getCSRFormat(std::vector<int>& out_xadj,
                          std::vector<int>& out_adjncy,
-                         std::vector<int>& out_adjwgt) const noexcept {
+                         std::vector<int>& out_adjwgt,
+                         CSR_Type edge_type) const {
     out_xadj.push_back(out_adjncy.size());
-    for (int i = 0; i < n_nodes_; ++i) {
-        const Node& node = getNode(i);
-        for (const auto& p : node.neighbors) {
-            out_adjncy.push_back(p.first);
-            out_adjwgt.push_back(static_cast<int>(std::round(p.second)));
+
+    if (edge_type == CSR_Type::LINEAR) {
+        for (int i = 0; i < n_nodes_; ++i) {
+            const Node& node = getNode(i);
+            for (const auto& p : node.neighbors) {
+                out_adjncy.push_back(p.first);
+                out_adjwgt.push_back(static_cast<int>(std::round(p.second)));
+            }
+            out_xadj.push_back(out_adjncy.size());
         }
-        out_xadj.push_back(out_adjncy.size());
+    } else if (edge_type == CSR_Type::GAUSSIAN) {
+        // get max weight among all edges of graph for further
+        //  `Gaussian similarity metric` normalization
+        const double max_distance =
+            *std::max_element(edge_weights.begin(), edge_weights.end());
+
+        for (int i = 0; i < n_nodes_; ++i) {
+            const Node& node = getNode(i);
+            for (const auto& p : node.neighbors) {
+                out_adjncy.push_back(p.first);
+
+                // compute Gaussian similarity
+                //  set sigma to be 0.5*max_distance
+                double similarity = std::exp(
+                    -1 * std::pow(p.second / (max_distance / 2), 2) / 2);
+                // add a scaling factor of 100 to ensure sufficient precision of
+                // edge weight after casting to int
+                double scale_factor = 100.0;
+
+                out_adjwgt.push_back(
+                    static_cast<int>(std::round(scale_factor * similarity)));
+            }
+            out_xadj.push_back(out_adjncy.size());
+        }
+    } else {
+        ROS_FATAL("Unrecognized CSR edge calculation mode");
+        throw ros::Exception("Unrecognized CSR edge calculation mode");
     }
 }
 
