@@ -1,6 +1,9 @@
 # Config file for the Auto Mapping ROS node
 package_name: "auto_mapping_ros"
 
+# basic config
+num_vehicles: 2
+
 csv_filepath: "/csv/sequence"
 csv_localtraj: "/csv/local_traj_50_fwd_rev.csv"
 
