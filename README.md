@@ -57,7 +57,7 @@ cd ${UE4_ROOT}/Engine/Binaries/Linux
 ```
 
 ## Running the code
-1. **Get landmark locations from UE4 gameplay.** Open the UE4 project and hit "Play". During gameplay, one should right-click on the landmarks in UE4 scene and the game would automatically save their locations in `~/unreal_levine_4/csv/actorLocation.csv`.
+1. **Get landmark locations from UE4 gameplay.** Open the UE4 project and hit "Play". During gameplay, one should right-click on the landmarks in UE4 scene and the game would automatically save their locations in `~/unreal_levine_4/csv/actorLocation.csv`. For more details, please check out [shineyruan/unreal_levine_4](https://github.com/shineyruan/unreal_levine_4).
 2. **Copy the CSV file into ROS project.**
 ```bash
 cp ~/unreal_levine_4/csv/actorLocation.csv ~/catkin_ws/src/ISP2021-cad2cav/auto_mapping_ros/csv
