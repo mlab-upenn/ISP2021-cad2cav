@@ -42,7 +42,7 @@ sudo apt install libconfig++-dev libboost-all-dev libmetis-dev
 
 Other dependencies (OpenCV, Google OR-Tools, OSQP, OSQP-Eigen) has to be built from source manually. 
 
-**NOTE. The `graph_partitioner` packages provides 2 different ways of building Google OR-Tools. Please check out this README for more details.**
+**NOTE. The `graph_partitioner` packages provides 2 different ways of building Google OR-Tools. Please check out [this README](https://github.com/mlab-upenn/ISP2021-cad2cav/tree/main/graph_partitioner) for more details.**
 
 2. Developers of this project should also have Unreal Engine 4.23.1 installed in the system. From this point onwards, we assume that your UE4 is cloned and installed in directory `${UE4_ROOT}`.
 ```bash
