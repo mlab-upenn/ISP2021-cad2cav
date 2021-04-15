@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.15.0)
 project(graph_partitioner)
 
 ## Compile as C++17
