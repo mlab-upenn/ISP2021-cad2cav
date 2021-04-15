@@ -2,7 +2,7 @@
 Graph partitioner module for the project. Offers graph partitioning & TSP loop solving functionalities regarding the Automapper.
 
 The graph partitioner offers the following modes:
-1. **Graph partitioning:** Spectral clustering, Multilevel k-way graph partitioning (depends on METIS)
+1. **Graph partitioning:** Spectral clustering, Multilevel k-way graph partitioning (METIS solver)
 2. **TSP solving:** branch-and-bound algorithm, Google OR-Tools solver
 
 # Software Requirements
