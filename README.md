@@ -42,7 +42,7 @@ sudo apt install libconfig++-dev libboost-all-dev libmetis-dev
 
 Other dependencies (OpenCV, Google OR-Tools, OSQP, OSQP-Eigen) has to be built from source manually. 
 
-**Note. In order to integrate OR-Tools libraries into the CMake build system, OR-Tools itself needs to be built with CMake. You can find instructions on how to build OR-Tools with CMake [here.](https://github.com/google/or-tools/tree/v8.2/cmake)**
+**NOTE. The `graph_partitioner` packages provides 2 different ways of building Google OR-Tools. Please check out this README for more details.**
 
 2. Developers of this project should also have Unreal Engine 4.23.1 installed in the system. From this point onwards, we assume that your UE4 is cloned and installed in directory `${UE4_ROOT}`.
 ```bash
