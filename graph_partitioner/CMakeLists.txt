@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(graph_partitioner)
 
-## Compile as C++11, supported in ROS Kinetic and newer
+## Compile as C++17
 add_compile_options(-std=c++17)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
+
+# introduce option to build or-tools upon compilation
+option(BUILD_ORTOOLS "Build Google OR-Tools" OFF)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -18,9 +21,27 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(ortools CONFIG REQUIRED)
 find_package(Metis REQUIRED)
 
+if (NOT BUILD_ORTOOLS)
+  find_package(ortools CONFIG REQUIRED)
+else()  
+  include(FetchContent)
+  set(FETCHCONTENT_QUIET OFF)
+  set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+  set(BUILD_absl ON)
+  set(BUILD_Protobuf ON)
+  set(USE_SCIP OFF)
+  set(USE_COINOR OFF)
+  FetchContent_Declare(
+    or-tools
+    GIT_REPOSITORY  https://github.com/google/or-tools.git
+    GIT_TAG         master
+    GIT_SHALLOW     TRUE
+    GIT_PROGRESS    TRUE
+  )
+  FetchContent_MakeAvailable(or-tools)
+endif()
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
