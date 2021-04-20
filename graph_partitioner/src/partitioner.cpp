@@ -39,6 +39,15 @@ Eigen::MatrixXd GraphPartitioner::adjacencyMatrix(
 
 std::vector<Graph> GraphPartitioner::getPartition(const int k,
                                                   PartitionType type) const {
+    // error checking
+    if (k < 1) {
+        ROS_FATAL("Graph partition number < 1");
+        throw ros::Exception("Cannot divide a graph with <1 subparts");
+    }
+
+    // special case handling
+    if (k == 1) return {graph_};
+
     std::vector<Graph> list_subgraphs;
 
     switch (type) {
