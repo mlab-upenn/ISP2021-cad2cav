@@ -7,3 +7,9 @@
 [submodule "auto_mapping_ros/include/fast_csv_parser"]
 	path = auto_mapping_ros/include/fast_csv_parser
 	url = git@github.com:ben-strasser/fast-cpp-csv-parser.git
+[submodule "cartographer"]
+	path = cartographer
+	url = git@github.com:cartographer-project/cartographer.git
+[submodule "cartographer_ros"]
+	path = cartographer_ros
+	url = git@github.com:cartographer-project/cartographer_ros.git
