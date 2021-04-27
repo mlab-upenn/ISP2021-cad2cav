@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 3.15.0)
 project(graph_partitioner)
 
+option(Partitioner_DEBUG "Add debug symbol in graph_partitioner" OFF)
+
 ## Compile as C++17
-add_compile_options(-std=c++17)
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall")
+add_compile_options(-std=c++17 -Wall)
+add_compile_options(-fdiagnostics-color=always)  # colored output in Ninja build
+if (Partitioner_DEBUG)
+  add_compile_options(-g)
+else()
+  add_compile_options(-O3)
+endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
 # introduce option to build or-tools upon compilation
@@ -36,7 +42,7 @@ else()
   FetchContent_Declare(
     or-tools
     GIT_REPOSITORY  https://github.com/google/or-tools.git
-    GIT_TAG         master
+    GIT_TAG         v8.2
     GIT_SHALLOW     TRUE
     GIT_PROGRESS    TRUE
   )

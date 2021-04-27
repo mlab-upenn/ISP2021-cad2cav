@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(auto_mapping_ros)
 
+option(Automapper_DEBUG "Add debug symbol in auto_mapping_ros" OFF)
+
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++17)
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall")
+add_compile_options(-std=c++17 -Wall)
+add_compile_options(-fdiagnostics-color=always)  # colored output in Ninja build
+if (Automapper_DEBUG)
+  add_compile_options(-g)
+else()
+  add_compile_options(-O3)
+endif()
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 ## Find catkin macros and libraries
@@ -372,6 +378,7 @@ install(TARGETS
         coverage_sequence_creator
         coverage_sequence_creator_cad
         graph_partitioner_test
+        acolib
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
