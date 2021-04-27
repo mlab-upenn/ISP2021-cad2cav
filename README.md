@@ -29,10 +29,9 @@ This project also depends on another UE4 software that provides initial landmark
 mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws
 catkin_init_workspace
-cd src && git clone --recursive https://github.com/mlab-upenn/ISP2021-cad2cav.git
-cd ..
-catkin_make
-source devel/setup.bash
+cd src && git clone --recursive https://github.com/mlab-upenn/ISP2021-cad2cav.git && cd ..
+catkin_make_isolated --install --use-ninja
+source install_isolated/setup.bash
 ```
 
 You can install LibConfig++, Boost and METIS library through apt repository:
