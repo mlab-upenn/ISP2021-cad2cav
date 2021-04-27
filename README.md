@@ -7,6 +7,7 @@ This is the github project for the F1Tenth Independent Study Projects 2021. In t
 ## System Requirements
 - Linux Ubuntu (tested on 20.04 LTS)
 - ROS Noetic
+- GCC 5+/Clang 5+ (support for C++17)
 
 ## Software Requirements
 - Boost 1.71
