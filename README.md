@@ -30,6 +30,11 @@ mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws
 catkin_init_workspace
 cd src && git clone --recursive https://github.com/mlab-upenn/ISP2021-cad2cav.git && cd ..
+```
+Note that this project contains multiple large repositories (Cartographer SLAM, Google OR-Tools) and it might take a considerable amount of time to build for thr first time. It is recommended to use [Ninja over Make](https://ninja-build.org/manual.html#_comparison_to_make) for faster compiling speed. `catkin_make_isolated` is also required for Cartographer SLAM as it contains non-ROS packaged subdirectories.
+
+To build the project, run
+```bash
 catkin_make_isolated --install --use-ninja
 source install_isolated/setup.bash
 ```
