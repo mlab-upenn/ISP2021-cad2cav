@@ -24,12 +24,12 @@ This project also depends on another UE4 software that provides initial landmark
 - Autodesk AutoCAD 2019
 - Unreal Engine 4.23.1
 
-You can install LibConfig++, Boost and METIS library through apt repository:
+First run and install the following packages from Ubuntu repository:
 ```bash
-sudo apt install libconfig++-dev libboost-all-dev libmetis-dev
+sudo apt install libconfig++-dev libboost-all-dev libmetis-dev google-mock libgmock-dev
 ```
 
-Other dependencies (OpenCV, Google OR-Tools, OSQP, OSQP-Eigen) has to be built from source manually. 
+Then install other dependencies (OpenCV, Google OR-Tools, OSQP, OSQP-Eigen) by building from source manually.
 
 **NOTE. The `graph_partitioner` package provides 2 different ways of building Google OR-Tools. Please check out [this README](https://github.com/mlab-upenn/ISP2021-cad2cav/tree/main/graph_partitioner) for more details.**
 
