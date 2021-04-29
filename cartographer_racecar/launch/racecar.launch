@@ -33,5 +33,8 @@
   <node name="cartographer_occupancy_grid_node"
     pkg="cartographer_ros"
     type="cartographer_occupancy_grid_node"
-    args="-resolution 0.05" />
+    args="-resolution 0.05">
+    <remap from="map"
+      to="slam_map"/>
+  </node>
 </launch>
