@@ -1,0 +1,14 @@
+<launch>
+    <param name="/use_sim_time"
+        value="true" />
+
+    <include file="$(find cartographer_racecar)/launch/f110_2d_viz.launch" />
+
+    <node name="playbag"
+        pkg="rosbag"
+        type="play"
+        args="--clock $(arg bag_filename)">
+    </node>
+
+
+</launch>
