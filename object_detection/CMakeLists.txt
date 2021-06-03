@@ -3,16 +3,19 @@ project(object_detection)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
+add_compile_options(-fdiagnostics-color=always)  # colored output in Ninja build
+add_compile_options(-O0 -g)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  roslib
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(OpenCV 4 REQUIRED)
 
 
@@ -103,8 +106,8 @@ find_package(OpenCV 4 REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
  INCLUDE_DIRS include
- LIBRARIES video_loader
- CATKIN_DEPENDS roscpp
+ LIBRARIES video_loader object_detector
+ CATKIN_DEPENDS roscpp roslib
 #  DEPENDS system_lib
 )
 
@@ -118,11 +121,15 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIR}
 )
 
 ## Declare a C++ library
 add_library(video_loader
   src/video_loader.cpp
+)
+add_library(object_detector
+  src/object_detector.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -134,6 +141,7 @@ add_library(video_loader
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node node/object_detection_node.cpp)
+add_executable(yolov3_tiny_demo test/yolov3_tiny.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -146,10 +154,18 @@ add_executable(${PROJECT_NAME}_node node/object_detection_node.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
+target_link_libraries(object_detector PUBLIC
+  ${Boost_LIBRARIES}
+)
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
   video_loader
+  object_detector
+)
+target_link_libraries(yolov3_tiny_demo
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 #############
@@ -168,7 +184,9 @@ target_link_libraries(${PROJECT_NAME}_node
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-install(TARGETS ${PROJECT_NAME}_node
+install(TARGETS 
+  ${PROJECT_NAME}_node
+  yolov3_tiny_demo
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
@@ -176,6 +194,7 @@ install(TARGETS ${PROJECT_NAME}_node
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
 install(TARGETS 
   video_loader
+  object_detector
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
@@ -191,12 +210,10 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
-
+install(DIRECTORY 
+  models
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 #############
 ## Testing ##
 #############
