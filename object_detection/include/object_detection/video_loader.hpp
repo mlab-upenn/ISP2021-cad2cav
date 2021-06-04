@@ -3,6 +3,7 @@
 
 #include <ros/console.h>
 
+#include <object_detection/object_detector.hpp>
 #include <opencv4/opencv2/core/core.hpp>
 #include <opencv4/opencv2/core/utility.hpp>
 #include <opencv4/opencv2/highgui/highgui.hpp>  // videoio.hpp included here
@@ -43,6 +44,13 @@ public:
      * @brief Visualizes current frame using cv::imshow()
      */
     void visualize();
+
+    /**
+     * @brief Visualizes current frame with detection results
+     *
+     * @param bbox_list:    list of bounding boxes; detection result
+     */
+    void visualize(const std::vector<BoundingBox>& bbox_list);
 
 private:
     cv::VideoCapture capture_;

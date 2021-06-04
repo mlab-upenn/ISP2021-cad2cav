@@ -32,6 +32,7 @@ bool VideoLoader::nextFrame() {
     bool is_videoEnd = (num_frames_ >= 0) ? (frame_idx_ >= num_frames_) : false;
     if (capture_.isOpened() && !manual_termination_ && !is_videoEnd) {
         capture_ >> current_frame_;
+        ++frame_idx_;
         return true;
     }
 
@@ -51,9 +52,25 @@ int VideoLoader::displayVideoProperties() {
 }
 
 void VideoLoader::visualize() {
+    if (current_frame_.empty()) {
+        ROS_ERROR("Empty frame %d for display!", frame_idx_);
+        return;
+    }
+
     cv::imshow("Video Source", current_frame_);
     char ch             = cv::waitKey(30);
     manual_termination_ = (ch == 'q' || ch == 'Q') ? true : false;
+}
+
+void VideoLoader::visualize(const std::vector<BoundingBox>& bbox_list) {
+    for (const auto& bbox : bbox_list) {
+        cv::putText(current_frame_, bbox.class_name,
+                    cv::Point(bbox.left, bbox.top), cv::FONT_HERSHEY_SIMPLEX, 1,
+                    cv::Scalar(0, 0, 255), 2);
+        cv::rectangle(current_frame_, bbox.getBBox(), cv::Scalar(0, 0, 255));
+    }
+
+    visualize();
 }
 
 }  // namespace object_detection
