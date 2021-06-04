@@ -53,10 +53,11 @@ int main(int argc, char **argv) {
     object_detection::VideoLoader video_loader(video_path, use_webcam);
     object_detection::ObjectDetector detector(
         model_path.string(), object_detection::DNNType::DARKNET,
-        config_path.string());
+        object_detection::DatasetType::COCO, config_path.string());
 
     while (video_loader.nextFrame()) {
-        video_loader.visualize();
+        const auto detection_results = detector.infer(video_loader.getFrame());
+        video_loader.visualize(detection_results);
     }
 
     return EXIT_SUCCESS;
