@@ -2,6 +2,7 @@
 #include <ros/ros.h>
 
 #include <filesystem>
+#include <object_detection/fps.hpp>
 #include <object_detection/object_detector.hpp>
 #include <object_detection/video_loader.hpp>
 
@@ -55,10 +56,17 @@ int main(int argc, char **argv) {
         model_path.string(), object_detection::DNNType::DARKNET,
         object_detection::DatasetType::COCO, config_path.string());
 
+    object_detection::FPS fps_counter;
+    fps_counter.start();
+
     while (video_loader.nextFrame()) {
         const auto detection_results = detector.infer(video_loader.getFrame());
         video_loader.visualize(detection_results);
+        fps_counter.update();
     }
+
+    fps_counter.stop();
+    fps_counter.printFPSMessage();
 
     return EXIT_SUCCESS;
 }

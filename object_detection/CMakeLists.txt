@@ -131,6 +131,9 @@ add_library(video_loader
 add_library(object_detector
   src/object_detector.cpp
 )
+add_library(fps
+  src/fps.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -163,6 +166,7 @@ target_link_libraries(video_loader
 )
 target_link_libraries(${PROJECT_NAME}_node
   video_loader
+  fps
 )
 
 #############
@@ -191,6 +195,7 @@ install(TARGETS
 install(TARGETS 
   video_loader
   object_detector
+  fps
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
