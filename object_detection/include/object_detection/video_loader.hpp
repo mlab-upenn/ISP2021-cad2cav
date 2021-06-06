@@ -4,10 +4,10 @@
 #include <ros/console.h>
 
 #include <object_detection/object_detector.hpp>
-#include <opencv4/opencv2/core/core.hpp>
-#include <opencv4/opencv2/core/utility.hpp>
-#include <opencv4/opencv2/highgui/highgui.hpp>  // videoio.hpp included here
-#include <opencv4/opencv2/video/video.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/utility.hpp>
+#include <opencv2/highgui/highgui.hpp>  // videoio.hpp included here
+#include <opencv2/video/video.hpp>
 
 namespace object_detection {
 

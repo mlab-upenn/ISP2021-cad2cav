@@ -13,8 +13,6 @@ VideoLoader::VideoLoader(const std::string video_path, bool use_webcam)
     bool stream_successful = (use_webcam) ? capture_.open(std::stoi(video_path))
                                           : capture_.open(video_path);
     if (use_webcam) {
-        capture_.set(cv::CAP_PROP_FRAME_WIDTH, 1024);
-        capture_.set(cv::CAP_PROP_FRAME_HEIGHT, 768);
         if (!stream_successful)
             ROS_FATAL("Webcam %d not connected. Please verify!\n",
                       std::stoi(video_path));

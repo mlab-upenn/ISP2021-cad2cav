@@ -19,7 +19,7 @@
  * @date 2021-06-01
  */
 
-#include <opencv4/opencv2/dnn/dnn.hpp>
+#include <opencv2/dnn/dnn.hpp>
 #include <string>
 
 namespace object_detection {
