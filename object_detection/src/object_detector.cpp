@@ -56,8 +56,13 @@ ObjectDetector::ObjectDetector(const std::string model_path, DNNType dnn_type,
         throw ros::Exception("DNN type has not been supported");
     }
 
+#ifdef USE_CUDA
     net_->setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
     net_->setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
+#else
+    net_->setPreferableBackend(cv::dnn::DNN_BACKEND_DEFAULT);
+    net_->setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
+#endif
 
     loadDatasetClassNames();
 }

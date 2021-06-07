@@ -18,6 +18,14 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(OpenCV 4 REQUIRED)
 
+find_package(CUDA)
+if (CUDA_Found)
+  message("\tFound CUDA for neural network inferencing!")
+  add_definitions(-DUSE_CUDA)
+else()
+  message(WARNING, "\tCUDA not found. Use CPU for DNN inferencing...")
+endif()
+
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -158,6 +166,7 @@ add_executable(${PROJECT_NAME}_node node/object_detection_node.cpp)
 ## Specify libraries to link a library or executable target against
 target_link_libraries(object_detector PUBLIC
   ${Boost_LIBRARIES}
+  stdc++fs  # for std::experimental::filesystem
 )
 target_link_libraries(video_loader
   ${catkin_LIBRARIES}
