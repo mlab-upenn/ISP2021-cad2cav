@@ -19,7 +19,7 @@ find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(OpenCV 4 REQUIRED)
 
 find_package(CUDA)
-if (CUDA_Found)
+if (CUDA_FOUND)
   message("\tFound CUDA for neural network inferencing!")
   add_definitions(-DUSE_CUDA)
 else()
