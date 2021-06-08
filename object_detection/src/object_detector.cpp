@@ -25,6 +25,9 @@ ObjectDetector::ObjectDetector(const std::string model_path, DNNType dnn_type,
         // load Darknet model
         net_ = std::make_unique<cv::dnn::Net>(
             cv::dnn::readNetFromDarknet(cfg_path, model_path));
+        ROS_INFO_STREAM("Loaded Darknet model from: \n"
+                        << "\t\t" << model_path << "\n\tconfig from:\n"
+                        << "\t\t" << cfg_path);
 
         // read in config path for Darknet parameters
         //  Darknet parameters is stored as an INI-like config file
