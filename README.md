@@ -68,7 +68,7 @@ cd ${UE4_ROOT}/Engine/Binaries/Linux
 ./UE4Editor ~/unreal_levine_4/Levine_4.uproject
 ```
 
-To run the system on an F1TENTH car, one should make a Catkin workspace on the car and clone the following repo **on-board**:
+5. To run the system on an F1TENTH car, one should make a Catkin workspace on the car and clone the following repo **on-board**:
 ```bash
 mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/src
