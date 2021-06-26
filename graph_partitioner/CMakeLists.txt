@@ -36,7 +36,7 @@ else()
   set(FETCHCONTENT_QUIET OFF)
   set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
   set(BUILD_absl ON)
-  set(BUILD_Protobuf ON)
+  set(BUILD_Protobuf OFF)
   set(USE_SCIP OFF)
   set(USE_COINOR OFF)
   FetchContent_Declare(

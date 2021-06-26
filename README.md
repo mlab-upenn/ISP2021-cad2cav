@@ -18,6 +18,7 @@ This is the github project for the F1Tenth Independent Study Projects 2021. In t
 - [OSQP-Eigen 0.6.3](https://github.com/robotology/osqp-eigen/releases/tag/v0.6.3)
 - [METIS 5.1.0](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview)
 - [ROS Integration for Cartographer SLAM](https://google-cartographer-ros.readthedocs.io/en/latest/)
+- [Protocol Buffers (Protobuf) >= 3.12](https://github.com/protocolbuffers/protobuf/blob/master/src/README.md)
 
 This project also depends on another UE4 software that provides initial landmark locations for the planner to plan. One should also have the following:
 - [shineyruan/unreal_levine_4](https://github.com/shineyruan/unreal_levine_4)
@@ -32,7 +33,7 @@ First run and install the following packages from Ubuntu repository:
 sudo apt install libconfig++-dev libboost-all-dev libmetis-dev google-mock libgmock-dev
 ```
 
-Then install other dependencies (OpenCV, Google OR-Tools, OSQP, OSQP-Eigen) by building from source manually.
+Then install other dependencies (OpenCV, Google OR-Tools, OSQP, OSQP-Eigen, Protobuf) by building from source manually.
 
 **NOTE. The `graph_partitioner` package provides 2 different ways of building Google OR-Tools. Please check out [this README](https://github.com/mlab-upenn/ISP2021-cad2cav/tree/main/graph_partitioner) for more details.**
 
@@ -51,7 +52,7 @@ cd ..
 3. To build the project, run
 ```bash
 cd ~/catkin_ws
-catkin_make_isolated --install --use-ninja
+catkin_make_isolated --install --use-ninja -D${BUILD_ORTOOLS=ON}
 source install_isolated/setup.bash
 ```
 Note that this project contains multiple large repositories (Cartographer SLAM, Google OR-Tools) and it might take a considerable amount of time to build for the first time. It is recommended to use [Ninja over Make](https://ninja-build.org/manual.html#_comparison_to_make) for faster compiling speed. `catkin_make_isolated` is also required for Cartographer SLAM as it contains non-ROS packaged subdirectories.
@@ -99,22 +100,3 @@ In Terminal 2:
 ```bash
 roslaunch auto_mapping_ros auto_mapping_ros.launch
 ```
-
-
-
-
-
-## Folder Structure
-To be continued...
-<!-- All main scripts depend on the following subfolders:
-
-1. Folder 1 contains the files for xxx...
-2. Folder 2 contains the files for... -->
-
-
-## Files
-To be continued...
-| <!--    |                                | File | Description |
-| ------- | ------------------------------ |
-| main.py | Is used to start the algorithm |
-| test.py | Is used to create the results  |      | -->         |
