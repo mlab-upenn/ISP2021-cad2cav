@@ -47,15 +47,22 @@ git clone --recursive https://github.com/mlab-upenn/ISP2021-cad2cav.git
 cd ..
 ```
 
-2. Please follow the [official documentation for Cartographer SLAM](https://google-cartographer-ros.readthedocs.io/en/latest/) to install the latest `cartographer_ros` package in the source folder.
+2. Please follow the [official documentation for Cartographer SLAM](https://google-cartographer-ros.readthedocs.io/en/latest/) to install the latest `cartographer_ros` package in the `src/` folder.
 
-3. To build the project, run
+3. To build the project without pre-installing Google OR-Tools for graph partitioner (**which would probably take about 5 more minutes**), run
 ```bash
 cd ~/catkin_ws
-catkin_make_isolated --install --use-ninja -D${BUILD_ORTOOLS=ON}
+catkin_make_isolated --install --use-ninja -DBUILD_ORTOOLS=ON
 source install_isolated/setup.bash
 ```
-Note that this project contains multiple large repositories (Cartographer SLAM, Google OR-Tools) and it might take a considerable amount of time to build for the first time. It is recommended to use [Ninja over Make](https://ninja-build.org/manual.html#_comparison_to_make) for faster compiling speed. `catkin_make_isolated` is also required for Cartographer SLAM as it contains non-ROS packaged subdirectories.
+otherwise run
+```bash
+cd ~/catkin_ws
+catkin_make_isolated --install --use-ninja -DBUILD_ORTOOLS=OFF
+source install_isolated/setup.bash
+```
+
+Note that this project contains multiple large repositories (Cartographer SLAM, Google OR-Tools) and it might take a considerable amount of time to build for the first time (**~7 minutes on Ryzen 7 3700X, ~17 mins on i7-8550U**). It is recommended to use [Ninja over Make](https://ninja-build.org/manual.html#_comparison_to_make) for faster compiling speed. `catkin_make_isolated` is also required for Cartographer SLAM as it contains non-ROS packaged subdirectories.
 
 4. Developers of this project should also have Unreal Engine 4.23.1 installed in the system. From this point onwards, we assume that your UE4 is cloned and installed in directory `${UE4_ROOT}`.
 ```bash
