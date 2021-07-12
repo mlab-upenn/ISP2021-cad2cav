@@ -26,7 +26,8 @@ This project also depends on another UE4 software that provides initial landmark
 - Autodesk AutoCAD 2019
 - Unreal Engine 4.23.1
 
-This project also has an on-board part that is **only meant to be compiled on an F1TENTH vehicle**. To checkout the code, please refer to [this repo.](https://github.com/shineyruan/cad2cav_onboard)
+This project also has an on-board part that is **only meant to be compiled on an F1TENTH vehicle**. To checkout the code, please refer to:
+- [shineyruan/cad2cav_onboard](https://github.com/shineyruan/cad2cav_onboard)
 
 First run and install the following packages from Ubuntu repository:
 ```bash
