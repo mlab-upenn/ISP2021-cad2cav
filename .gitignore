@@ -416,3 +416,5 @@ $RECYCLE.BIN/
 
 auto_mapping_ros/csv/**
 !auto_mapping_ros/csv/local_traj_50_fwd_rev.csv
+
+!graph_partitioner/3rdparty/**
