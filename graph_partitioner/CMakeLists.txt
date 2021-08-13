@@ -29,9 +29,7 @@ find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Metis REQUIRED)
 
-if (NOT BUILD_ORTOOLS)
-  find_package(ortools CONFIG REQUIRED)
-else()  
+if (BUILD_ORTOOLS)
   include(FetchContent)
   set(FETCHCONTENT_QUIET OFF)
   set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
@@ -145,8 +143,23 @@ catkin_package(
 ## Build ##
 ###########
 
+file(GLOB ORTOOLS_LIB "3rdparty/ortools/lib/**")
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
+if (NOT BUILD_ORTOOLS)
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIR}
+  ${METIS_INCLUDE_DIRS}
+  3rdparty/ortools/include
+)
+link_directories(
+  3rdparty/ortools/lib
+)
+else()
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
@@ -154,6 +167,7 @@ include_directories(
   ${Boost_INCLUDE_DIR}
   ${METIS_INCLUDE_DIRS}
 )
+endif()
 
 # Declare a C++ library
 add_library(${PROJECT_NAME}
@@ -183,11 +197,20 @@ add_library(${PROJECT_NAME}
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
+if (BUILD_ORTOOLS)
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ortools::ortools
   ${METIS_LIBRARIES}
 )
+else()
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${METIS_LIBRARIES}
+  libortools.so
+  libglog.so
+)
+endif()
 
 #############
 ## Install ##
@@ -225,6 +248,24 @@ install(DIRECTORY include/${PROJECT_NAME}/
   PATTERN "*.h"
   PATTERN ".svn" EXCLUDE
 )
+if (NOT BUILD_ORTOOLS)
+install(DIRECTORY 
+  3rdparty/ortools/include/absl
+  3rdparty/ortools/include/coin
+  3rdparty/ortools/include/google
+  3rdparty/ortools/include/ortools
+  3rdparty/ortools/include/scip
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/..
+  FILES_MATCHING 
+  PATTERN "*.hpp"
+  PATTERN "*.h"
+  PATTERN ".svn" EXCLUDE
+)
+install(FILES
+  ${ORTOOLS_LIB}
+  DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+endif()
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
