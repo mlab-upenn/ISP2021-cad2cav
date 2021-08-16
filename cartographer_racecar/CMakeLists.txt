@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   std_msgs
+  f110_description
+  cartographer_rviz
 )
 
 ## System dependencies are found with CMake's conventions
@@ -106,7 +108,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES cartographer_racecar
-#  CATKIN_DEPENDS cartographer_ros roscpp sensor_msgs std_msgs
+ CATKIN_DEPENDS cartographer_ros roscpp sensor_msgs std_msgs f110_description cartographer_rviz
 #  DEPENDS system_lib
 )
 
