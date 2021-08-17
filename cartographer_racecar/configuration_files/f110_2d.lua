@@ -9,7 +9,7 @@ options = {
   published_frame = "base_link",
   odom_frame = "odom",
   provide_odom_frame = false,
-  use_odometry = true,
+  use_odometry = false,
   use_nav_sat = false,
   num_laser_scans = 1,
   num_multi_echo_laser_scans = 0,
@@ -23,7 +23,7 @@ options = {
   odometry_sampling_ratio = 1.,
   fixed_frame_pose_sampling_ratio = 1.,
   imu_sampling_ratio = 1.,
-  use_landmarks = false,
+  use_landmarks = true,
   publish_frame_projected_to_2d = false,
   landmarks_sampling_ratio = 1.,
 }
