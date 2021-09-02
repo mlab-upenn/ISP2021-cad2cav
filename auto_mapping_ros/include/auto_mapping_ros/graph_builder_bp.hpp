@@ -47,6 +47,13 @@ public:
      */
     void build_graph(const std::string& path_to_csv);
 
+    /**
+     * @brief builds the graph
+     * 
+     * @param waypoints:    list of waypoint (landmark) positions
+     */
+    void build_graph(const std::vector<cv::Point2f>& waypoints);
+
 protected:
     /**
      * @brief Reads pre-defined waypoints from a CSV file generated from UE4 model
