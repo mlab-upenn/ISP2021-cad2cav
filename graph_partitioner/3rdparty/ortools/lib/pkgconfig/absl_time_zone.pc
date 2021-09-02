@@ -1,0 +1,12 @@
+prefix=/mnt/ssd1/repos/or-tools/install
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: absl_time_zone
+Description: Abseil time_zone library
+URL: https://abseil.io/
+Version: 20210324
+Requires:
+Libs: -L${libdir}  -labsl_time_zone
+Cflags: -I${includedir} -DNOMINMAX
