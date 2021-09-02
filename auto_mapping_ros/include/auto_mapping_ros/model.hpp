@@ -14,19 +14,19 @@
 
 class Model {
 public:
-    Model();
-    virtual ~Model();
-    Eigen::MatrixXd a();
-    Eigen::MatrixXd b();
-    Eigen::MatrixXd c();
-    // Updates a_, b_, c_ about current input and state given dt
-    void Linearize(State &S, Input &I, double dt);
+  Model();
+  virtual ~Model();
+  Eigen::MatrixXd a();
+  Eigen::MatrixXd b();
+  Eigen::MatrixXd c();
+  // Updates a_, b_, c_ about current input and state given dt
+  void Linearize(State &S, Input &I, double dt);
 
 private:
-    double time_step_;
-    Eigen::MatrixXd a_;
-    Eigen::MatrixXd b_;
-    Eigen::MatrixXd c_;
+  double time_step_;
+  Eigen::MatrixXd a_;
+  Eigen::MatrixXd b_;
+  Eigen::MatrixXd c_;
 };
 
 #endif

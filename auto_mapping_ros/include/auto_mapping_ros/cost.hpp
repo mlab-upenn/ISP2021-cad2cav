@@ -8,16 +8,16 @@
 
 class Cost {
 public:
-    Cost();
-    Cost(Eigen::MatrixXd q, Eigen::MatrixXd r);
-    virtual ~Cost();
+  Cost();
+  Cost(Eigen::MatrixXd q, Eigen::MatrixXd r);
+  virtual ~Cost();
 
-    Eigen::MatrixXd q();
-    Eigen::MatrixXd r();
+  Eigen::MatrixXd q();
+  Eigen::MatrixXd r();
 
 private:
-    Eigen::MatrixXd q_;
-    Eigen::MatrixXd r_;
-    // mode
+  Eigen::MatrixXd q_;
+  Eigen::MatrixXd r_;
+  // mode
 };
 #endif

@@ -17,12 +17,9 @@ void stop_vehicle(ros::Publisher* brake_pub);
 /// \param steering_angle
 /// \param drive_pub
 /// \param base_frame
-void start_vehicle(int vehicle_id,
-                   double velocity,
-                   double steering_angle,
-                   ros::Publisher* drive_pub,
-                   const std::string& base_frame);
+void start_vehicle(int vehicle_id, double velocity, double steering_angle,
+                   ros::Publisher* drive_pub, const std::string& base_frame);
 
 }  // namespace amr
 
-#endif  //AUTO_MAPPING_ROS_MANEUVERS_H
+#endif  // AUTO_MAPPING_ROS_MANEUVERS_H

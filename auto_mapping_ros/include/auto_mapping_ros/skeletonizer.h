@@ -17,18 +17,18 @@ namespace amr {
 
 class Skeletonizer {
 public:
-    Skeletonizer();
+  Skeletonizer();
 
-    int read_map(const std::string &map_filename);
+  int read_map(const std::string &map_filename);
 
-    void display_img(cv::Mat img, std::string name = "Skeletonized Image");
+  void display_img(cv::Mat img, std::string name = "Skeletonized Image");
 
-    cv::Mat skeletonize();
+  cv::Mat skeletonize();
 
 private:
-    cv::Mat map_jpg;
+  cv::Mat map_jpg;
 };
 
 }  // namespace amr
 
-#endif  //AUTO_MAPPING_ROS_SKELETONIZER_H
+#endif  // AUTO_MAPPING_ROS_SKELETONIZER_H
