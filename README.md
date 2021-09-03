@@ -12,13 +12,13 @@ This is the github project for the F1Tenth Independent Study Projects 2021. In t
 ## Software Requirements
 - Boost 1.71
 - LibConfig++ 1.5.0
-- [OpenCV 4.4.0](https://github.com/opencv/opencv/tree/4.4.0)
-- [Google OR-Tools 8.2](https://github.com/google/or-tools/releases/tag/v8.2)
+- [OpenCV 4.5.1](https://github.com/opencv/opencv/tree/4.5.1)
+- [Google OR-Tools 9.0](https://github.com/google/or-tools/releases/tag/v9.0)
 - [OSQP 0.6.2](https://github.com/oxfordcontrol/osqp/releases/tag/v0.6.2)
 - [OSQP-Eigen 0.6.3](https://github.com/robotology/osqp-eigen/releases/tag/v0.6.3)
 - [METIS 5.1.0](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview)
 - [ROS Integration for Cartographer SLAM](https://google-cartographer-ros.readthedocs.io/en/latest/)
-- [Protocol Buffers (Protobuf) >= 3.12](https://github.com/protocolbuffers/protobuf/blob/master/src/README.md)
+- [Protocol Buffers (Protobuf) 3.17.3](https://github.com/protocolbuffers/protobuf/blob/master/src/README.md)
 
 This project also depends on another UE4 software that provides initial landmark locations for the planner to plan. One should also have the following:
 - [shineyruan/unreal_levine_4](https://github.com/shineyruan/unreal_levine_4)
