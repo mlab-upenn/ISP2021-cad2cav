@@ -259,6 +259,14 @@ add_executable(graph_partitioner_test
         src/impl/skeletonizer_impl.cpp
 )
 
+add_executable(coverage_sequence_creator_omniverse
+        node/coverage_sequence_omniverse.cpp
+        src/impl/types_impl.cpp
+        src/impl/utils_impl.cpp
+        src/impl/graph_builder_impl.cpp
+        src/impl/graph_builder_bp_impl.cpp
+)
+
 #add_executable(global_planner_test test/global_planner_test.cpp src/global_planner.cpp)
 
 
@@ -344,6 +352,14 @@ target_link_libraries(graph_partitioner_test
         acolib
 )
 
+target_link_libraries(coverage_sequence_creator_omniverse
+        ${catkin_LIBRARIES}
+        ${OpenCV_LIBS}
+        Threads::Threads
+        -lconfig++
+        acolib
+)
+
 #target_link_libraries(global_planner_test
 #        ${catkin_LIBRARIES}
 #        ${OpenCV_LIBS}
@@ -377,6 +393,7 @@ install(TARGETS
         coverage_planner_aco_test
         coverage_sequence_creator
         coverage_sequence_creator_cad
+        coverage_sequence_creator_omniverse
         graph_partitioner_test
         acolib
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
