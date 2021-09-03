@@ -20,7 +20,7 @@ This is the github project for the F1Tenth Independent Study Projects 2021. In t
 - [ROS Integration for Cartographer SLAM](https://google-cartographer-ros.readthedocs.io/en/latest/)
 - [Protocol Buffers (Protobuf) 3.17.3](https://github.com/protocolbuffers/protobuf/blob/master/src/README.md)
 
-This project also depends on another UE4 software that provides initial landmark locations for the planner to plan. One should also have the following:
+(*Deprecated, contact author for update*) This project also depends on another UE4 software that provides initial landmark locations for the planner to plan. One should also have the following:
 - [shineyruan/unreal_levine_4](https://github.com/shineyruan/unreal_levine_4)
 - Autodesk Revit 2019
 - Autodesk AutoCAD 2019
@@ -56,7 +56,7 @@ cd ~/catkin_ws
 catkin_make_isolated --install --use-ninja -DBUILD_ORTOOLS=ON
 source install_isolated/setup.bash
 ```
-otherwise run
+otherwise, if the versions of other software strictly matches the requirements above, one can also use the pre-built OR-Tools binaries in `graph_partitioner/3rdparty`:
 ```bash
 cd ~/catkin_ws
 catkin_make_isolated --install --use-ninja -DBUILD_ORTOOLS=OFF
@@ -65,7 +65,7 @@ source install_isolated/setup.bash
 
 Note that this project contains multiple large repositories (Cartographer SLAM, Google OR-Tools) and it might take a considerable amount of time to build for the first time (**~7 minutes on Ryzen 7 3700X, ~17 mins on i7-8550U**). It is recommended to use [Ninja over Make](https://ninja-build.org/manual.html#_comparison_to_make) for faster compiling speed. `catkin_make_isolated` is also required for Cartographer SLAM as it contains non-ROS packaged subdirectories.
 
-4. Developers of this project should also have Unreal Engine 4.23.1 installed in the system. From this point onwards, we assume that your UE4 is cloned and installed in directory `${UE4_ROOT}`.
+4. (*Deprecated*) Developers of this project should also have Unreal Engine 4.23.1 installed in the system. From this point onwards, we assume that your UE4 is cloned and installed in directory `${UE4_ROOT}`.
 ```bash
 cd ~
 git clone --recursive https://github.com/shineyruan/unreal_levine_4
@@ -88,8 +88,8 @@ catkin_make_isolated
 ```
 
 ## Running the code
-1. **Get landmark locations from UE4 gameplay.** Open the UE4 project and hit "Play". During gameplay, one should right-click on the landmarks in UE4 scene and the game would automatically save their locations in `~/unreal_levine_4/csv/actorLocation.csv`. For more details, please check out [shineyruan/unreal_levine_4](https://github.com/shineyruan/unreal_levine_4).
-2. **Copy the CSV file into ROS project.**
+1. **(*Deprecated*) Get landmark locations from UE4 gameplay.** Open the UE4 project and hit "Play". During gameplay, one should right-click on the landmarks in UE4 scene and the game would automatically save their locations in `~/unreal_levine_4/csv/actorLocation.csv`. For more details, please check out [shineyruan/unreal_levine_4](https://github.com/shineyruan/unreal_levine_4).
+2. **(*Deprecated*) Copy the CSV file into ROS project.**
 ```bash
 cp ~/unreal_levine_4/csv/actorLocation.csv ~/catkin_ws/src/ISP2021-cad2cav/auto_mapping_ros/csv
 ```
