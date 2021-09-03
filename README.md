@@ -4,6 +4,8 @@ This is the github project for the F1Tenth Independent Study Projects 2021. In t
 ![](docs/img/unreal.gif)
 ![](docs/img/automapper.gif)
 
+**For Developers: This repos has not set up CI tools. Please make sure `clang-format` is properly in use when contributing to the code base, in order to keep coding standard consistent.**
+
 ## System Requirements
 - Linux Ubuntu (tested on 20.04 LTS)
 - ROS Noetic
