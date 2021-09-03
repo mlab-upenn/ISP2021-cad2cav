@@ -14,7 +14,7 @@ METIS can be installed by:
 sudo apt install libmetis-dev
 ```
 
-**Google OR-Tools can either be pre-installed onto the system or installed upon building the project.** By default, the software assumes that users meet all dependency version requirements and tries to build with OR-Tools pre-built binaries (`-DBUILD_ORTOOLS=OFF`). However, users can pass `-DBUILD_ORTOOLS=ON` as CMake arguments to switch on the functionality of compiling Google OR-Tools on the fly. 
+**Google OR-Tools can either be pre-installed onto the system or installed upon building the project.** By default, the software assumes that users meet all dependency version requirements and tries to compile with OR-Tools pre-built binaries (`-DBUILD_ORTOOLS=OFF`). However, users can pass `-DBUILD_ORTOOLS=ON` as CMake arguments to switch on the functionality of compiling Google OR-Tools on the fly. 
 
 Users can also attempt to integrate OR-Tools libraries into the system CMake modules. OR-Tools itself needs to be **built with CMake** (by default it's through Makefile). You can find instructions on how to build OR-Tools with CMake [here.](https://github.com/google/or-tools/tree/v9.0/cmake)
 
