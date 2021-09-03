@@ -40,7 +40,7 @@ if (BUILD_ORTOOLS)
   FetchContent_Declare(
     or-tools
     GIT_REPOSITORY  https://github.com/google/or-tools.git
-    GIT_TAG         v8.2
+    GIT_TAG         v9.0
     GIT_SHALLOW     TRUE
     GIT_PROGRESS    TRUE
   )
