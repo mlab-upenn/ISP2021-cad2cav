@@ -59,8 +59,8 @@ std::vector<cv::Point2f> GraphBuilderBP::calibrateMap(
   // compute affine transformation matrix (from UE4 coords to pixel coords)
   if (unreal_waypoints.size() < user_clicked_waypoints.size())
     throw ros::Exception("user clicks more waypoints than UE4 waypoints");
-  const std::vector<cv::Point2f> unreal_waypoints_in(
-      unreal_waypoints.begin(), unreal_waypoints.begin() + 3);
+  const std::vector<cv::Point2f> unreal_waypoints_in{
+      unreal_waypoints[0], unreal_waypoints[6], unreal_waypoints[7]};
   cv::Mat affineMatrix = cv::getAffineTransform(unreal_waypoints_in.data(),
                                                 user_clicked_waypoints.data());
   // safety check
@@ -125,12 +125,24 @@ void GraphBuilderBP::build_graph(const std::string& path_to_csv) {
 }
 
 void GraphBuilderBP::build_graph(const std::vector<cv::Point2f>& waypoints) {
-  const auto map_waypoints = calibrateMap(waypoints);
+  // TODO: This function needs refactor
+  //
+
+  const auto world_origin_in_map = calibrateMapOrigin();
+
+  // Hardcoded from loaded map
+  // TODO: move this into a config file
+  // 54 pixels <--> 1.737 m in world coordinates
+  // 798 pixels <--> 25.116 m in world coordinates
+  constexpr double image_to_world_scale = (1321 - 523) / 2511.60;
 
   // constructs waypoints in graph format
   std::vector<std::array<int, 2>> map_waypoint_nodes;
-  for (const auto& p : map_waypoints) {
-    int intX = static_cast<int>(p.x), intY = static_cast<int>(p.y);
+  for (const auto& p : waypoints) {
+    float x = p.x * image_to_world_scale + world_origin_in_map.x;
+    float y = map_.rows - (p.y * image_to_world_scale + world_origin_in_map.y);
+    std::cout << p.x << ", " << p.y << " " << x << ", " << y << "\n";
+    int intX = static_cast<int>(x), intY = static_cast<int>(y);
     map_waypoint_nodes.emplace_back(std::array<int, 2>{intY, intX});
   }
 
