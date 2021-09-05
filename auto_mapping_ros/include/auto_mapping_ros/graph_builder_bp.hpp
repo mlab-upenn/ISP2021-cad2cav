@@ -73,6 +73,14 @@ protected:
   std::vector<cv::Point2f> calibrateMap(
       const std::vector<cv::Point2f>& unreal_waypoints);
 
+  /**
+   * @brief Pops up a window and returns the user-clicked world coordinate
+   * origin in map
+   *
+   * @return cv::Point2f: world origin in map coordinates
+   */
+  cv::Point2f calibrateMapOrigin() const;
+
 private:
   /**
    * @brief OpenCV callback function for mouse left-click on waypoints matching

@@ -83,6 +83,22 @@ std::vector<cv::Point2f> GraphBuilderBP::calibrateMap(
   return map_waypoints;
 }
 
+cv::Point2f GraphBuilderBP::calibrateMapOrigin() const {
+  // pop up an openCV window & let user left-click on waypoints in the map
+  const std::string window_name = "Origin selection";
+  ROS_INFO("Please left-click on the window for the world origin in the map.");
+  unsigned int len = 0;
+  cv::namedWindow(window_name, cv::WindowFlags::WINDOW_AUTOSIZE);
+  cv::setMouseCallback(window_name, this->calibrateMapMouseCallback,
+                       static_cast<void*>(&len));
+  do {
+    cv::imshow(window_name, map_);
+  } while (!(cv::waitKey(1) && len >= 1));
+  cv::destroyWindow(window_name);
+
+  return user_clicked_waypoints[0];
+}
+
 void GraphBuilderBP::build_graph(const std::string& path_to_csv) {
   // reads and transforms UE4 waypoint into map coordinates
   const auto unreal_waypoints = readUnrealWaypoints(path_to_csv);
