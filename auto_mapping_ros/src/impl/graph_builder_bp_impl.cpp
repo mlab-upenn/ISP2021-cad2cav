@@ -146,6 +146,22 @@ void GraphBuilderBP::build_graph(const std::vector<cv::Point2f>& waypoints) {
     map_waypoint_nodes.emplace_back(std::array<int, 2>{intY, intX});
   }
 
+  // TODO: generate waypoints from doors/windows locations
+  // Some initial thoughts:
+  //  1. Find horizontal & vertical lines by grouping input waypoints in X and
+  //    Y, respectively
+  //  2. For each pair of adjacent & parallel horizontal lines, specify some
+  //    points in between as waypoints
+  //  3. For each pair of adjacent & parallel vertical lines, specify some
+  //    points in between as waypoints
+  //  3-a. We can pre-configure a reasonable length such that in each region of
+  //    such length, there is only one waypoint to explore. Assume that a hall
+  //    is 25m. We don't have to specify that many waypoints. We can say that
+  //    for every 10 m, there is only one waypoint for the vehicle to explore.
+  //    Therefore there will be only 2 waypoints for the entire hall. That
+  //    should be sufficient for exploration.
+  //
+
   // For debug
   ROS_WARN("The tranformed UE4 waypoints in map coordinates:");
   for (const auto& p : map_waypoint_nodes) {
