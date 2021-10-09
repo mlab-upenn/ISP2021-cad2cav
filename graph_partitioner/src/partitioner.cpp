@@ -13,305 +13,303 @@ GraphPartitioner::GraphPartitioner(const Graph& graph) : graph_(graph) {}
 
 Eigen::MatrixXd GraphPartitioner::adjacencyMatrix(
     const AdjMatrixMetricType metric) const {
-    Eigen::MatrixXd adj_matrix =
-        Eigen::MatrixXd::Identity(graph_.size(), graph_.size());
+  Eigen::MatrixXd adj_matrix =
+      Eigen::MatrixXd::Identity(graph_.size(), graph_.size());
 
-    if (metric == AdjMatrixMetricType::DISTANCE) {
-        for (int i = 0; i < graph_.size(); ++i) {
-            for (const auto edge : graph_.getNode(i).neighbors) {
-                adj_matrix(i, edge.first) = edge.second;
-            }
-        }
-    } else if (metric == AdjMatrixMetricType::SIMILARITY) {
-        const double max_distance = *std::max_element(
-            graph_.edge_weights.begin(), graph_.edge_weights.end());
-        for (int i = 0; i < graph_.size(); ++i) {
-            for (const auto edge : graph_.getNode(i).neighbors) {
-                // uses Gaussian similarity function,
-                //  sets std dev to max_distance/2
-                adj_matrix(i, edge.first) = std::exp(
-                    -1 * std::pow(edge.second / (max_distance / 2), 2) / 2);
-            }
-        }
+  if (metric == AdjMatrixMetricType::DISTANCE) {
+    for (int i = 0; i < graph_.size(); ++i) {
+      for (const auto edge : graph_.getNode(i).neighbors) {
+        adj_matrix(i, edge.first) = edge.second;
+      }
     }
+  } else if (metric == AdjMatrixMetricType::SIMILARITY) {
+    const double max_distance = *std::max_element(graph_.edge_weights.begin(),
+                                                  graph_.edge_weights.end());
+    for (int i = 0; i < graph_.size(); ++i) {
+      for (const auto edge : graph_.getNode(i).neighbors) {
+        // uses Gaussian similarity function,
+        //  sets std dev to max_distance/2
+        adj_matrix(i, edge.first) =
+            std::exp(-1 * std::pow(edge.second / (max_distance / 2), 2) / 2);
+      }
+    }
+  }
 
-    return adj_matrix;
+  return adj_matrix;
 }
 
 std::vector<Graph> GraphPartitioner::getPartition(const int k,
                                                   PartitionType type) const {
-    // error checking
-    if (k < 1) {
-        ROS_FATAL("Graph partition number < 1");
-        throw ros::Exception("Cannot divide a graph with <1 subparts");
-    }
+  // error checking
+  if (k < 1) {
+    ROS_FATAL("Graph partition number < 1");
+    throw ros::Exception("Cannot divide a graph with <1 subparts");
+  }
 
-    // special case handling
-    if (k == 1) return {graph_};
+  // special case handling
+  if (k == 1) return {graph_};
 
-    std::vector<Graph> list_subgraphs;
+  std::vector<Graph> list_subgraphs;
 
-    switch (type) {
-        case PartitionType::SPECTRAL:
-            ROS_INFO("Using spectral clustering as graph partitioning method");
-            // Performs spectral clustering on graph partitioning task
-            list_subgraphs = spectralClustering(k);
-            break;
-        case PartitionType::METIS:
-            ROS_INFO("Using METIS as graph partitioning method");
-            // Calls METIS software on graph partitioning task
-            list_subgraphs = use_metis(k);
-            break;
+  switch (type) {
+    case PartitionType::SPECTRAL:
+      ROS_INFO("Using spectral clustering as graph partitioning method");
+      // Performs spectral clustering on graph partitioning task
+      list_subgraphs = spectralClustering(k);
+      break;
+    case PartitionType::METIS:
+      ROS_INFO("Using METIS as graph partitioning method");
+      // Calls METIS software on graph partitioning task
+      list_subgraphs = use_metis(k);
+      break;
 
-        default:
-            break;
-    }
+    default:
+      break;
+  }
 
-    return list_subgraphs;
+  return list_subgraphs;
 }
 
 std::vector<Graph> GraphPartitioner::use_metis(const int k) const {
-    // prepare CSR graph format
-    //  Variable name is consistent with METIS manual 5.1.0 Section 5.5, which
-    //  can be retrieved here:
-    //  http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
-    int n_nodes = graph_.size();
-    std::vector<int> xadj, adjncy, adjwgt;
-    // use Gaussian similarity metric of orig. edges as adjwgt b/c we would like
-    //  to maximize edge cut as our objective
-    // need to tweak the graph for METIS solver compliance (minimize edge cut)
-    graph_.getCSRFormat(xadj, adjncy, adjwgt, Graph::CSR_Type::GAUSSIAN);
+  // prepare CSR graph format
+  //  Variable name is consistent with METIS manual 5.1.0 Section 5.5, which
+  //  can be retrieved here:
+  //  http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
+  int n_nodes = graph_.size();
+  std::vector<int> xadj, adjncy, adjwgt;
+  // use Gaussian similarity metric of orig. edges as adjwgt b/c we would like
+  //  to maximize edge cut as our objective
+  // need to tweak the graph for METIS solver compliance (minimize edge cut)
+  graph_.getCSRFormat(xadj, adjncy, adjwgt, Graph::CSR_Type::GAUSSIAN);
 
-    // assignment vector for all graph nodes
-    std::vector<int> assignments(n_nodes, 0);
-    int partition_cost = 0;
+  // assignment vector for all graph nodes
+  std::vector<int> assignments(n_nodes, 0);
+  int partition_cost = 0;
 
-    // set METIS partitioning option code
-    //  see METIS manual 5.1.0 section 5.4
-    std::vector<int> metis_option_codes(METIS_NOPTIONS, 0);
-    METIS_SetDefaultOptions(metis_option_codes.data());
-    metis_option_codes[METIS_OPTION_DBGLVL] = METIS_DBG_INFO | METIS_DBG_TIME;
-    metis_option_codes[METIS_OPTION_NITER]  = 20;  // increate no. of iterations
-    metis_option_codes[METIS_OPTION_CONTIG] = 1;   // force contiguous subgraphs
+  // set METIS partitioning option code
+  //  see METIS manual 5.1.0 section 5.4
+  std::vector<int> metis_option_codes(METIS_NOPTIONS, 0);
+  METIS_SetDefaultOptions(metis_option_codes.data());
+  metis_option_codes[METIS_OPTION_DBGLVL] = METIS_DBG_INFO | METIS_DBG_TIME;
+  metis_option_codes[METIS_OPTION_NITER]  = 20;  // increate no. of iterations
+  metis_option_codes[METIS_OPTION_CONTIG] = 1;   // force contiguous subgraphs
 
-    // run METIS graph partitioner
-    //  default: multilevel k-way graph partitioning
-    //  reference paper:
-    //  https://www-sciencedirect-com.proxy.library.upenn.edu/science/article/pii/S0743731597914040
-    int n_constraints    = 1;
-    int num_parts        = k;
-    int partition_result = METIS_PartGraphKway(
-        &n_nodes, &n_constraints, xadj.data(), adjncy.data(), NULL, NULL,
-        adjwgt.data(), &num_parts, NULL, NULL, metis_option_codes.data(),
-        &partition_cost, assignments.data());
+  // run METIS graph partitioner
+  //  default: multilevel k-way graph partitioning
+  //  reference paper:
+  //  https://www-sciencedirect-com.proxy.library.upenn.edu/science/article/pii/S0743731597914040
+  int n_constraints    = 1;
+  int num_parts        = k;
+  int partition_result = METIS_PartGraphKway(
+      &n_nodes, &n_constraints, xadj.data(), adjncy.data(), NULL, NULL,
+      adjwgt.data(), &num_parts, NULL, NULL, metis_option_codes.data(),
+      &partition_cost, assignments.data());
 
-    switch (partition_result) {
-        case METIS_OK:
-            ROS_INFO_STREAM("METIS partitioning finished with no errors."
-                            << " Partition cost: " << partition_cost);
-            break;
-        case METIS_ERROR_INPUT:
-            ROS_ERROR("METIS partitioning failed: input error");
-            break;
-        case METIS_ERROR_MEMORY:
-            ROS_ERROR(
-                "METIS partitioning failed: could not allocate enough memory");
-            break;
-        case METIS_ERROR:
-            ROS_ERROR("METIS partitioning failed: other general errors");
-            break;
+  switch (partition_result) {
+    case METIS_OK:
+      ROS_INFO_STREAM("METIS partitioning finished with no errors."
+                      << " Partition cost: " << partition_cost);
+      break;
+    case METIS_ERROR_INPUT:
+      ROS_ERROR("METIS partitioning failed: input error");
+      break;
+    case METIS_ERROR_MEMORY:
+      ROS_ERROR("METIS partitioning failed: could not allocate enough memory");
+      break;
+    case METIS_ERROR:
+      ROS_ERROR("METIS partitioning failed: other general errors");
+      break;
 
-        default:
-            break;
-    }
+    default:
+      break;
+  }
 
-    return utils::getSubgraphFromAssignments(this->graph_, k, assignments);
+  return utils::getSubgraphFromAssignments(this->graph_, k, assignments);
 }
 
 std::vector<Graph> GraphPartitioner::spectralClustering(const int k) const {
-    // adjacency matrix of the graph
-    //  for spectral clustering, we should use similarity in adj matrix
-    //  (closer nodes have higher edge weights)
-    const auto adj_matrix = adjacencyMatrix(AdjMatrixMetricType::SIMILARITY);
-    // degree matrix of the graph
-    const Eigen::MatrixXd deg_matrix = adj_matrix.rowwise().sum().asDiagonal();
-    // compute Laplacian matrix
-    const auto laplacian = deg_matrix - adj_matrix;
-    // solve the eigenvalues & eigenvectors of Laplacian
-    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es_laplacian(laplacian);
-    // transpose of k-th eigenvectors corr. to smallest k eigenvalues
-    //  denotes the feature vector for each graph node
-    const auto node_feature_vectors =
-        es_laplacian.eigenvectors().leftCols(k).transpose();
-    ROS_INFO_STREAM("Feature vectors from graph Laplacian:\n"
-                    << node_feature_vectors.transpose());
-    ROS_INFO_STREAM("Corresponding eigenvalues:\n"
-                    << es_laplacian.eigenvalues().head(k).transpose());
-    // run k-means clustering on feature vectors
-    const auto assignments = utils::kMeans(node_feature_vectors, k);
+  // adjacency matrix of the graph
+  //  for spectral clustering, we should use similarity in adj matrix
+  //  (closer nodes have higher edge weights)
+  const auto adj_matrix = adjacencyMatrix(AdjMatrixMetricType::SIMILARITY);
+  // degree matrix of the graph
+  const Eigen::MatrixXd deg_matrix = adj_matrix.rowwise().sum().asDiagonal();
+  // compute Laplacian matrix
+  const auto laplacian = deg_matrix - adj_matrix;
+  // solve the eigenvalues & eigenvectors of Laplacian
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es_laplacian(laplacian);
+  // transpose of k-th eigenvectors corr. to smallest k eigenvalues
+  //  denotes the feature vector for each graph node
+  const auto node_feature_vectors =
+      es_laplacian.eigenvectors().leftCols(k).transpose();
+  ROS_INFO_STREAM("Feature vectors from graph Laplacian:\n"
+                  << node_feature_vectors.transpose());
+  ROS_INFO_STREAM("Corresponding eigenvalues:\n"
+                  << es_laplacian.eigenvalues().head(k).transpose());
+  // run k-means clustering on feature vectors
+  const auto assignments = utils::kMeans(node_feature_vectors, k);
 
-    // construct subgraphs based on assignments
-    return utils::getSubgraphFromAssignments(this->graph_, k, assignments);
+  // construct subgraphs based on assignments
+  return utils::getSubgraphFromAssignments(this->graph_, k, assignments);
 }
 
 namespace utils {
 
 std::vector<int> kMeans(const Eigen::MatrixXd& fv, const int k) {
-    int num_points = fv.cols();
-    int dim        = fv.rows();  // dimension of feature vector
-    std::vector<int> assignments_vec(num_points, 0);
+  int num_points = fv.cols();
+  int dim        = fv.rows();  // dimension of feature vector
+  std::vector<int> assignments_vec(num_points, 0);
 
-    // initialize centroids
-    //  use k-means++ initialization scheme
-    Eigen::MatrixXd centroids = kmeanspp_init(fv, k);
+  // initialize centroids
+  //  use k-means++ initialization scheme
+  Eigen::MatrixXd centroids = kmeanspp_init(fv, k);
 
-    // initialize assignment results
-    // Eigen::Map ensures that `assignments` and `assignments_vec` share the
-    //  same memory data
-    // https://eigen.tuxfamily.org/dox/classEigen_1_1Map.html
-    Eigen::Map<Eigen::VectorXi> assignments(assignments_vec.data(), num_points);
-    Eigen::VectorXi prev_assignments = Eigen::VectorXi::Ones(num_points);
+  // initialize assignment results
+  // Eigen::Map ensures that `assignments` and `assignments_vec` share the
+  //  same memory data
+  // https://eigen.tuxfamily.org/dox/classEigen_1_1Map.html
+  Eigen::Map<Eigen::VectorXi> assignments(assignments_vec.data(), num_points);
+  Eigen::VectorXi prev_assignments = Eigen::VectorXi::Ones(num_points);
 
-    // debug output
-    ROS_INFO_STREAM("centroids before clustering:\n" << centroids);
-    ROS_INFO_STREAM("assignments of nodes before clustering:\n"
-                    << assignments.transpose());
+  // debug output
+  ROS_INFO_STREAM("centroids before clustering:\n" << centroids);
+  ROS_INFO_STREAM("assignments of nodes before clustering:\n"
+                  << assignments.transpose());
 
-    // main loop
-    while (assignments != prev_assignments) {
-        prev_assignments = assignments;
+  // main loop
+  while (assignments != prev_assignments) {
+    prev_assignments = assignments;
 
-        // reassign each feature vector to the closest centroid
-        for (int i = 0; i < num_points; ++i) {
-            const Eigen::VectorXd feature = fv.col(i);
-            double min_dist = std::numeric_limits<double>::infinity();
-            for (int j = 0; j < k; ++j) {
-                Eigen::VectorXd centroid = centroids.col(j);
-                if ((feature - centroid).squaredNorm() < min_dist) {
-                    min_dist       = (feature - centroid).squaredNorm();
-                    assignments(i) = j;
-                }
-            }
+    // reassign each feature vector to the closest centroid
+    for (int i = 0; i < num_points; ++i) {
+      const Eigen::VectorXd feature = fv.col(i);
+      double min_dist               = std::numeric_limits<double>::infinity();
+      for (int j = 0; j < k; ++j) {
+        Eigen::VectorXd centroid = centroids.col(j);
+        if ((feature - centroid).squaredNorm() < min_dist) {
+          min_dist       = (feature - centroid).squaredNorm();
+          assignments(i) = j;
         }
-
-        // recompute each centroid as the mean of each cluster
-        for (int j = 0; j < k; ++j) {
-            Eigen::VectorXd sum_centroid = Eigen::VectorXd::Zero(dim);
-            int count                    = 0;
-            for (int i = 0; i < num_points; ++i) {
-                if (assignments(i) != j) continue;
-                sum_centroid += fv.col(i);
-                ++count;
-            }
-            centroids.col(j) = (sum_centroid == Eigen::VectorXd::Zero(dim))
-                                   ? sum_centroid
-                                   : sum_centroid / count;
-        }
+      }
     }
 
-    ROS_INFO_STREAM("centroids after clustering:\n" << centroids);
-    ROS_INFO_STREAM("assignments of nodes after clustering:\n"
-                    << assignments.transpose());
+    // recompute each centroid as the mean of each cluster
+    for (int j = 0; j < k; ++j) {
+      Eigen::VectorXd sum_centroid = Eigen::VectorXd::Zero(dim);
+      int count                    = 0;
+      for (int i = 0; i < num_points; ++i) {
+        if (assignments(i) != j) continue;
+        sum_centroid += fv.col(i);
+        ++count;
+      }
+      centroids.col(j) = (sum_centroid == Eigen::VectorXd::Zero(dim))
+                             ? sum_centroid
+                             : sum_centroid / count;
+    }
+  }
 
-    return assignments_vec;
+  ROS_INFO_STREAM("centroids after clustering:\n" << centroids);
+  ROS_INFO_STREAM("assignments of nodes after clustering:\n"
+                  << assignments.transpose());
+
+  return assignments_vec;
 }
 
 Eigen::MatrixXd kmeanspp_init(const Eigen::MatrixXd& fv, const int k) {
-    int num_points = fv.cols();
-    int dim        = fv.rows();
+  int num_points = fv.cols();
+  int dim        = fv.rows();
 
-    // initialize centroids
-    Eigen::MatrixXd centroids = Eigen::MatrixXd::Zero(dim, k);
-    int n_chosen_centroids    = 0;
+  // initialize centroids
+  Eigen::MatrixXd centroids = Eigen::MatrixXd::Zero(dim, k);
+  int n_chosen_centroids    = 0;
 
-    // initialize random engine
-    std::random_device rd;
-    std::mt19937 generator(rd());
+  // initialize random engine
+  std::random_device rd;
+  std::mt19937 generator(rd());
 
-    // 1. Randomly choose one data point as the first centroid
-    std::uniform_int_distribution<int> initial_distribution(0, num_points - 1);
-    centroids.col(0) = fv.col(initial_distribution(generator));
-    ++n_chosen_centroids;
+  // 1. Randomly choose one data point as the first centroid
+  std::uniform_int_distribution<int> initial_distribution(0, num_points - 1);
+  centroids.col(0) = fv.col(initial_distribution(generator));
+  ++n_chosen_centroids;
 
-    // 2. Loop until all k centroids have been chosen
-    for (int j = 1; j < k; ++j) {
-        std::vector<double> closest_dist_to_centroids;
-        // 2a. Loop over all data points & find its closest distance to centoids
-        for (int i = 0; i < num_points; ++i) {
-            const Eigen::VectorXd data_point = fv.col(i);
-            double min_dist = std::numeric_limits<double>::infinity();
-            for (int k = 0; k < n_chosen_centroids; ++k) {
-                Eigen::VectorXd centroid = centroids.col(k);
-                if ((data_point - centroid).squaredNorm() < min_dist) {
-                    min_dist = (data_point - centroid).squaredNorm();
-                }
-            }
-            closest_dist_to_centroids.push_back(min_dist);
+  // 2. Loop until all k centroids have been chosen
+  for (int j = 1; j < k; ++j) {
+    std::vector<double> closest_dist_to_centroids;
+    // 2a. Loop over all data points & find its closest distance to centoids
+    for (int i = 0; i < num_points; ++i) {
+      const Eigen::VectorXd data_point = fv.col(i);
+      double min_dist = std::numeric_limits<double>::infinity();
+      for (int k = 0; k < n_chosen_centroids; ++k) {
+        Eigen::VectorXd centroid = centroids.col(k);
+        if ((data_point - centroid).squaredNorm() < min_dist) {
+          min_dist = (data_point - centroid).squaredNorm();
         }
-        // 2b. Choose a new data point as a new centroid, according to the
-        // distribution where farthest data point has the largest probability to
-        // be chosen
-        std::discrete_distribution distribution(
-            closest_dist_to_centroids.begin(), closest_dist_to_centroids.end());
-        centroids.col(j) = fv.col(distribution(generator));
-        ++n_chosen_centroids;
+      }
+      closest_dist_to_centroids.push_back(min_dist);
     }
+    // 2b. Choose a new data point as a new centroid, according to the
+    // distribution where farthest data point has the largest probability to
+    // be chosen
+    std::discrete_distribution distribution(closest_dist_to_centroids.begin(),
+                                            closest_dist_to_centroids.end());
+    centroids.col(j) = fv.col(distribution(generator));
+    ++n_chosen_centroids;
+  }
 
-    // 3. Loop until all centroids have been chosen. Return the result
-    return centroids;
+  // 3. Loop until all centroids have been chosen. Return the result
+  return centroids;
 }
 
 std::vector<Graph> getSubgraphFromAssignments(
     const Graph& orig_graph, const int k, const std::vector<int>& assignments) {
-    std::vector<Graph> list_subgraphs;
-    for (int j = 0; j < k; ++j) {
-        Graph subgraph;
-        // a set of node ids that remembers the node unvisited
-        // (not added to node_id_map)
-        std::set<int> unvisited_nodes(
-            boost::counting_iterator<int>(0),
-            boost::counting_iterator<int>(assignments.size()));
-        // a mapping from old node id to new node id
-        std::unordered_map<int, int> node_id_map;
+  std::vector<Graph> list_subgraphs;
+  for (int j = 0; j < k; ++j) {
+    Graph subgraph;
+    // a set of node ids that remembers the node unvisited
+    // (not added to node_id_map)
+    std::set<int> unvisited_nodes(
+        boost::counting_iterator<int>(0),
+        boost::counting_iterator<int>(assignments.size()));
+    // a mapping from old node id to new node id
+    std::unordered_map<int, int> node_id_map;
 
-        while (!unvisited_nodes.empty()) {
-            int i = *unvisited_nodes.begin();
-            unvisited_nodes.erase(i);
-            if (assignments[i] != j) continue;
+    while (!unvisited_nodes.empty()) {
+      int i = *unvisited_nodes.begin();
+      unvisited_nodes.erase(i);
+      if (assignments[i] != j) continue;
 
-            const Node node = orig_graph.getNode(i);
-            int node_new_id;
-            if (node_id_map.count(i) > 0)
-                node_new_id = node_id_map.at(i);
-            else {
-                node_new_id = subgraph.addNewNode(node.x, node.y);
-                node_id_map.insert({i, node_new_id});
-            }
+      const Node node = orig_graph.getNode(i);
+      int node_new_id;
+      if (node_id_map.count(i) > 0)
+        node_new_id = node_id_map.at(i);
+      else {
+        node_new_id = subgraph.addNewNode(node.x, node.y);
+        node_id_map.insert({i, node_new_id});
+      }
 
-            for (const auto& [neighbor_id, distance] : node.neighbors) {
-                // if node's neighbor is also in the same cluster, add it to
-                // current subgraph. Otherwise, discard it
-                if (assignments[neighbor_id] == j) {
-                    const Node neighbor = orig_graph.getNode(neighbor_id);
-                    int neighbor_new_id;
-                    if (node_id_map.count(neighbor_id) > 0)
-                        neighbor_new_id = node_id_map.at(neighbor_id);
-                    else {
-                        neighbor_new_id =
-                            subgraph.addNewNode(neighbor.x, neighbor.y);
-                        node_id_map.insert({neighbor_id, neighbor_new_id});
-                    }
+      for (const auto& [neighbor_id, distance] : node.neighbors) {
+        // if node's neighbor is also in the same cluster, add it to
+        // current subgraph. Otherwise, discard it
+        if (assignments[neighbor_id] == j) {
+          const Node neighbor = orig_graph.getNode(neighbor_id);
+          int neighbor_new_id;
+          if (node_id_map.count(neighbor_id) > 0)
+            neighbor_new_id = node_id_map.at(neighbor_id);
+          else {
+            neighbor_new_id = subgraph.addNewNode(neighbor.x, neighbor.y);
+            node_id_map.insert({neighbor_id, neighbor_new_id});
+          }
 
-                    // add an edge between node and its current neighbor in
-                    // new graph
-                    subgraph.addEdge(node_new_id, neighbor_new_id, distance);
-                }
-            }
+          // add an edge between node and its current neighbor in
+          // new graph
+          subgraph.addEdge(node_new_id, neighbor_new_id, distance);
         }
-
-        list_subgraphs.push_back(subgraph);
+      }
     }
-    return list_subgraphs;
+
+    list_subgraphs.push_back(subgraph);
+  }
+  return list_subgraphs;
 }
 
 }  // namespace utils

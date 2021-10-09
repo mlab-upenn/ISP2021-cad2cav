@@ -33,53 +33,53 @@ enum PartitionType { SPECTRAL = 0, KERNIGHAN_LIN, METIS };
 
 class GraphPartitioner {
 public:
-    GraphPartitioner() = default;
+  GraphPartitioner() = default;
 
-    /**
-     * @brief Construct a new Graph Partitioner object
-     *
-     * @param graph:    input graph for initialization
-     */
-    GraphPartitioner(const Graph& graph);
+  /**
+   * @brief Construct a new Graph Partitioner object
+   *
+   * @param graph:    input graph for initialization
+   */
+  GraphPartitioner(const Graph& graph);
 
-    /**
-     * @brief Get the k-way partition of the graph
-     *
-     * @param type:         partition algorithms to use
-     * @param k:            no. of partitions to generate
-     * @return std::vector<Graph>:  k subgraphs of the original graph
-     */
-    std::vector<cad2cav::Graph> getPartition(
-        const int k, PartitionType type = PartitionType::SPECTRAL) const;
+  /**
+   * @brief Get the k-way partition of the graph
+   *
+   * @param type:         partition algorithms to use
+   * @param k:            no. of partitions to generate
+   * @return std::vector<Graph>:  k subgraphs of the original graph
+   */
+  std::vector<cad2cav::Graph> getPartition(
+      const int k, PartitionType type = PartitionType::SPECTRAL) const;
 
-    /**
-     * @brief Constructs an adjacency matrix for spectral clustering
-     *       based on current graph
-     *
-     * @param metric:           metric for setting edge weights.
-     *                          DISTANCE or SIMILARITY.
-     * @return Eigen::MatrixXd
-     */
-    Eigen::MatrixXd adjacencyMatrix(const AdjMatrixMetricType metric) const;
+  /**
+   * @brief Constructs an adjacency matrix for spectral clustering
+   *       based on current graph
+   *
+   * @param metric:           metric for setting edge weights.
+   *                          DISTANCE or SIMILARITY.
+   * @return Eigen::MatrixXd
+   */
+  Eigen::MatrixXd adjacencyMatrix(const AdjMatrixMetricType metric) const;
 
 private:
-    cad2cav::Graph graph_;
+  cad2cav::Graph graph_;
 
-    /**
-     * @brief Runs spectral clustering on current graph and generate subgraphs.
-     *
-     * @param k:                    No. of subgraphs (clusters)
-     * @return std::vector<Graph>:  List of subgraphs
-     */
-    std::vector<cad2cav::Graph> spectralClustering(const int k) const;
+  /**
+   * @brief Runs spectral clustering on current graph and generate subgraphs.
+   *
+   * @param k:                    No. of subgraphs (clusters)
+   * @return std::vector<Graph>:  List of subgraphs
+   */
+  std::vector<cad2cav::Graph> spectralClustering(const int k) const;
 
-    /**
-     * @brief Calls METIS graph partitioner software on current graph.
-     *
-     * @param k:                    No. of subgraphs
-     * @return std::vector<Graph>:  List of subgraphs
-     */
-    std::vector<cad2cav::Graph> use_metis(const int k) const;
+  /**
+   * @brief Calls METIS graph partitioner software on current graph.
+   *
+   * @param k:                    No. of subgraphs
+   * @return std::vector<Graph>:  List of subgraphs
+   */
+  std::vector<cad2cav::Graph> use_metis(const int k) const;
 };
 
 namespace utils {
