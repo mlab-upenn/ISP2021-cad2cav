@@ -1,171 +1,46 @@
-#include "graph_partitioner/graph.hpp"
+#include "graph_partitioner/tsp_solver.hpp"
 
-#include <algorithm>
-#include <boost/range/algorithm_ext/push_back.hpp>
-#include <boost/range/irange.hpp>
-
+namespace cad2cav {
 namespace graph_partitioner {
 
-Graph::Graph()
-    : edge_directions(edge_directions_),
-      edge_weights(edge_weights_),
-      n_nodes_(0),
-      tsp_min_cost_(std::numeric_limits<double>::infinity()) {}
-
-Graph::Graph(const Graph& other)
-    : edge_directions(edge_directions_),
-      edge_weights(edge_weights_),
-      nodes_(other.nodes_),
-      n_nodes_(other.n_nodes_),
-      edge_directions_(other.edge_directions_),
-      edge_weights_(other.edge_weights_),
-      tsp_min_cost_(other.tsp_min_cost_),
-      tsp_sequence_(other.tsp_sequence_) {}
-
-const int Graph::size() const noexcept { return n_nodes_; }
-
-int Graph::addNewNode(const double node_x, const double node_y) noexcept {
-    int new_node_id = this->n_nodes_++;
-    this->nodes_.emplace_back(node_x, node_y, new_node_id);
-    return new_node_id;
-}
-
-Node& Graph::getNode(const int id) {
-    try {
-        return this->nodes_.at(id);
-    } catch (const std::out_of_range& e) {
-        throw ros::Exception("node is not in the graph");
-    } catch (const std::exception& e) {
-        throw ros::Exception(e.what());
-    }
-}
-
-const Node& Graph::getNode(const int id) const {
-    try {
-        return this->nodes_.at(id);
-    } catch (const std::out_of_range& e) {
-        throw ros::Exception("node is not in the graph");
-    } catch (const std::exception& e) {
-        throw ros::Exception(e.what());
-    }
-}
-
-double Graph::addEdge(const int node_from_id, const int node_to_id,
-                      double edge_weight) {
-    Node& start_node = getNode(node_from_id);
-    Node& end_node   = getNode(node_to_id);
-
-    // does not allow pre-existence of edge
-    if (start_node.neighbors.find(node_to_id) != start_node.neighbors.end()) {
-        throw ros::Exception("add edge failure. edge already exists.");
-    }
-
-    if (edge_weight < 0)
-        edge_weight = std::sqrt(std::pow(end_node.x - start_node.x, 2) +
-                                std::pow(end_node.y - start_node.y, 2));
-
-    start_node.neighbors_.insert({node_to_id, edge_weight});
-    start_node.distances_.insert({edge_weight, node_to_id});
-
-    this->edge_directions_.emplace_back(node_from_id, node_to_id);
-    this->edge_weights_.push_back(edge_weight);
-
-    return edge_weight;
-}
-
-std::ostream& operator<<(std::ostream& o, const Graph& graph) {
-    o << "{ n_nodes: " << graph.n_nodes_ << ", node_xy: [";
-    for (const auto& node : graph.nodes_) {
-        o << "(" << node.x << ", " << node.y << "), ";
-    }
-    o << "] }";
-
-    return o;
-}
-
-const Graph::Path Graph::getTSPSequence() const noexcept {
-    Graph::Path path;
+const TSPSolver::Path TSPSolver::getTSPSequence() const noexcept {
+    Path path;
 
     // convert solved node id sequence into coord sequence
     for (const auto& id : tsp_sequence_) {
-        const auto& n = getNode(id);
+        const auto& n = graph_.getNode(id);
         path.push_back({n.x, n.y});
     }
 
     return path;
 }
 
-void Graph::getCSRFormat(std::vector<int>& out_xadj,
-                         std::vector<int>& out_adjncy,
-                         std::vector<int>& out_adjwgt,
-                         CSR_Type edge_type) const {
-    out_xadj.push_back(out_adjncy.size());
-
-    if (edge_type == CSR_Type::LINEAR) {
-        for (int i = 0; i < n_nodes_; ++i) {
-            const Node& node = getNode(i);
-            for (const auto& p : node.neighbors) {
-                out_adjncy.push_back(p.first);
-                out_adjwgt.push_back(static_cast<int>(std::round(p.second)));
-            }
-            out_xadj.push_back(out_adjncy.size());
-        }
-    } else if (edge_type == CSR_Type::GAUSSIAN) {
-        // get max weight among all edges of graph for further
-        //  `Gaussian similarity metric` normalization
-        const double max_distance =
-            *std::max_element(edge_weights.begin(), edge_weights.end());
-
-        for (int i = 0; i < n_nodes_; ++i) {
-            const Node& node = getNode(i);
-            for (const auto& p : node.neighbors) {
-                out_adjncy.push_back(p.first);
-
-                // compute Gaussian similarity
-                //  set sigma to be 0.5*max_distance
-                double similarity = std::exp(
-                    -1 * std::pow(p.second / (max_distance / 2), 2) / 2);
-                // add a scaling factor of 100 to ensure sufficient precision of
-                // edge weight after casting to int
-                double scale_factor = 100.0;
-
-                out_adjwgt.push_back(
-                    static_cast<int>(std::round(scale_factor * similarity)));
-            }
-            out_xadj.push_back(out_adjncy.size());
-        }
-    } else {
-        ROS_FATAL("Unrecognized CSR edge calculation mode");
-        throw ros::Exception("Unrecognized CSR edge calculation mode");
-    }
-}
-
-double Graph::updateTSPSequence(TSPSolver solver) noexcept {
-    if (solver == TSPSolver::GOOGLE_ORTOOLS) {
+double TSPSolver::updateTSPSequence(TSPSolverType solver) noexcept {
+    if (solver == TSPSolverType::GOOGLE_ORTOOLS) {
         // clears previous TSP solutions
         tsp_min_cost_ = std::numeric_limits<double>::infinity();
         tsp_sequence_.clear();
 
-        for (int i = 0; i < n_nodes_; ++i) {
+        for (int i = 0; i < graph_.size(); ++i) {
             const auto [cost, sequence] = tsp_ortools_solver(i);
             if (static_cast<double>(cost) < tsp_min_cost_) {
                 tsp_min_cost_ = static_cast<double>(cost);
                 tsp_sequence_ = sequence;
             }
         }
-    } else if (solver == TSPSolver::BRANCH_AND_BOUND) {
+    } else if (solver == TSPSolverType::BRANCH_AND_BOUND) {
         tsp_branch_and_bound();
     }
 
     return tsp_min_cost_;
 }
 
-std::pair<double, std::vector<int>> Graph::tsp_ortools_solver(
+std::pair<double, std::vector<int>> TSPSolver::tsp_ortools_solver(
     const int start_node_id) {
     // starting node of TSP
     operations_research::RoutingIndexManager::NodeIndex depot{start_node_id};
     // TSP solver manager
-    operations_research::RoutingIndexManager manager(n_nodes_, 1, depot);
+    operations_research::RoutingIndexManager manager(graph_.size(), 1, depot);
     // TSP solver model
     operations_research::RoutingModel routing(manager);
 
@@ -177,7 +52,7 @@ std::pair<double, std::vector<int>> Graph::tsp_ortools_solver(
             const auto end_node_id   = manager.IndexToNode(to_node).value();
 
             // retrieve neighboring distance
-            const auto node  = getNode(start_node_id);
+            const auto node  = graph_.getNode(start_node_id);
             int64_t distance = node.neighbors.count(end_node_id) > 0
                                    ? static_cast<int64_t>(std::ceil(
                                          node.neighbors.at(end_node_id)))
@@ -209,7 +84,7 @@ std::pair<double, std::vector<int>> Graph::tsp_ortools_solver(
     return {solution->ObjectiveValue(), sequence};
 }
 
-void Graph::tsp_branch_and_bound() noexcept {
+void TSPSolver::tsp_branch_and_bound() noexcept {
     // Assumes the problem size is small; use branch and bound search
     // Also assumes the graph is undirected.
     //  Reference:
@@ -224,7 +99,8 @@ void Graph::tsp_branch_and_bound() noexcept {
 
     // initialize lower bound
     double current_bound = 0.0;
-    for (const auto& node : nodes_) {
+    for (int i = 0; i < graph_.size(); ++i) {
+        const auto& node = graph_.getNode(i);
         // for a solvable TSP graph, all nodes should at least have 2 neighbors
         if (node.neighbors.size() < 2) {
             ROS_ERROR_STREAM("Singular node at ("
@@ -244,7 +120,7 @@ void Graph::tsp_branch_and_bound() noexcept {
     std::set<int> visited_node_list;
 
     // iterate over all nodes as starting node
-    for (int i = 0; i < n_nodes_; ++i) {
+    for (int i = 0; i < graph_.size(); ++i) {
         sequence.push_back(i);
         visited_node_list.insert(i);
         tsp_explore(current_bound, 0.0, 1, visited_node_list, sequence);
@@ -253,12 +129,12 @@ void Graph::tsp_branch_and_bound() noexcept {
     }
 }
 
-void Graph::tsp_explore(double current_bound, double current_cost, double level,
-                        std::set<int>& visited,
-                        std::vector<int>& current_path) {
-    if (level == n_nodes_) {
+void TSPSolver::tsp_explore(double current_bound, double current_cost,
+                            double level, std::set<int>& visited,
+                            std::vector<int>& current_path) {
+    if (level == graph_.size()) {
         // all nodes have been visited
-        const auto& node = getNode(current_path.back());
+        const auto& node = graph_.getNode(current_path.back());
         // if the last node in path connects with the first node in path, one
         // solution is found
         if (node.neighbors.count(current_path.front()) > 0) {
@@ -273,10 +149,10 @@ void Graph::tsp_explore(double current_bound, double current_cost, double level,
             }
         }
     } else {
-        const auto& node = getNode(current_path.back());
-        for (int i = 0; i < n_nodes_; ++i) {
+        const auto& node = graph_.getNode(current_path.back());
+        for (int i = 0; i < graph_.size(); ++i) {
             if (node.neighbors.count(i) == 0 || visited.count(i) > 0) continue;
-            const auto& neighbor = getNode(i);
+            const auto& neighbor = graph_.getNode(i);
 
             // save current lower bound estimate & running cost
             double prev_bound = current_bound;
@@ -325,3 +201,4 @@ void Graph::tsp_explore(double current_bound, double current_cost, double level,
 }
 
 }  // namespace graph_partitioner
+}  // namespace cad2cav

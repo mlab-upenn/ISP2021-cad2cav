@@ -3,7 +3,7 @@
 
 #include <ros/ros.h>
 
-#include "graph_partitioner/graph.hpp"
-#include "graph_partitioner/node.hpp"
+#include "cad2cav_types/graph.hpp"
+#include "cad2cav_types/node.hpp"
 
 #endif /* __GRAPH_PARTITIONER_TYPES_HPP__ */

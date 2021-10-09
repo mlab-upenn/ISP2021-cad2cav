@@ -1,52 +1,22 @@
-cmake_minimum_required(VERSION 3.15.0)
-project(graph_partitioner)
+cmake_minimum_required(VERSION 3.0.2)
+project(cad2cav_types)
 
-option(Partitioner_DEBUG "Add debug symbol in graph_partitioner" OFF)
-
-## Compile as C++17
-add_compile_options(-std=c++17 -Wall)
-add_compile_options(-fdiagnostics-color=always)  # colored output in Ninja build
-if (Partitioner_DEBUG)
-  add_compile_options(-g)
-else()
-  add_compile_options(-O3)
-endif()
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
-
-# introduce option to build or-tools upon compilation
-option(BUILD_ORTOOLS "Build Google OR-Tools" OFF)
+## Compile as C++11, supported in ROS Kinetic and newer
+# add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  geometry_msgs
   roscpp
+  sensor_msgs
   std_msgs
-  cad2cav_types
 )
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED)
-find_package(Eigen3 REQUIRED)
-find_package(Metis REQUIRED)
+# find_package(Boost REQUIRED COMPONENTS system)
 
-if (BUILD_ORTOOLS)
-  include(FetchContent)
-  set(FETCHCONTENT_QUIET OFF)
-  set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
-  set(BUILD_absl ON)
-  set(BUILD_Protobuf OFF)
-  set(USE_SCIP OFF)
-  set(USE_COINOR OFF)
-  FetchContent_Declare(
-    or-tools
-    GIT_REPOSITORY  https://github.com/google/or-tools.git
-    GIT_TAG         v9.0
-    GIT_SHALLOW     TRUE
-    GIT_PROGRESS    TRUE
-  )
-  FetchContent_MakeAvailable(or-tools)
-endif()
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -101,7 +71,7 @@ endif()
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs
+#   geometry_msgs#   sensor_msgs#   std_msgs
 # )
 
 ################################################
@@ -135,8 +105,8 @@ endif()
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS roscpp std_msgs cad2cav_types
+  LIBRARIES cad2cav_types
+  CATKIN_DEPENDS geometry_msgs roscpp sensor_msgs std_msgs
 #  DEPENDS system_lib
 )
 
@@ -144,36 +114,17 @@ catkin_package(
 ## Build ##
 ###########
 
-file(GLOB ORTOOLS_LIB "3rdparty/ortools/lib/**")
-
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-if (NOT BUILD_ORTOOLS)
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIR}
-  ${METIS_INCLUDE_DIRS}
-  3rdparty/ortools/include
 )
-link_directories(
-  3rdparty/ortools/lib
-)
-else()
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIR}
-  ${METIS_INCLUDE_DIRS}
-)
-endif()
 
-# Declare a C++ library
+## Declare a C++ library
 add_library(${PROJECT_NAME}
-  src/tsp_solver.cpp
-  src/partitioner.cpp
+  src/graph.cpp
+  src/node.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -184,7 +135,7 @@ add_library(${PROJECT_NAME}
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/graph_partitioner_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/cad2cav_types_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -197,20 +148,9 @@ add_library(${PROJECT_NAME}
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-if (BUILD_ORTOOLS)
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-  ortools::ortools
-  ${METIS_LIBRARIES}
-)
-else()
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-  ${METIS_LIBRARIES}
-  libortools.so
-  libglog.so
-)
-endif()
+# target_link_libraries(${PROJECT_NAME}_node
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
@@ -248,24 +188,6 @@ install(DIRECTORY include/${PROJECT_NAME}/
   PATTERN "*.h"
   PATTERN ".svn" EXCLUDE
 )
-if (NOT BUILD_ORTOOLS)
-install(DIRECTORY 
-  3rdparty/ortools/include/absl
-  3rdparty/ortools/include/coin
-  3rdparty/ortools/include/google
-  3rdparty/ortools/include/ortools
-  3rdparty/ortools/include/scip
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/..
-  FILES_MATCHING 
-  PATTERN "*.hpp"
-  PATTERN "*.h"
-  PATTERN ".svn" EXCLUDE
-)
-install(FILES
-  ${ORTOOLS_LIB}
-  DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-)
-endif()
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
@@ -279,7 +201,7 @@ endif()
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_graph_partitioner.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_cad2cav_types.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

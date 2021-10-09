@@ -7,8 +7,9 @@
 #include <eigen3/Eigen/Eigenvalues>
 #include <vector>
 
-#include "graph_partitioner/types.hpp"
+#include "cad2cav_types/graph.hpp"
 
+namespace cad2cav {
 namespace graph_partitioner {
 
 /**
@@ -48,7 +49,7 @@ public:
      * @param k:            no. of partitions to generate
      * @return std::vector<Graph>:  k subgraphs of the original graph
      */
-    std::vector<Graph> getPartition(
+    std::vector<cad2cav::Graph> getPartition(
         const int k, PartitionType type = PartitionType::SPECTRAL) const;
 
     /**
@@ -62,7 +63,7 @@ public:
     Eigen::MatrixXd adjacencyMatrix(const AdjMatrixMetricType metric) const;
 
 private:
-    Graph graph_;
+    cad2cav::Graph graph_;
 
     /**
      * @brief Runs spectral clustering on current graph and generate subgraphs.
@@ -70,7 +71,7 @@ private:
      * @param k:                    No. of subgraphs (clusters)
      * @return std::vector<Graph>:  List of subgraphs
      */
-    std::vector<Graph> spectralClustering(const int k) const;
+    std::vector<cad2cav::Graph> spectralClustering(const int k) const;
 
     /**
      * @brief Calls METIS graph partitioner software on current graph.
@@ -78,7 +79,7 @@ private:
      * @param k:                    No. of subgraphs
      * @return std::vector<Graph>:  List of subgraphs
      */
-    std::vector<Graph> use_metis(const int k) const;
+    std::vector<cad2cav::Graph> use_metis(const int k) const;
 };
 
 namespace utils {
@@ -115,5 +116,6 @@ std::vector<Graph> getSubgraphFromAssignments(
 }  // namespace utils
 
 }  // namespace graph_partitioner
+}  // namespace cad2cav
 
 #endif /* __GRAPH_PARTITIONER_PARTITIONER_HPP__ */

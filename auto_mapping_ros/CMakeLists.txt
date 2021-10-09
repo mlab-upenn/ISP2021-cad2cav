@@ -29,6 +29,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   actionlib
   actionlib_msgs
+  cad2cav_types
   graph_partitioner
 )
 

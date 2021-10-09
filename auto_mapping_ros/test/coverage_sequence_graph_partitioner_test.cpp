@@ -9,9 +9,10 @@ namespace fs = std::filesystem;
 #include "auto_mapping_ros/graph_builder_bp.hpp"
 #include "auto_mapping_ros/skeletonizer.h"
 #include "auto_mapping_ros/utils.h"
+#include "cad2cav_types/utils.hpp"
 #include "fast_csv_parser/csv.h"
 #include "graph_partitioner/partitioner.hpp"
-#include "graph_partitioner/utils.hpp"
+#include "graph_partitioner/tsp_solver.hpp"
 
 std::pair<Graph, cv::Mat> get_cad_graph() {
   const fs::path amr_package_path = ros::package::getPath("auto_mapping_ros");
@@ -55,9 +56,8 @@ int main(int argc, char const* argv[]) {
   // const auto [graph, map] = get_cad_graph();
   const auto [graph, map] = get_f110_map_graph();
 
-  const graph_partitioner::Graph gp_graph =
-      graph_partitioner::fromUserGraph(graph, true);
-  graph_partitioner::GraphPartitioner gp(gp_graph);
+  const cad2cav::Graph gp_graph = cad2cav::fromUserGraph(graph, true);
+  cad2cav::graph_partitioner::GraphPartitioner gp(gp_graph);
 
   // visualize graph nodes
   ROS_WARN(
@@ -72,14 +72,15 @@ int main(int argc, char const* argv[]) {
 
   // compute graph partition
   auto subgraphs =
-      gp.getPartition(2, graph_partitioner::PartitionType::SPECTRAL);
+      gp.getPartition(2, cad2cav::graph_partitioner::PartitionType::SPECTRAL);
 
   // visualize subgraphs
   for (unsigned int i = 0; i < subgraphs.size(); ++i) {
-    auto& subgraph  = subgraphs[i];
-    double tsp_cost = subgraph.updateTSPSequence();
+    auto& subgraph = subgraphs[i];
+    cad2cav::graph_partitioner::TSPSolver solver(subgraph);
+    double tsp_cost = solver.updateTSPSequence();
     ROS_WARN("Updated TSP path cost for subgraph %d: %lf", i, tsp_cost);
-    const auto current_sequence = subgraph.getTSPSequence();
+    const auto current_sequence = solver.getTSPSequence();
     amr::visualize_sequence_on_graph(map, graph, current_sequence, true);
   }
 

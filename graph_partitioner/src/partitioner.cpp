@@ -6,6 +6,7 @@
 #include <set>
 #include <unordered_map>
 
+namespace cad2cav {
 namespace graph_partitioner {
 
 GraphPartitioner::GraphPartitioner(const Graph& graph) : graph_(graph) {}
@@ -316,3 +317,4 @@ std::vector<Graph> getSubgraphFromAssignments(
 }  // namespace utils
 
 }  // namespace graph_partitioner
+}  // namespace cad2cav

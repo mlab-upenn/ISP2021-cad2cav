@@ -1,12 +1,12 @@
-#ifndef __GRAPH_PARTITIONER_UTILS_HPP__
-#define __GRAPH_PARTITIONER_UTILS_HPP__
+#ifndef __CAD2CAD_TYPES_UTILS_HPP__
+#define __CAD2CAD_TYPES_UTILS_HPP__
 
-#include "graph_partitioner/types.hpp"
+#include "cad2cav_types/graph.hpp"
 
-namespace graph_partitioner {
+namespace cad2cav {
 
 /**
- * @brief Converts a user-defined graph into graph_partitioner::Graph
+ * @brief Converts a user-defined graph into cad2cav::Graph
  *
  * @tparam GraphType:   user-defined graph.
  *                      Requires GraphType to be some iterable container of
@@ -26,10 +26,11 @@ namespace graph_partitioner {
  * @return Graph
  */
 template <typename GraphType>
-Graph fromUserGraph(const GraphType& user_graph, bool switch_xy = false);
+cad2cav::Graph fromUserGraph(const GraphType& user_graph,
+                             bool switch_xy = false);
 
-}  // namespace graph_partitioner
+}  // namespace cad2cav
 
 #include "utils_impl.hpp"
 
-#endif /* __GRAPH_PARTITIONER_UTILS_HPP__ */
+#endif /* __CAD2CAD_TYPES_UTILS_HPP__ */

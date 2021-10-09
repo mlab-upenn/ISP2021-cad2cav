@@ -1,6 +1,6 @@
-#include "graph_partitioner/node.hpp"
+#include "cad2cav_types/node.hpp"
 
-namespace graph_partitioner {
+namespace cad2cav {
 
 Node::Node(double in_x, double in_y, int in_id)
     : id(id_),
@@ -35,12 +35,12 @@ Node::Node(const Node& other)
       distances_(other.distances_) {}
 
 Node& Node::operator=(const Node& other) {
-    id_        = other.id_;
-    x_         = other.x_;
-    y_         = other.y_;
-    neighbors_ = other.neighbors_;
-    distances_ = other.distances_;
-    return *this;
+  id_ = other.id_;
+  x_ = other.x_;
+  y_ = other.y_;
+  neighbors_ = other.neighbors_;
+  distances_ = other.distances_;
+  return *this;
 }
 
-}  // namespace graph_partitioner
+}  // namespace cad2cav

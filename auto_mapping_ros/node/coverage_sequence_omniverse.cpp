@@ -7,8 +7,9 @@ namespace fs = std::filesystem;
 
 #include "auto_mapping_ros/graph_builder_bp.hpp"
 #include "auto_mapping_ros/utils.h"
+#include "cad2cav_types/utils.hpp"
 #include "graph_partitioner/partitioner.hpp"
-#include "graph_partitioner/utils.hpp"
+#include "graph_partitioner/tsp_solver.hpp"
 
 class OmniverseAdapter {
 public:
@@ -60,19 +61,20 @@ private:
     }
     auto graph = graph_builder.get_graph();
 
-    const auto gp_graph = graph_partitioner::fromUserGraph(graph, true);
-    graph_partitioner::GraphPartitioner gp(gp_graph);
+    const auto gp_graph = cad2cav::fromUserGraph(graph, true);
+    cad2cav::graph_partitioner::GraphPartitioner gp(gp_graph);
 
     // compute graph partition
-    auto subgraphs =
-        gp.getPartition(num_agents_, graph_partitioner::PartitionType::METIS);
+    auto subgraphs = gp.getPartition(
+        num_agents_, cad2cav::graph_partitioner::PartitionType::METIS);
 
     // visualize subgraphs
     for (unsigned int i = 0; i < subgraphs.size(); ++i) {
-      auto& subgraph  = subgraphs.at(i);
-      double tsp_cost = subgraph.updateTSPSequence();
+      auto& subgraph = subgraphs.at(i);
+      cad2cav::graph_partitioner::TSPSolver solver(subgraph);
+      double tsp_cost = solver.updateTSPSequence();
       ROS_WARN("Updated TSP path cost for subgraph %d: %lf", i, tsp_cost);
-      const auto current_sequence = subgraph.getTSPSequence();
+      const auto current_sequence = solver.getTSPSequence();
 
       amr::visualize_sequence_on_graph(map_, graph, current_sequence, true);
     }
