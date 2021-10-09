@@ -35,9 +35,9 @@ Node::Node(const Node& other)
       distances_(other.distances_) {}
 
 Node& Node::operator=(const Node& other) {
-  id_ = other.id_;
-  x_ = other.x_;
-  y_ = other.y_;
+  id_        = other.id_;
+  x_         = other.x_;
+  y_         = other.y_;
   neighbors_ = other.neighbors_;
   distances_ = other.distances_;
   return *this;

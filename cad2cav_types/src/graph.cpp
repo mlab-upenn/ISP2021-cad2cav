@@ -50,7 +50,7 @@ const Node& Graph::getNode(const int id) const {
 double Graph::addEdge(const int node_from_id, const int node_to_id,
                       double edge_weight) {
   Node& start_node = getNode(node_from_id);
-  Node& end_node = getNode(node_to_id);
+  Node& end_node   = getNode(node_to_id);
 
   // does not allow pre-existence of edge
   if (start_node.neighbors.find(node_to_id) != start_node.neighbors.end()) {
