@@ -1,6 +1,9 @@
 #ifndef __CAD2CAD_TYPES_UTILS_HPP__
 #define __CAD2CAD_TYPES_UTILS_HPP__
 
+#include <limits>
+#include <type_traits>
+
 #include "cad2cav_types/graph.hpp"
 
 namespace cad2cav {
@@ -28,6 +31,27 @@ namespace cad2cav {
 template <typename GraphType>
 cad2cav::Graph fromUserGraph(const GraphType& user_graph,
                              bool switch_xy = false);
+
+/**
+ * @brief Referenced at
+ * https://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
+ *
+ * @tparam T
+ * @param x
+ * @param y
+ * @param ulp
+ * @return std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
+ */
+template <class T>
+typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
+almost_equal(T x, T y, int ulp = 2) {
+  // the machine epsilon has to be scaled to the magnitude of the values used
+  // and multiplied by the desired precision in ULPs (units in the last place)
+  return std::fabs(x - y) <=
+             std::numeric_limits<T>::epsilon() * std::fabs(x + y) * ulp
+         // unless the result is subnormal
+         || std::fabs(x - y) < std::numeric_limits<T>::min();
+}
 
 }  // namespace cad2cav
 

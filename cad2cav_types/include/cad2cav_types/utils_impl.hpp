@@ -5,7 +5,7 @@
 #include <boost/range/combine.hpp>
 #include <unordered_map>
 
-#include "graph_partitioner/types.hpp"
+#include "cad2cav_types/graph.hpp"
 
 namespace cad2cav {
 /**
