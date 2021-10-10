@@ -74,8 +74,9 @@ void MapServer::setLineSegmentOnMap(const Eigen::Vector2i& startpoint_grid,
   dy <<= 1;
   dx <<= 1;
 
-  Eigen::Vector2i current_point              = startpoint_grid;
-  map_.data[gridCoordToIndex(current_point)] = CELL_OCCUPIED;
+  map_.data[gridCoordToIndex(startpoint_grid)] = CELL_OCCUPIED;
+  map_.data[gridCoordToIndex(endpoint_grid)]   = CELL_OCCUPIED;
+  Eigen::Vector2i current_point                = startpoint_grid;
 
   if (dx > dy) {
     int fraction = dy - (dx >> 1);
