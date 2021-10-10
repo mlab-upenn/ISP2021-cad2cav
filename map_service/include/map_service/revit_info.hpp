@@ -13,9 +13,9 @@ struct RevitInfo {
   // identifier
   std::string filename_;
   // bottom-left boundary of the world (x_min, y_min)
-  Eigen::Vector2d world_bottom_left_;
+  Eigen::Vector2d world_min_xy_;
   // top-right boundary of the world (x_max, y_max)
-  Eigen::Vector2d world_top_right_;
+  Eigen::Vector2d world_max_xy_;
 
   std::vector<cad2cav::revit::Wall> walls_;
   std::vector<cad2cav::revit::Door> doors_;

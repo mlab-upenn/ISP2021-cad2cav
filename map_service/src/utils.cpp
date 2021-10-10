@@ -15,9 +15,9 @@ RevitInfo readRevitStructure(const std::string file_name,
 
   RevitInfo revit_info;
   revit_info.filename_ = file_name;
-  revit_info.world_bottom_left_ << std::numeric_limits<double>::infinity(),
+  revit_info.world_min_xy_ << std::numeric_limits<double>::infinity(),
       std::numeric_limits<double>::infinity();
-  revit_info.world_top_right_ << -std::numeric_limits<double>::infinity(),
+  revit_info.world_max_xy_ << -std::numeric_limits<double>::infinity(),
       -std::numeric_limits<double>::infinity();
 
   try {
@@ -29,21 +29,17 @@ RevitInfo readRevitStructure(const std::string file_name,
                                  endpoint1_z, endpoint2_x, endpoint2_y,
                                  endpoint2_z)) {
       // record world boundary
-      if (std::min(endpoint1_x, endpoint2_x) <
-          revit_info.world_bottom_left_.x()) {
-        revit_info.world_bottom_left_.x() = std::min(endpoint1_x, endpoint2_x);
+      if (std::min(endpoint1_x, endpoint2_x) < revit_info.world_min_xy_.x()) {
+        revit_info.world_min_xy_.x() = std::min(endpoint1_x, endpoint2_x);
       }
-      if (std::min(endpoint1_y, endpoint2_y) <
-          revit_info.world_bottom_left_.y()) {
-        revit_info.world_bottom_left_.y() = std::min(endpoint1_y, endpoint2_y);
+      if (std::min(endpoint1_y, endpoint2_y) < revit_info.world_min_xy_.y()) {
+        revit_info.world_min_xy_.y() = std::min(endpoint1_y, endpoint2_y);
       }
-      if (std::max(endpoint1_x, endpoint2_x) >
-          revit_info.world_top_right_.x()) {
-        revit_info.world_top_right_.x() = std::max(endpoint1_x, endpoint2_x);
+      if (std::max(endpoint1_x, endpoint2_x) > revit_info.world_max_xy_.x()) {
+        revit_info.world_max_xy_.x() = std::max(endpoint1_x, endpoint2_x);
       }
-      if (std::max(endpoint1_y, endpoint2_y) >
-          revit_info.world_top_right_.y()) {
-        revit_info.world_top_right_.y() = std::max(endpoint1_y, endpoint2_y);
+      if (std::max(endpoint1_y, endpoint2_y) > revit_info.world_max_xy_.y()) {
+        revit_info.world_max_xy_.y() = std::max(endpoint1_y, endpoint2_y);
       }
 
       // save Revit objects
