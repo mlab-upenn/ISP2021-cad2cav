@@ -8,12 +8,13 @@ namespace fs = std::filesystem;
 namespace cad2cav {
 namespace map_service {
 
-std::vector<cad2cav::LineSegment2D> readRevitStructure(
-    const std::string file_name, const std::string file_dir) {
+RevitInfo readRevitStructure(const std::string file_name,
+                             const std::string file_dir) {
   fs::path package_path = ros::package::getPath("map_service");
   fs::path file_path    = package_path / file_dir / file_name;
 
-  std::vector<cad2cav::LineSegment2D> walls;
+  RevitInfo revit_info;
+  revit_info.filename_ = file_name;
 
   try {
     io::CSVReader<7> revit_reader(file_path);
@@ -25,9 +26,9 @@ std::vector<cad2cav::LineSegment2D> readRevitStructure(
                                  endpoint2_z)) {
       if (cad2cav::RevitObjectTypeFromString(object_type) ==
           cad2cav::RevitObjectType::WALL) {
-        cad2cav::LineSegment2D segment{endpoint1_x, endpoint1_y, endpoint2_x,
-                                       endpoint2_y};
-        walls.push_back(std::move(segment));
+        cad2cav::revit::Wall wall{endpoint1_x, endpoint1_y, endpoint2_x,
+                                  endpoint2_y};
+        revit_info.walls_.push_back(std::move(wall));
       }
     }
   } catch (const io::error::can_not_open_file& e) {
@@ -35,7 +36,7 @@ std::vector<cad2cav::LineSegment2D> readRevitStructure(
     throw e;
   }
 
-  return walls;
+  return revit_info;
 }
 
 }  // namespace map_service

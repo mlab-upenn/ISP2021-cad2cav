@@ -3,6 +3,7 @@
 
 #include "cad2cav_types/line_segment2d.hpp"
 #include "cad2cav_types/revit_types.hpp"
+#include "map_service/revit_info.hpp"
 #include <vector>
 #include <string>
 
@@ -19,10 +20,10 @@ namespace map_service {
  *
  * @param file_name:    name of the csv file
  * @param file_dir:     dir of the csv file
- * @return std::vector<cad2cav::LineSegment2D>: list of walls
+ * @return RevitInfo:   Revit info struct
  */
-std::vector<cad2cav::LineSegment2D> readRevitStructure(
-    const std::string file_name, const std::string file_dir = "revit_export");
+RevitInfo readRevitStructure(const std::string file_name,
+                             const std::string file_dir = "revit_export");
 
 }  // namespace map_service
 }  // namespace cad2cav
