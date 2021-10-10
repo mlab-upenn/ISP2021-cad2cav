@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.0.2)
 project(cad2cav_types)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++17 -Wall)
+add_compile_options(-fdiagnostics-color=always)  # colored output in Ninja build
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)

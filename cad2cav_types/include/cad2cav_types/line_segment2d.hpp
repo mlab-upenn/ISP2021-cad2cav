@@ -16,7 +16,7 @@ public:
         length_(0.0) {}
   LineSegment2D(const Eigen::Vector2d& origin, const Eigen::Vector2d& dir,
                 const Eigen::Vector2d& endpoint)
-      : initialized_(true), origin_(origin), dir_(dir), endpoint_(endpoint) {
+      : initialized_(true), origin_(origin), endpoint_(endpoint), dir_(dir) {
     length_ = (endpoint_ - origin_).norm();
   }
   /**

@@ -10,17 +10,20 @@
 
 namespace cad2cav {
 
-enum class RevitObjectType { WALL = 0, DOOR, WINDOW };
+enum class RevitObjectType { UNKNOWN = 0, WALL, DOOR, WINDOW };
 
 RevitObjectType RevitObjectTypeFromString(const std::string& data) {
-  std::transform(data.begin(), data.end(), data.begin(),
+  std::string name = data;
+  std::transform(name.begin(), name.end(), name.begin(),
                  [](unsigned char c) { return std::tolower(c); });
-  if (data == "wall")
+  if (name == "wall")
     return RevitObjectType::WALL;
-  else if (data == "door")
+  else if (name == "door")
     return RevitObjectType::DOOR;
-  else if (data == "window")
+  else if (name == "window")
     return RevitObjectType::WINDOW;
+
+  return RevitObjectType::UNKNOWN;
 }
 
 namespace revit {
