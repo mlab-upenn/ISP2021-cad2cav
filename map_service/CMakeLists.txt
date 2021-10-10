@@ -12,6 +12,7 @@ add_compile_options(-fdiagnostics-color=always)  # colored output in Ninja build
 find_package(catkin REQUIRED COMPONENTS
   cad2cav_types
   roscpp
+  roslib
 )
 
 ## System dependencies are found with CMake's conventions
@@ -107,7 +108,7 @@ find_package(Eigen3 REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES map_service
-  CATKIN_DEPENDS cad2cav_types roscpp
+  CATKIN_DEPENDS cad2cav_types roscpp roslib
 #  DEPENDS system_lib
 )
 
@@ -140,7 +141,7 @@ add_library(mapservice_server
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/map_server_node.cpp)
+add_executable(revit_map_test test/revit_build_map.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -153,9 +154,14 @@ add_library(mapservice_server
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(mapservice_utils
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(revit_map_test
+  ${catkin_LIBRARIES}
+  mapservice_utils
+  mapservice_server
+)
 
 #############
 ## Install ##
@@ -173,9 +179,10 @@ add_library(mapservice_server
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-# install(TARGETS ${PROJECT_NAME}_node
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(TARGETS
+  revit_map_test
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
@@ -197,11 +204,10 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+install(DIRECTORY 
+  revit_export
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
 #############
 ## Testing ##
