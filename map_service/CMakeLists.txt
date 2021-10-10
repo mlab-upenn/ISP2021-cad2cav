@@ -5,6 +5,8 @@ project(map_service)
 # add_compile_options(-std=c++11)
 add_compile_options(-std=c++17 -Wall)
 add_compile_options(-fdiagnostics-color=always)  # colored output in Ninja build
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -fno-omit-frame-pointer")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
