@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   std_msgs
+  nav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -107,7 +108,7 @@ find_package(Eigen3 REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES cad2cav_types
-  CATKIN_DEPENDS geometry_msgs roscpp sensor_msgs std_msgs
+  CATKIN_DEPENDS geometry_msgs roscpp sensor_msgs std_msgs nav_msgs
 #  DEPENDS system_lib
 )
 
