@@ -15,7 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 
@@ -121,6 +121,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIR}
 )
 
 file(GLOB_RECURSE ALL_SRC ${PROJECT_SOURCE_DIR}/src *.cpp)
