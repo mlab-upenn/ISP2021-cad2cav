@@ -128,6 +128,9 @@ include_directories(
 add_library(mapservice_utils
   src/utils.cpp
 )
+add_library(mapservice_server
+  src/map_server.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -176,7 +179,9 @@ add_library(mapservice_utils
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-install(TARGETS mapservice_utils
+install(TARGETS 
+  mapservice_utils
+  mapservice_server
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

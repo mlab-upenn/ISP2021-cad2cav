@@ -39,14 +39,16 @@ void MapServer::setLineSegmentOnMap(const Eigen::Vector2i& startpoint_grid,
                                     const Eigen::Vector2i& endpoint_grid) {
   // Error checking
   if (startpoint_grid.x() < 0 ||
-      startpoint_grid.x() >= map_.info.width && startpoint_grid.y() < 0 ||
-      startpoint_grid.y() >= map_.info.height) {
+      startpoint_grid.x() >= static_cast<int>(map_.info.width) ||
+      startpoint_grid.y() < 0 ||
+      startpoint_grid.y() >= static_cast<int>(map_.info.height)) {
     ROS_ERROR("startpoint out of grid!");
     return;
   }
   if (endpoint_grid.x() < 0 ||
-      endpoint_grid.x() >= map_.info.width && endpoint_grid.y() < 0 ||
-      endpoint_grid.y() >= map_.info.height) {
+      endpoint_grid.x() >= static_cast<int>(map_.info.width) ||
+      endpoint_grid.y() < 0 ||
+      endpoint_grid.y() >= static_cast<int>(map_.info.height)) {
     ROS_ERROR("endpoint out of grid!");
     return;
   }
