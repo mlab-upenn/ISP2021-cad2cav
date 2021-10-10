@@ -28,6 +28,15 @@ public:
       : n_(ros::NodeHandle()), map_topic_(map_topic), resolution_(resolution) {
     map_pub_ = n_.advertise<nav_msgs::OccupancyGrid>(map_topic_, 1);
   }
+  /**
+   * @brief Sets the timestamp for map_ and publishes the current map
+   *
+   * @param timestamp:  specified timestamp for map msg
+   */
+  void publishMap(ros::Time timestamp = ros::Time::now()) {
+    map_.header.stamp = timestamp;
+    map_pub_.publish(map_);
+  }
 
   // Disable copy operations
   MapServer(const MapServer& other) = delete;
