@@ -9,6 +9,7 @@
 
 namespace cad2cav {
 namespace map_service {
+namespace utils {
 /**
  * @brief Reads revit exported building structure from CSV file.
  * File constains the following attributes:
@@ -24,7 +25,7 @@ namespace map_service {
  */
 RevitInfo readRevitStructure(const std::string file_name,
                              const std::string file_dir = "revit_export");
-
+}  // namespace utils
 }  // namespace map_service
 }  // namespace cad2cav
 

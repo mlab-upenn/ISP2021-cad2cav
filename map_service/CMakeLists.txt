@@ -125,7 +125,7 @@ include_directories(
 )
 
 ## Declare a C++ library
-add_library(server_utils
+add_library(mapservice_utils
   src/utils.cpp
 )
 
@@ -176,7 +176,7 @@ add_library(server_utils
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-install(TARGETS server_utils
+install(TARGETS mapservice_utils
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

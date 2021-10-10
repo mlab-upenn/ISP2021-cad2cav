@@ -7,6 +7,7 @@ namespace fs = std::filesystem;
 
 namespace cad2cav {
 namespace map_service {
+namespace utils {
 
 RevitInfo readRevitStructure(const std::string file_name,
                              const std::string file_dir) {
@@ -58,5 +59,6 @@ RevitInfo readRevitStructure(const std::string file_name,
   return revit_info;
 }
 
+}  // namespace utils
 }  // namespace map_service
 }  // namespace cad2cav
