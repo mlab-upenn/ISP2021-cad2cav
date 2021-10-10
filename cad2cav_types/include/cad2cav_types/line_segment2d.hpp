@@ -7,6 +7,7 @@
 namespace cad2cav {
 
 class LineSegment2D {
+public:
   LineSegment2D()
       : initialized_(false),
         origin_(Eigen::Vector2d::Zero()),
@@ -56,7 +57,7 @@ class LineSegment2D {
     return lambda * origin_ + (1 - lambda) * endpoint_;
   }
 
-private:
+protected:
   bool initialized_;
   Eigen::Vector2d origin_;
   Eigen::Vector2d endpoint_;
