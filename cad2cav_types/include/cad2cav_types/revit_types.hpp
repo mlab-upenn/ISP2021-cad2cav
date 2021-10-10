@@ -30,11 +30,11 @@ struct Wall {
   double height_;  // unused
   Wall() : shape_(), height_(-1.0) {}
   Wall(double endpoint1_x, double endpoint1_y, double endpoint2_x,
-       double endpoint2_y, double height)
+       double endpoint2_y, double height = -1.0)
       : shape_(endpoint1_x, endpoint1_y, endpoint2_x, endpoint2_y),
         height_(height) {}
   Wall(const Eigen::Vector2d& endpoint1, const Eigen::Vector2d& endpoint2,
-       double height)
+       double height = -1.0)
       : shape_(endpoint1, endpoint2), height_(height) {}
 };
 
