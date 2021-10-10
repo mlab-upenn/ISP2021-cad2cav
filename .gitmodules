@@ -10,3 +10,6 @@
 [submodule "map_server/include/fast-csv-reader"]
 	path = map_server/include/fast-csv-reader
 	url = https://github.com/ben-strasser/fast-cpp-csv-parser.git
+[submodule "map_service/include/fast-csv-reader"]
+	path = map_service/include/fast-csv-reader
+	url = https://github.com/ben-strasser/fast-cpp-csv-parser.git
