@@ -76,7 +76,7 @@ private:
   Eigen::Vector2d world_max_xy_;
 
   int gridCoordToIndex(const Eigen::Vector2i& grid_xy) {
-    return grid_xy.y() * map_.info.height + grid_xy.x();
+    return grid_xy.y() * map_.info.width + grid_xy.x();
   }
 
   /**

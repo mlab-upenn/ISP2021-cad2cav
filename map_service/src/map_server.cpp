@@ -107,7 +107,7 @@ void MapServer::setLineSegmentOnMap(const Eigen::Vector2i& startpoint_grid,
 Eigen::Vector2i MapServer::worldToGridCoordinates(
     const Eigen::Vector2d& world_xy) {
   Eigen::Vector2i grid_coords =
-      Eigen::floor(((world_xy - world_min_xy_) / resolution_).array())
+      Eigen::round(((world_xy - world_min_xy_) / resolution_).array())
           .cast<int>();
   if (grid_coords.x() < 0 || grid_coords.y() < 0 ||
       grid_coords.x() >= static_cast<int>(map_.info.width) ||
