@@ -1,11 +1,12 @@
 #ifndef __MAP_SERVER_UTILS_HPP__
 #define __MAP_SERVER_UTILS_HPP__
 
+#include <string>
+#include <vector>
+
 #include "cad2cav_types/line_segment2d.hpp"
 #include "cad2cav_types/revit_types.hpp"
 #include "map_service/revit_info.hpp"
-#include <vector>
-#include <string>
 
 namespace cad2cav {
 namespace map_service {

@@ -1,10 +1,11 @@
 #ifndef __MAP_SERVICE_REVIT_INFO_HPP__
 #define __MAP_SERVICE_REVIT_INFO_HPP__
 
-#include "cad2cav_types/revit_types.hpp"
-#include <vector>
-#include <string>
 #include <Eigen/Dense>
+#include <string>
+#include <vector>
+
+#include "cad2cav_types/revit_types.hpp"
 
 namespace cad2cav {
 namespace map_service {

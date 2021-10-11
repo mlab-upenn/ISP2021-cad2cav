@@ -1,7 +1,9 @@
 #include "map_service/utils.hpp"
+
 #include <fast-csv-reader/csv.h>
-#include <ros/package.h>
 #include <ros/console.h>
+#include <ros/package.h>
+
 #include <filesystem>
 namespace fs = std::filesystem;
 

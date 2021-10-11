@@ -1,11 +1,13 @@
 #ifndef __MAP_SERVICE_MAP_SERVER_HPP__
 #define __MAP_SERVICE_MAP_SERVER_HPP__
 
+#include <ros/ros.h>
+
+#include <Eigen/Dense>
+#include <string>
+
 #include "cad2cav_types/types.hpp"
 #include "map_service/revit_info.hpp"
-#include <ros/ros.h>
-#include <string>
-#include <Eigen/Dense>
 
 namespace cad2cav {
 namespace map_service {
