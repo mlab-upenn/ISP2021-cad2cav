@@ -20,7 +20,8 @@ void MapServer::buildFromRevitInfo(const RevitInfo& revit_info) {
   map_.data.resize(map_.info.width * map_.info.height);
   std::fill(map_.data.begin(), map_.data.end(), CELL_FREE);
   ROS_INFO_STREAM("Allocated occupancy map with size (height, width): "
-                  << map_.info.height << "x" << map_.info.width);
+                  << map_.info.height << "x" << map_.info.width << " = "
+                  << map_.data.size());
 
   // 2. Loop over all walls, mark all cells along the wall to OCCUPIED
   for (const auto& wall : revit_info.walls_) {
