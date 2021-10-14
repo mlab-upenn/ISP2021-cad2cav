@@ -1,12 +1,12 @@
 [submodule "f110-simulator-multi-agent"]
 	path = f110-simulator-multi-agent
-	url = git@github.com:shineyruan/f110-simulator-multi-agent.git
+	url = https://github.com/shineyruan/f110-simulator-multi-agent.git
 [submodule "fmt_star_ros"]
 	path = fmt_star_ros
-	url = git@github.com:shineyruan/fmt_star_ros.git
+	url = https://github.com/shineyruan/fmt_star_ros.git
 [submodule "auto_mapping_ros/include/fast_csv_parser"]
 	path = auto_mapping_ros/include/fast_csv_parser
-	url = git@github.com:ben-strasser/fast-cpp-csv-parser.git
+	url = https://github.com/ben-strasser/fast-cpp-csv-parser.git
 [submodule "map_server/include/fast-csv-reader"]
 	path = map_server/include/fast-csv-reader
 	url = https://github.com/ben-strasser/fast-cpp-csv-parser.git
