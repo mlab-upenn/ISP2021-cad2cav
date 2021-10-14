@@ -139,24 +139,21 @@ Visualization Manager:
       Enabled: true
       Marker Topic: /dynamic_viz
       Name: Marker
-      Namespaces:
-        {}
+      Namespaces: {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /env_viz
       Name: Marker
-      Namespaces:
-        {}
+      Namespaces: {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /static_viz
       Name: Marker
-      Namespaces:
-        {}
+      Namespaces: {}
       Queue Size: 100
       Value: true
     - Alpha: 1
@@ -186,32 +183,28 @@ Visualization Manager:
       Enabled: true
       Marker Topic: /tree_lines
       Name: Marker
-      Namespaces:
-        {}
+      Namespaces: {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /tree_nodes
       Name: Marker
-      Namespaces:
-        {}
+      Namespaces: {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /waypoint_vis
       Name: Marker
-      Namespaces:
-        {}
+      Namespaces: {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /path_lines
       Name: Marker
-      Namespaces:
-        {}
+      Namespaces: {}
       Queue Size: 100
       Value: true
     - Class: rviz/Image

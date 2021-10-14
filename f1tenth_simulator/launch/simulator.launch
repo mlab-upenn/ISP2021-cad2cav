@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <launch>
   <!-- Listen to messages from joysicks -->
-  <node pkg="joy" name="joy_node" type="joy_node"/>
+  <node pkg="joy"
+    name="joy_node"
+    type="joy_node"/>
 
   <!-- Launch a map service that converts from Revit to an occupancy map, and publish the /map topic -->
   <node pkg="map_service" type="revit_map_test" name="revit_map_test" />
@@ -13,31 +15,51 @@
   <include file="$(find f1tenth_simulator)/launch/racecar_model.launch"/>
 
   <!-- Begin the simulator with the parameters from params.yaml -->
-  <node pkg="f1tenth_simulator" name="f1tenth_simulator" type="simulator" output="screen">
-    <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
+  <node pkg="f1tenth_simulator"
+    name="f1tenth_simulator"
+    type="simulator"
+    output="screen">
+    <rosparam command="load"
+      file="$(find f1tenth_simulator)/config/params.yaml"/>
   </node>
 
   <!-- Begin the mcl localization node -->
   <node name="mcl_ABot" pkg="mcl_pi_gazebo" type="MCL.py" output="screen"/>
 
   <!-- Launch the mux node with the parameters from params.yaml -->
-  <node pkg="f1tenth_simulator" name="mux_controller" type="mux" output="screen">
-    <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
+  <node pkg="f1tenth_simulator"
+    name="mux_controller"
+    type="mux"
+    output="screen">
+    <rosparam command="load"
+      file="$(find f1tenth_simulator)/config/params.yaml"/>
   </node>
 
   <!-- Launch the behavior controller node with the parameters from params.yaml -->
-  <node pkg="f1tenth_simulator" name="behavior_controller" type="behavior_controller" output="screen">
-    <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
+  <node pkg="f1tenth_simulator"
+    name="behavior_controller"
+    type="behavior_controller"
+    output="screen">
+    <rosparam command="load"
+      file="$(find f1tenth_simulator)/config/params.yaml"/>
   </node>
 
   <!-- Launch the Random Walker Node -->
-  <node pkg="f1tenth_simulator" name="random_walker" type="random_walk" output="screen">
-    <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
+  <node pkg="f1tenth_simulator"
+    name="random_walker"
+    type="random_walk"
+    output="screen">
+    <rosparam command="load"
+      file="$(find f1tenth_simulator)/config/params.yaml"/>
   </node>
 
   <!-- Launch the Keyboard Node -->
-  <node pkg="f1tenth_simulator" name="keyboard" type="keyboard" output="screen">
-    <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
+  <node pkg="f1tenth_simulator"
+    name="keyboard"
+    type="keyboard"
+    output="screen">
+    <rosparam command="load"
+      file="$(find f1tenth_simulator)/config/params.yaml"/>
   </node>
 
   <!-- ***Put launch command for new planner here:-->
@@ -46,7 +68,7 @@
           <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
   	 </node>    -->
 
-  
+
   <!-- Launch RVIZ -->
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(find f1tenth_simulator)/launch/simulator.rviz" output="screen"/>
     <node pkg="rviz" type="rviz" name="rviz_map" args="-d $(find mcl_pi_gazebo)/rviz/map.rviz" output="screen"/>
