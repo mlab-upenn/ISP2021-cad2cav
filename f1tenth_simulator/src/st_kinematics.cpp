@@ -86,11 +86,12 @@ CarState STKinematics::update_k(const CarState start, double accel,
   double v_dot           = accel;
   double steer_angle_dot = steer_angle_vel;
   double theta_dot = start.velocity / p.wheelbase * std::tan(start.steer_angle);
-  double theta_double_dot =
-      accel / p.wheelbase * std::tan(start.steer_angle) +
-      start.velocity * steer_angle_vel /
-          (p.wheelbase * std::pow(std::cos(start.steer_angle), 2));
-  double slip_angle_dot = 0;
+
+  // double theta_double_dot =
+  //     accel / p.wheelbase * std::tan(start.steer_angle) +
+  //     start.velocity * steer_angle_vel /
+  //         (p.wheelbase * std::pow(std::cos(start.steer_angle), 2));
+  // double slip_angle_dot = 0;
 
   // update state
   end.x                = start.x + x_dot * dt;

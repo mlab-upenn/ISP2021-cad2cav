@@ -42,6 +42,7 @@ install(DIRECTORY include/${PROJECT_NAME}
 
 # Only run this code in the catkin environment
 if(DEFINED CATKIN_DEVEL_PREFIX)
+  message(STATUS "Found Catkin environment!")
   find_package(catkin REQUIRED COMPONENTS
     roslib
     roscpp
@@ -57,15 +58,15 @@ if(DEFINED CATKIN_DEVEL_PREFIX)
     visualization_msgs
 
     std_msgs
-    message_generation
+    # message_generation
     )
 
-  generate_messages(
-    DEPENDENCIES
-    std_msgs
-    nav_msgs
-    sensor_msgs
-    )
+  # generate_messages(
+  #   DEPENDENCIES
+  #   std_msgs
+  #   nav_msgs
+  #   sensor_msgs
+  #   )
 
 
 
@@ -74,7 +75,7 @@ if(DEFINED CATKIN_DEVEL_PREFIX)
   catkin_package(
       INCLUDE_DIRS include
       LIBRARIES ${PROJECT_NAME}
-      CATKIN_DEPENDS message_runtime
+      CATKIN_DEPENDS # message_runtime
   )
   set(LIBS ${LIBS} ${catkin_LIBRARIES})
   include_directories(include ${catkin_INCLUDE_DIRS})
@@ -88,7 +89,10 @@ if(DEFINED CATKIN_DEVEL_PREFIX)
       get_filename_component(_node_name ${_node_file} NAME_WE)
       add_executable(${_node_name} ${_node_file})
       target_link_libraries(${_node_name} ${LIBS})
-      add_dependencies(${_node_name} f1tenth_simulator_generate_messages_cpp)
+      # add_dependencies(${_node_name} f1tenth_simulator_generate_messages_cpp)
+      install(TARGETS ${_node_name} 
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+      )
   endforeach()
 
   # Install the library
@@ -99,6 +103,9 @@ if(DEFINED CATKIN_DEVEL_PREFIX)
   )
   install(DIRECTORY include/${PROJECT_NAME}/
       DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  )
+  install(DIRECTORY launch maps xacro config
+      DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
   )
 endif()
 

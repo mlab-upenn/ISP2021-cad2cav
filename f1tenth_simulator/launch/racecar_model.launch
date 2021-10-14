@@ -4,7 +4,7 @@
   <group ns="racecar">
     <!-- Open the model file -->
     <arg name="racecar_xacro"
-      default="$(find f1tenth_simulator)/racecar.xacro"/>
+      default="$(find f1tenth_simulator)/xacro/racecar.xacro"/>
     <!--<param name="tf_prefix" value="racecar"/>-->
     <param name="robot_description"
       command="xacro --inorder '$(arg racecar_xacro)'"/>
