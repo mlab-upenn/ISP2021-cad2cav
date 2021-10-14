@@ -5,21 +5,12 @@
 namespace racecar_simulator {
 
 class AckermannKinematics {
-
 public:
+  static double angular_velocity(double velocity, double steering_angle,
+                                 double wheelbase);
 
-    static double angular_velocity(
-            double velocity,
-            double steering_angle,
-            double wheelbase);
-
-    static Pose2D update(
-            const Pose2D start,
-            double velocity,
-            double steering_angle,
-            double wheelbase,
-            double dt);
-
+  static Pose2D update(const Pose2D start, double velocity,
+                       double steering_angle, double wheelbase, double dt);
 };
 
-}
+}  // namespace racecar_simulator
