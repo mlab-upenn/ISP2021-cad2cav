@@ -114,7 +114,7 @@ class ParticleFilter(object):
         #print ob.shape
         z = np.zeros((683,2))
         for ii in range(self.Np):
-            z_star = self.scan.scan2cart(self.particles[ii,:]).T*self.scan.map.map.info.resolution
+            z_star = self.scan.scan2cart(self.particles[ii,:]).T*self.scan.map.info.resolution
             z_star = z_star[self.M_idxs,:]
             _, indices = self.nbrs.kneighbors(z_star)
             z = ob[indices].reshape(z_star.shape)
