@@ -8,9 +8,6 @@
   <!-- Launch a map service that converts from Revit to an occupancy map, and publish the /map topic -->
   <node pkg="map_service" type="revit_map_test" name="revit_map_test" />
 
-  <!-- Launch a world map publisher from the tf folder-->
-  <node pkg="tf" type="static_transform_publisher" name="world_map_static_broadcaster" args="0 0 0 0 0 0 1 world /map 100" />
-
   <!-- Launch the racecar model -->
   <include file="$(find f1tenth_simulator)/launch/racecar_model.launch"/>
 
