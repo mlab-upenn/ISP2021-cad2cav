@@ -26,7 +26,7 @@ public:
    * @param map_topic:  map publisher topic
    */
   MapServer(const double resolution     = 0.01,
-            const std::string map_topic = "/cad2cav/map")
+            const std::string map_topic = "/map")
       : n_(ros::NodeHandle()), map_topic_(map_topic), resolution_(resolution) {
     map_pub_ = n_.advertise<nav_msgs::OccupancyGrid>(map_topic_, 1);
   }

@@ -3,9 +3,7 @@
   <!-- Listen to messages from joysicks -->
   <node pkg="joy" name="joy_node" type="joy_node"/>
 
-  <!-- Launch a map from the maps folder-->
-  <!-- <arg name="map" default="$(find f1tenth_simulator)/maps/levine.yaml"/> -->
-  <!-- <node pkg="map_server" name="map_server" type="map_server" args="$(arg map)"/> -->
+  <!-- Launch a map service that converts from Revit to an occupancy map, and publish the /map topic -->
   <node pkg="map_service" type="revit_map_test" name="revit_map_test" />
 
   <!-- Launch a world map publisher from the tf folder-->
