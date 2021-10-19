@@ -8,15 +8,20 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "map_revit_publisher_test");
   cad2cav::map_service::RevitInfo revit_info =
       cad2cav::map_service::utils::readRevitStructure("levine_2.csv");
+
   cad2cav::map_service::MapServer map_server{0.05};
   map_server.buildFromRevitInfo(revit_info);
+
+  ros::Rate loop_rate{1};
+
   while (ros::ok()) {
     if (map_server.map_pub.getNumSubscribers() > 0) {
       map_server.publishMap();
       ROS_INFO("Map published.");
-      break;
     }
+    loop_rate.sleep();
     ros::spinOnce();
   }
+
   return 0;
 }
