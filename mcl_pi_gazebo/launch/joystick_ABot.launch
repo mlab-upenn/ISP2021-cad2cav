@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-
-<launch>
-
-<include file="$(find mcl_pi_gazebo)/launch/ABot.launch" />
-
-<include file="$(find mcl_pi_gazebo)/launch/joystick.launch" />
-
-</launch>
