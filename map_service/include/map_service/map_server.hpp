@@ -19,6 +19,9 @@ public:
   static constexpr int8_t CELL_OCCUPIED = 100;
   static constexpr int8_t CELL_UNKNOWN  = -1;
 
+  // read-only member variables
+  const ros::Publisher& map_pub;
+
   /**
    * @brief Construct a new MapServer
    *
@@ -27,7 +30,10 @@ public:
    */
   MapServer(const double resolution     = 0.01,
             const std::string map_topic = "/map")
-      : n_(ros::NodeHandle()), map_topic_(map_topic), resolution_(resolution) {
+      : map_pub(map_pub_),
+        n_(ros::NodeHandle()),
+        map_topic_(map_topic),
+        resolution_(resolution) {
     map_pub_ = n_.advertise<nav_msgs::OccupancyGrid>(map_topic_, 1);
   }
   /**
