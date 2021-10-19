@@ -11,7 +11,11 @@ int main(int argc, char **argv) {
   cad2cav::map_service::MapServer map_server{0.05};
   map_server.buildFromRevitInfo(revit_info);
   while (ros::ok()) {
-    map_server.publishMap();
+    if (map_server.map_pub.getNumSubscribers() > 0) {
+      map_server.publishMap();
+      ROS_INFO("Map published.");
+      break;
+    }
     ros::spinOnce();
   }
   return 0;
