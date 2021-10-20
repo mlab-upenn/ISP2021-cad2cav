@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Launch the map service -->
+  <node pkg="map_service" type="revit_map_test" name="revit_map_test" />
+
+  <!-- Begin the map visualization node that contains particles and estimated trajectory -->
+  <node pkg="rviz" type="rviz" name="rviz_map" args="-d $(find mcl_pi_gazebo)/rviz/map.rviz" output="screen"/>
+
+  <!-- Begin the mcl localization node -->
+  <node name="mcl" pkg="mcl_pi_gazebo" type="MCL.py" output="screen"/>
+</launch>
