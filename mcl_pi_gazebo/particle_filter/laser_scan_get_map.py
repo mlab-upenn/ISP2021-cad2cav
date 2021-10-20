@@ -2,7 +2,7 @@
 
 import rospy
 from sensor_msgs.msg import LaserScan
-from nav_msgs.srv import GetMap
+from nav_msgs.msg import OccupancyGrid
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -11,22 +11,22 @@ class MapClientLaserScanSubscriber(object):
 
     def __init__(self):
         rospy.Subscriber('/scan', LaserScan, self.get_scan)
-        static_map = rospy.ServiceProxy('static_map', GetMap)
+        rospy.Subscriber('/map', OccupancyGrid, self.get_map)
         self.z = rospy.wait_for_message("/scan", LaserScan)
-        # print self.z
-
-        self.map = static_map()
-        map_info = self.map.map.info
-        map_width = np.array(map_info.width)  # map width
-        map_heghit = np.array(map_info.height)  # map heghit
-        self.occupancy_grid = np.transpose(
-            np.array(self.map.map.data).reshape(map_width, map_heghit))  # map
 
     def get_scan(self, msg):  # callback function for LaserScan topic
         self.z = msg
 
+    def get_map(self, msg):
+        self.map = msg
+        map_info = self.map.info
+        map_width = np.array(map_info.width)  # map width
+        map_heghit = np.array(map_info.height)  # map heghit
+        self.occupancy_grid = np.transpose(
+            np.array(self.map.data).reshape(map_width, map_heghit))  # map
+
     def scan2cart(self, robot_origin=[0, 0, 0]):
-        map_info = self.map.map.info
+        map_info = self.map.info
         map_width = np.array(map_info.width)  # map width
         map_heghit = np.array(map_info.height)  # map heghit
 
@@ -67,12 +67,12 @@ class MapClientLaserScanSubscriber(object):
         return Y
 
     def obs(self):
-        return np.argwhere(self.occupancy_grid == 100)*self.map.map.info.resolution + self.map.map.info.resolution*0.5 + self.map.map.info.origin.position.x
+        return np.argwhere(self.occupancy_grid == 100)*self.map.info.resolution + self.map.info.resolution*0.5 + self.map.info.origin.position.x
 
     def loction_based(self, y=[0, 0, 0]):
         Y = np.array([y[0] + self.scan2cart(y)[0, :],
                      y[1] + self.scan2cart(y)[1, :]])
-        map_info = self.map.map.info
+        map_info = self.map.info
         map_width = np.array(map_info.width)  # map width
         map_heghit = np.array(map_info.height)  # map heghit
         # the round values of x,y coordinate from the laserscan are the indexes of the matrix which contains 0 by default and 100 for detecting an object
