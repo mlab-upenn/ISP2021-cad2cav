@@ -22,7 +22,6 @@ class ParticleFilter(object):
     def __init__(self, Np=100):
         self.ctr = 1
         self.laser_tf_br = tf.TransformBroadcaster()
-        # self.laser_frame = rospy.get_param('~laser_frame')
         self.laser_frame = 'laser_frame'
         self.pub_particlecloud = rospy.Publisher(
             '/particlecloud', PoseArray, queue_size=60)
@@ -39,13 +38,9 @@ class ParticleFilter(object):
             self.scan.obs())
         self.M_idxs = (np.linspace(
             0, len(self.scan.z.ranges)-1, 20)).astype(np.int32)
-        rospy.Subscriber('/vesc/odom', Odometry, self.get_odom)
+        rospy.Subscriber('/odom', Odometry, self.get_odom)
         rospy.Subscriber(
             '/initialpose', PoseWithCovarianceStamped, self.init_pose)
-
-        # print self.M_idxs
-        # print self.scan.obs()
-        # print self.nbrs, "print"
 
     def get_odom(self, msg):  # callback function for odom topic
         self.odom = msg
@@ -84,7 +79,21 @@ class ParticleFilter(object):
         self.init(X0=X, P0=sigmas)
 
     def init(self, X0=[0, 0, 0], P0=[[1, 0, 0], [0, 1, 0], [0, 0, np.pi*2]]):
-        self.particles = np.random.multivariate_normal(X0, P0, self.Np)
+        # Initialize particles using given initial pose information
+        # self.particles = np.random.multivariate_normal(X0, P0, self.Np)
+
+        # Initialize a set of uniform particles.
+        origin = self.scan.map.info.origin
+        map_origin = np.array(
+            [origin.position.x, origin.position.y, origin.orientation.z])
+        map_width = self.scan.map.info.width
+        map_height = self.scan.map.info.height
+        resolution = self.scan.map.info.resolution
+        particle_min = np.array([0, 0, -np.pi]) + map_origin
+        particle_max = np.array(
+            [map_width*resolution, map_height*resolution, np.pi]) + map_origin
+        self.particles = np.random.uniform(
+            particle_min, particle_max, (self.Np, 3))
         self.weights = np.ones(self.Np) / self.Np
 
     def prediction(self):  # Odometry = Odometry massege. donot forget to initialize self.last_time =
