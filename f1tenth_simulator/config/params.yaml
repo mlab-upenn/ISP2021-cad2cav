@@ -29,7 +29,6 @@ update_pose_rate: 0.001
 scan_beams: 1080
 scan_field_of_view: 6.2831853 #4.71 # radians
 
-
 # The distance from the center of the
 # rear axis (base_link) to the lidar
 scan_distance_to_base_link: 0.275 # meters
@@ -64,8 +63,8 @@ joy_speed_axis: 1
 joy_angle_axis: 3
 joy_max_speed: 2. # meters/second
 # Joystick indices for toggling mux
-joy_button_idx: 4  # LB button
-key_button_idx: 6 # not sure 
+joy_button_idx: 4 # LB button
+key_button_idx: 6 # not sure
 brake_button_idx: 0 # A button
 random_walk_button_idx: 1 # ? button
 nav_button_idx: 5 # RB button
@@ -82,8 +81,8 @@ nav_key_char: "n"
 new_key_char: "z"
 
 # Keyboard driving params
-keyboard_speed: 1.8  # meters/second
-keyboard_steer_ang: .3  # radians
+keyboard_speed: 1.8 # meters/second
+keyboard_steer_ang: .3 # radians
 
 # obstacle parameters
 obstacle_size: 2
@@ -96,7 +95,7 @@ distance_transform_topic: "/dt"
 scan_topic: "/scan"
 pose_topic: "/pose"
 ground_truth_pose_topic: "/gt_pose"
-odom_topic: "/odom"
+odom_topic: "/vesc/odom"
 imu_topic: "/imu"
 pose_rviz_topic: "/initialpose"
 keyboard_topic: "/key"
@@ -110,7 +109,7 @@ nav_drive_topic: "/nav"
 # **Add name for new planning method here**
 new_drive_topic: "/new_drive"
 
-# name of file to write collision log to 
+# name of file to write collision log to
 collision_file: "collision_file"
 
 # The names of the transformation frames published to
