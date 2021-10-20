@@ -4,15 +4,16 @@ import rospy
 import numpy as np
 from geometry_msgs.msg import PointStamped, Point, PoseArray, Point32, PolygonStamped
 from sensor_msgs.msg import PointCloud
-from laser_scan_get_map import MapClientLaserScanSubscriber 
+from laser_scan_get_map import MapClientLaserScanSubscriber
 from particle_filter import ParticleFilter
 from particlesintersection import RobotFusion
 from matplotlib import pyplot as plt
 from sklearn.neighbors import NearestNeighbors as KNN
 import tf_conversions
 
+
 def main():
-    rospy.init_node('ParticleFilter', anonymous = True)
+    rospy.init_node('ParticleFilter', anonymous=True)
     PF_l = ParticleFilter(Np=300)
     r = rospy.Rate(5)
     plt.ion()
@@ -25,7 +26,7 @@ def main():
 
         PF_l.pub()
 
-        mean = np.mean(PF_l.particles,axis=0)
+        mean = np.mean(PF_l.particles, axis=0)
 
         # M = PF_l.scan.loction_based(mean)
         # plt.imshow(-M+PF_l.scan.occupancy_grid)
