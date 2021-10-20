@@ -36,9 +36,10 @@ class ParticleFilter(object):
         self.i_TH = 0.0
         self.nbrs = KNN(n_neighbors=1, algorithm='ball_tree').fit(
             self.scan.obs())
-        self.M_idxs = (np.linspace(
-            0, len(self.scan.z.ranges)-1, 20)).astype(np.int32)
-        rospy.Subscriber('/odom', Odometry, self.get_odom)
+        self.M_idxs = (np.linspace(0,
+                                   len(self.scan.z.ranges) - 1,
+                                   20)).astype(np.int32)
+        rospy.Subscriber('/vesc/odom', Odometry, self.get_odom)
         rospy.Subscriber(
             '/initialpose', PoseWithCovarianceStamped, self.init_pose)
 
@@ -47,7 +48,8 @@ class ParticleFilter(object):
         current_time = msg.header.stamp.secs
         self.dt = current_time - self.last_time
         self.last_time = current_time
-        if np.abs(self.odom.twist.twist.linear.x) > 0.05 or np.abs(self.odom.twist.twist.angular.z) > 0.1:
+        if np.abs(self.odom.twist.twist.linear.x) > 0.05 or np.abs(
+                self.odom.twist.twist.angular.z) > 0.1:
             self.prediction()
             if self.update_TH() > 0.05:  # and self.ctr%1 == 0:
                 self.likelihood_fild()
@@ -64,21 +66,25 @@ class ParticleFilter(object):
         sigmas = np.zeros((3, 3))
         position = np.zeros(3)
         orientation_quaternion = np.zeros(4)
-        pose_stemp = msg
-        position = [pose_stemp.pose.pose.position.x,
-                    pose_stemp.pose.pose.position.y, pose_stemp.pose.pose.position.z]
-        orientation_quaternion = [pose_stemp.pose.pose.orientation.x, pose_stemp.pose.pose.orientation.y,
-                                  pose_stemp.pose.pose.orientation.z, pose_stemp.pose.pose.orientation.w]
+        pose_stamp = msg
+        position = [
+            pose_stamp.pose.pose.position.x, pose_stamp.pose.pose.position.y,
+            pose_stamp.pose.pose.position.z
+        ]
+        orientation_quaternion = [
+            pose_stamp.pose.pose.orientation.x, pose_stamp.pose.pose.orientation.y,
+            pose_stamp.pose.pose.orientation.z, pose_stamp.pose.pose.orientation.w
+        ]
         orientation_euler = tf_conversions.transformations.euler_from_quaternion(
             orientation_quaternion)
         X = [position[0], position[1], orientation_euler[2]]
-        sigmas[0, 0] = pose_stemp.pose.covariance[0]
-        sigmas[1, 1] = pose_stemp.pose.covariance[7]
-        sigmas[2, 2] = pose_stemp.pose.covariance[35]
+        sigmas[0, 0] = pose_stamp.pose.covariance[0]
+        sigmas[1, 1] = pose_stamp.pose.covariance[7]
+        sigmas[2, 2] = pose_stamp.pose.covariance[35]
 
         self.init(X0=X, P0=sigmas)
 
-    def init(self, X0=[0, 0, 0], P0=[[1, 0, 0], [0, 1, 0], [0, 0, np.pi*2]]):
+    def init(self, X0=[0, 0, 0], P0=[[1, 0, 0], [0, 1, 0], [0, 0, np.pi * 2]]):
         # Initialize particles using given initial pose information
         # self.particles = np.random.multivariate_normal(X0, P0, self.Np)
 
@@ -96,7 +102,9 @@ class ParticleFilter(object):
             particle_min, particle_max, (self.Np, 3))
         self.weights = np.ones(self.Np) / self.Np
 
-    def prediction(self):  # Odometry = Odometry massege. donot forget to initialize self.last_time =
+    def prediction(
+        self
+    ):  # Odometry = Odometry massage. do not forget to initialize self.last_time
         dot = np.zeros((self.Np, 3))
 
         dot[:, 0] = self.odom.twist.twist.linear.x
@@ -138,7 +146,7 @@ class ParticleFilter(object):
         z = np.zeros((683, 2))
         for ii in range(self.Np):
             z_star = self.scan.scan2cart(
-                self.particles[ii, :]).T*self.scan.map.info.resolution
+                self.particles[ii, :]).T * self.scan.map.info.resolution
             z_star = z_star[self.M_idxs, :]
             _, indices = self.nbrs.kneighbors(z_star)
             z = ob[indices].reshape(z_star.shape)
@@ -162,7 +170,8 @@ class ParticleFilter(object):
             Y = np.around(y)
             Y = Y.astype(int)
             OC[OC < 0] = 0
-            self.weights[ii] = self.weights[ii]*(np.sum(OC[Y[0, :], Y[1, :]]))
+            self.weights[ii] = self.weights[ii] * \
+                (np.sum(OC[Y[0, :], Y[1, :]]))
         self.weights = self.weights / np.sum(self.weights)
 
     def resampling(self):
@@ -203,12 +212,13 @@ class ParticleFilter(object):
         self.pub_particlecloud.publish(particle_pose)
         self.pub_estimated_pos.publish(estimated_pose)
         # print(self.laser_frame)
-        self.laser_tf_br.sendTransform((np.mean(self.particles[:, 0]), np.mean(self.particles[:, 1]), 0),
-                                       (estimated_pose.pose.pose.orientation.x, estimated_pose.pose.pose.orientation.y,
-                                        estimated_pose.pose.pose.orientation.z, estimated_pose.pose.pose.orientation.w),
-                                       rospy.Time.now(),
-                                       self.laser_frame,
-                                       "map")
+        self.laser_tf_br.sendTransform(
+            (np.mean(self.particles[:, 0]), np.mean(self.particles[:, 1]), 0),
+            (estimated_pose.pose.pose.orientation.x,
+             estimated_pose.pose.pose.orientation.y,
+             estimated_pose.pose.pose.orientation.z,
+             estimated_pose.pose.pose.orientation.w), rospy.Time.now(),
+            self.laser_frame, "map")
 
     def pub2fuse(self):
         particle_pose = PoseArray()
@@ -245,10 +255,10 @@ if __name__ == "__main__":
         #mean =  np.zeros(3)
         #mean = np.mean(PF_l.particles,axis=0)
 
-        #M = PF_l.scan.loction_based(mean)
+        #M = PF_l.scan.location_based(mean)
 
         r.sleep()
         # plt.imshow(-M+PF_l.scan.occupancy_grid)
-       # fig.canvas.draw()
+    # fig.canvas.draw()
 
     rospy.spin()
