@@ -6,12 +6,12 @@
     type="joy_node"/>
 
   <!-- Launch a map from the maps folder-->
-  <arg name="map"
+  <!-- <arg name="map"
     default="$(find f1tenth_simulator)/maps/levine.yaml"/>
   <node pkg="map_server"
     name="map_server"
     type="map_server"
-    args="$(arg map)"/>
+    args="$(arg map)"/> -->
 
   <!-- Launch the racecar model -->
   <include file="$(find f1tenth_simulator)/launch/racecar_model.launch"/>
