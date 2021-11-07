@@ -45,12 +45,14 @@ struct Door {
   Eigen::Vector2d pos_;
   double width_;
   double height_;
+  double orientation_;
 };
 
 struct Window {
   Eigen::Vector2d pos_;
   double width_;
   double height_;
+  double orientation_;
 };
 
 }  // namespace revit
