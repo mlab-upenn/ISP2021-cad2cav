@@ -34,6 +34,14 @@ void MapServer::buildFromRevitInfo(const RevitInfo& revit_info) {
     }
   }
   ROS_INFO_STREAM("Wall shape set in map successful");
+
+  // 3. Save info of all doors
+  doors_ = revit_info.doors_;
+  ROS_INFO_STREAM("Door info received with size " << doors_.size());
+
+  // 4. Save info of all windows
+  windows_ = revit_info.windows_;
+  ROS_INFO_STREAM("Window info received with size " << windows_.size());
 }
 
 void MapServer::setLineSegmentOnMap(const Eigen::Vector2i& startpoint_grid,
@@ -122,6 +130,63 @@ Eigen::Vector2i MapServer::worldToGridCoordinates(
 Eigen::Vector2d MapServer::gridToWorldCoordinates(
     const Eigen::Vector2d& grid_xy) {
   return world_min_xy_ + resolution_ * grid_xy;
+}
+
+cad2cav_msgs::LandmarkDetectionList MapServer::composeDoorLandmarkMsg(
+    ros::Time timestamp) const {
+  cad2cav_msgs::LandmarkDetectionList door_msg;
+  door_msg.header.stamp = timestamp;
+
+  cad2cav_msgs::LandmarkDetection door_detection;
+
+  for (size_t i = 0; i < doors_.size(); ++i) {
+    cad2cav_msgs::LandmarkEntry door_entry;
+    door_entry.id                            = std::to_string(i);
+    door_entry.pose_in_body_frame.position.x = doors_[i].pos_.x();
+    door_entry.pose_in_body_frame.position.y = doors_[i].pos_.y();
+    door_entry.pose_in_body_frame.position.z = 0.0;
+
+    Eigen::AngleAxisd rot_aa{doors_[i].orientation_, Eigen::Vector3d::UnitZ()};
+    Eigen::Quaterniond rot_quat(rot_aa);
+    door_entry.pose_in_body_frame.orientation.w = rot_quat.w();
+    door_entry.pose_in_body_frame.orientation.x = rot_quat.x();
+    door_entry.pose_in_body_frame.orientation.y = rot_quat.y();
+    door_entry.pose_in_body_frame.orientation.z = rot_quat.z();
+
+    door_detection.landmark_list.push_back(door_entry);
+  }
+
+  door_msg.landmark_detections.push_back(door_detection);
+  return door_msg;
+}
+
+cad2cav_msgs::LandmarkDetectionList MapServer::composeWindowLandmarkMsg(
+    ros::Time timestamp) const {
+  cad2cav_msgs::LandmarkDetectionList window_msg;
+  window_msg.header.stamp = timestamp;
+
+  cad2cav_msgs::LandmarkDetection window_detection;
+
+  for (size_t i = 0; i < windows_.size(); ++i) {
+    cad2cav_msgs::LandmarkEntry window_entry;
+    window_entry.id                            = std::to_string(i);
+    window_entry.pose_in_body_frame.position.x = windows_[i].pos_.x();
+    window_entry.pose_in_body_frame.position.y = windows_[i].pos_.y();
+    window_entry.pose_in_body_frame.position.z = 0.0;
+
+    Eigen::AngleAxisd rot_aa{windows_[i].orientation_,
+                             Eigen::Vector3d::UnitZ()};
+    Eigen::Quaterniond rot_quat(rot_aa);
+    window_entry.pose_in_body_frame.orientation.w = rot_quat.w();
+    window_entry.pose_in_body_frame.orientation.x = rot_quat.x();
+    window_entry.pose_in_body_frame.orientation.y = rot_quat.y();
+    window_entry.pose_in_body_frame.orientation.z = rot_quat.z();
+
+    window_detection.landmark_list.push_back(window_entry);
+  }
+
+  window_msg.landmark_detections.push_back(window_detection);
+  return window_msg;
 }
 
 }  // namespace map_service

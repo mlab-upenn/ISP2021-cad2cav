@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   cad2cav_types
   roscpp
   roslib
+  cad2cav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -110,7 +111,7 @@ find_package(Eigen3 REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES map_service
-  CATKIN_DEPENDS cad2cav_types roscpp roslib
+  CATKIN_DEPENDS cad2cav_types roscpp roslib cad2cav_msgs
 #  DEPENDS system_lib
 )
 

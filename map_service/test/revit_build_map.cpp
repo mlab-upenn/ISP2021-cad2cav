@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
 
   while (ros::ok()) {
     if (map_server.map_pub.getNumSubscribers() > 0) {
-      map_server.publishMap();
+      map_server.publish();
       ROS_INFO("Map published.");
     }
     loop_rate.sleep();
