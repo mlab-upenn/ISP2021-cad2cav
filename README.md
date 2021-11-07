@@ -47,6 +47,7 @@ mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/src
 catkin_init_workspace
 git clone --recursive https://github.com/mlab-upenn/ISP2021-cad2cav.git
+git clone --recursive https://github.com/shineyruan/cad2cav_common.git
 cd ..
 ```
 

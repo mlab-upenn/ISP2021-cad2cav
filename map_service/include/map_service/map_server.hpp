@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 #include <string>
 
+#include "cad2cav_msgs/LandmarkDetectionList.h"
 #include "cad2cav_types/types.hpp"
 #include "map_service/revit_info.hpp"
 
@@ -28,22 +29,32 @@ public:
    * @param resolution: map resolution. Unit in meter/cell
    * @param map_topic:  map publisher topic
    */
-  MapServer(const double resolution     = 0.01,
-            const std::string map_topic = "/map")
+  MapServer(const double resolution        = 0.01,
+            const std::string map_topic    = "/map",
+            const std::string door_topic   = "/revit/doors",
+            const std::string window_topic = "/revit/windows")
       : map_pub(map_pub_),
         n_(ros::NodeHandle()),
         map_topic_(map_topic),
+        door_topic_(door_topic),
+        window_topic_(window_topic),
         resolution_(resolution) {
     map_pub_ = n_.advertise<nav_msgs::OccupancyGrid>(map_topic_, 1);
+    door_pub_ =
+        n_.advertise<cad2cav_msgs::LandmarkDetectionList>(door_topic_, 1);
+    window_pub_ =
+        n_.advertise<cad2cav_msgs::LandmarkDetectionList>(window_topic_, 1);
   }
   /**
    * @brief Sets the timestamp for map_ and publishes the current map
    *
    * @param timestamp:  specified timestamp for map msg
    */
-  void publishMap(ros::Time timestamp = ros::Time::now()) {
+  void publish(ros::Time timestamp = ros::Time::now()) {
     map_.header.stamp = timestamp;
     map_pub_.publish(map_);
+    door_pub_.publish(composeDoorLandmarkMsg(timestamp));
+    window_pub_.publish(composeWindowLandmarkMsg(timestamp));
   }
 
   // Disable copy operations
@@ -75,13 +86,21 @@ public:
 private:
   ros::NodeHandle n_;
   ros::Publisher map_pub_;
+  ros::Publisher door_pub_;
+  ros::Publisher window_pub_;
 
   std::string map_topic_;
+  std::string door_topic_;
+  std::string window_topic_;
+
   double resolution_;  // m/cell
   nav_msgs::OccupancyGrid map_;
 
   Eigen::Vector2d world_min_xy_;
   Eigen::Vector2d world_max_xy_;
+
+  std::vector<cad2cav::revit::Door> doors_;
+  std::vector<cad2cav::revit::Window> windows_;
 
   int gridCoordToIndex(const Eigen::Vector2i& grid_xy) {
     return grid_xy.y() * map_.info.width + grid_xy.x();
@@ -99,6 +118,24 @@ private:
    */
   void setLineSegmentOnMap(const Eigen::Vector2i& startpoint_grid,
                            const Eigen::Vector2i& endpoint_grid);
+
+  /**
+   * @brief Composes door msg for landmark detection ground truth reference
+   *
+   * @param timestamp
+   * @return cad2cav_msgs::LandmarkDetectionList
+   */
+  cad2cav_msgs::LandmarkDetectionList composeDoorLandmarkMsg(
+      ros::Time timestamp) const;
+
+  /**
+   * @brief Composes window msg for landmark detection ground truth reference
+   *
+   * @param timestamp
+   * @return cad2cav_msgs::LandmarkDetectionList
+   */
+  cad2cav_msgs::LandmarkDetectionList composeWindowLandmarkMsg(
+      ros::Time timestamp) const;
 };
 
 }  // namespace map_service

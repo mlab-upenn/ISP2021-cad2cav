@@ -3,5 +3,6 @@
 <launch>
   <node pkg="map_service"
     type="revit_map_test"
-    name="revit_map_test" />
+    name="revit_map_test"
+    output="screen" />
 </launch>

@@ -24,13 +24,16 @@ RevitInfo readRevitStructure(const std::string file_name,
       -std::numeric_limits<double>::infinity();
 
   try {
-    io::CSVReader<7> revit_reader(file_path);
+    io::CSVReader<8> revit_reader(file_path);
+    revit_reader.read_header(io::ignore_extra_column, "Type", "x_1", "y_1",
+                             "z_1", "x_2", "y_2", "z_2", "Orientation");
     std::string object_type;
     double endpoint1_x = 0.0, endpoint1_y = 0.0, endpoint1_z = 0.0,
-           endpoint2_x = 0.0, endpoint2_y = 0.0, endpoint2_z = 0.0;
+           endpoint2_x = 0.0, endpoint2_y = 0.0, endpoint2_z = 0.0,
+           orientation = 0.0;
     while (revit_reader.read_row(object_type, endpoint1_x, endpoint1_y,
                                  endpoint1_z, endpoint2_x, endpoint2_y,
-                                 endpoint2_z)) {
+                                 endpoint2_z, orientation)) {
       // record world boundary
       if (std::min(endpoint1_x, endpoint2_x) < revit_info.world_min_xy_.x()) {
         revit_info.world_min_xy_.x() = std::min(endpoint1_x, endpoint2_x);
@@ -51,6 +54,16 @@ RevitInfo readRevitStructure(const std::string file_name,
         cad2cav::revit::Wall wall{endpoint1_x, endpoint1_y, endpoint2_x,
                                   endpoint2_y};
         revit_info.walls_.push_back(std::move(wall));
+      } else if (cad2cav::RevitObjectTypeFromString(object_type) ==
+                 cad2cav::RevitObjectType::DOOR) {
+        cad2cav::revit::Door door{Eigen::Vector2d(endpoint1_x, endpoint1_y),
+                                  0.0, 0.0, orientation};
+        revit_info.doors_.push_back(std::move(door));
+      } else if (cad2cav::RevitObjectTypeFromString(object_type) ==
+                 cad2cav::RevitObjectType::WINDOW) {
+        cad2cav::revit::Window window{Eigen::Vector2d(endpoint1_x, endpoint1_y),
+                                      0.0, 0.0, orientation};
+        revit_info.windows_.push_back(std::move(window));
       }
     }
   } catch (const io::error::can_not_open_file& e) {
