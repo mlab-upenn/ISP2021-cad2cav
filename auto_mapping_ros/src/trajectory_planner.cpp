@@ -7,7 +7,7 @@ int TrajectoryPlanner::trajectory_planner_counter_ = 0;
 
 // FIXME: change lookahead to var
 TrajectoryPlanner::TrajectoryPlanner(ros::NodeHandle &nh)
-    : distance_from_switch_(0), prev_rev_(false) {
+    : prev_rev_(false), distance_from_switch_(0) {
   int horizon;
   float lookahead_1, lookahead_2;
   std::string package_name;

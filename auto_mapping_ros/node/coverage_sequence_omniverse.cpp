@@ -30,8 +30,9 @@ public:
   void landmarkPositionCallback(const geometry_msgs::PoseArray::ConstPtr& msg) {
     landmark_list_.clear();
     for (const auto& landmark_pose : msg->poses) {
-      cv::Point2f landmark_position{landmark_pose.position.x,
-                                    landmark_pose.position.y};
+      cv::Point2f landmark_position{
+          static_cast<float>(landmark_pose.position.x),
+          static_cast<float>(landmark_pose.position.y)};
       landmark_list_.push_back(landmark_position);
     }
     buildGraph();
@@ -54,7 +55,7 @@ private:
   void buildGraph() {
     amr::GraphBuilderBP graph_builder(map_);
     if (landmark_list_.size() < 3) {
-      ROS_INFO("Landmark List Size: %d", landmark_list_.size());
+      ROS_INFO("Landmark List Size: %ld", landmark_list_.size());
       return;
     } else {
       graph_builder.build_graph(landmark_list_);

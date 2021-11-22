@@ -154,6 +154,7 @@ bool FrontierFinder::is_frontier_cell(int row_index, int col_index,
       }
     }
   }
+  return false;
 }
 
 /// Determines whether cell (row_index, col_index) is a valid cell
@@ -175,7 +176,8 @@ std::vector<Frontier> FrontierFinder::remove_minor_frontiers(
     const std::vector<Frontier>& frontiers) const {
   std::vector<Frontier> new_frontiers;
   for (const auto& frontier : frontiers) {
-    if (frontier.frontier.size() >= frontier.min_frontier_cells) {
+    if (static_cast<int>(frontier.frontier.size()) >=
+        frontier.min_frontier_cells) {
       new_frontiers.emplace_back(frontier);
     }
   }
