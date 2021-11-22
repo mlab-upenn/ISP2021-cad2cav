@@ -1,16 +1,11 @@
 cmake_minimum_required(VERSION 3.15.0)
 project(graph_partitioner)
 
-option(Partitioner_DEBUG "Add debug symbol in graph_partitioner" OFF)
-
 ## Compile as C++17
-add_compile_options(-std=c++17 -Wall)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} "-g -O0")
+set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} "-O3")
 add_compile_options(-fdiagnostics-color=always)  # colored output in Ninja build
-if (Partitioner_DEBUG)
-  add_compile_options(-g)
-else()
-  add_compile_options(-O3)
-endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
 # introduce option to build or-tools upon compilation
@@ -150,7 +145,7 @@ file(GLOB ORTOOLS_LIB "3rdparty/ortools/lib/**")
 ## Your package locations should be listed before other locations
 if (NOT BUILD_ORTOOLS)
 include_directories(
-  include
+  SYSTEM PUBLIC
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${Boost_INCLUDE_DIR}
@@ -162,7 +157,7 @@ link_directories(
 )
 else()
 include_directories(
-  include
+  SYSTEM PUBLIC
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${Boost_INCLUDE_DIR}
@@ -174,6 +169,14 @@ endif()
 add_library(${PROJECT_NAME}
   src/tsp_solver.cpp
   src/partitioner.cpp
+)
+target_compile_options(${PROJECT_NAME}
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable -Wno-deprecated-declarations
+)
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+  include
 )
 
 ## Add cmake target dependencies of the library
@@ -199,12 +202,14 @@ add_library(${PROJECT_NAME}
 ## Specify libraries to link a library or executable target against
 if (BUILD_ORTOOLS)
 target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   ${catkin_LIBRARIES}
   ortools::ortools
   ${METIS_LIBRARIES}
 )
 else()
 target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   ${catkin_LIBRARIES}
   ${METIS_LIBRARIES}
   libortools.so
