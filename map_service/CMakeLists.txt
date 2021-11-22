@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(map_service)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
-add_compile_options(-std=c++17 -Wall)
+set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-fdiagnostics-color=always)  # colored output in Ninja build
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -fno-omit-frame-pointer")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
@@ -122,10 +121,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  include
+  SYSTEM PUBLIC
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${Boost_INCLUDE_DIR}
+)
+include_directories(
+  include
 )
 
 ## Declare a C++ library
@@ -164,6 +166,15 @@ target_link_libraries(revit_map_test
   ${catkin_LIBRARIES}
   mapservice_utils
   mapservice_server
+)
+
+target_compile_options(mapservice_utils
+  PRIVATE
+  -Wall -Wall -Wno-unused-variable
+)
+target_compile_options(revit_map_test
+  PRIVATE
+  -Wall -Wall -Wno-unused-variable
 )
 
 #############
