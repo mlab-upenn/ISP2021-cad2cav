@@ -4,8 +4,7 @@
 #include <ros/ros.h>
 
 #include <Eigen/Dense>
-#include <grid_map_cv/GridMapCvConverter.hpp>
-#include <grid_map_ros/GridMapRosConverter.hpp>
+#include <opencv2/opencv.hpp>
 #include <string>
 
 #include "cad2cav_msgs/LandmarkDetectionList.h"
