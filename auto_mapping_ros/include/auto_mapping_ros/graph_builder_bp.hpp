@@ -14,6 +14,7 @@
 
 #include <ros/ros.h>
 
+#include <Eigen/Dense>
 #include <array>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
@@ -56,9 +57,12 @@ public:
    */
   void build_graph(const std::vector<cv::Point2f>& waypoints);
 
+  void build_graph(const std::vector<Eigen::Vector2i>& user_waypoints);
+
 protected:
   /**
-   * @brief Reads pre-defined waypoints from a CSV file generated from UE4 model
+   * @brief Reads pre-defined waypoints from a CSV file generated from UE4
+   * model
    *
    * @param path_to_csv
    */
