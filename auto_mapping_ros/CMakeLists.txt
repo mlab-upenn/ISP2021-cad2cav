@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   cad2cav_types
   graph_partitioner
+  map_service
 )
 
 set(CMAKE_PREFIX_PATH /usr/local/lib/cmake)
@@ -35,12 +36,11 @@ find_package(
   osqp
 )
 
+## System dependencies are found with CMake's conventions
+find_package(Boost REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Threads REQUIRED)
-
-## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -130,7 +130,7 @@ find_package(Threads REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES aco_router
-  CATKIN_DEPENDS roscpp rospy roslib std_msgs
+  CATKIN_DEPENDS roscpp rospy roslib std_msgs map_service graph_partitioner
 #  DEPENDS system_lib
 )
 
@@ -145,6 +145,7 @@ include_directories(
   aco_router
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
   /usr/local/include/eigen3/Eigen 
   /usr/local/include/osqp
 )
@@ -257,6 +258,14 @@ add_executable(graph_partitioner_test
 
 add_executable(coverage_sequence_creator_omniverse
   node/coverage_sequence_omniverse.cpp
+  src/impl/types_impl.cpp
+  src/impl/utils_impl.cpp
+  src/impl/graph_builder_impl.cpp
+  src/impl/graph_builder_bp_impl.cpp
+)
+
+add_executable(coverage_sequence_creator_map
+  node/coverage_sequence_map_service.cpp
   src/impl/types_impl.cpp
   src/impl/utils_impl.cpp
   src/impl/graph_builder_impl.cpp
@@ -392,6 +401,7 @@ target_include_directories(coverage_sequence_creator
 
 target_link_libraries(coverage_sequence_creator_cad
   ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
   ${OpenCV_LIBS}
   Threads::Threads
   -lconfig++
@@ -438,6 +448,23 @@ target_include_directories(coverage_sequence_creator_omniverse
   include
 )
 
+target_link_libraries(coverage_sequence_creator_map
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${OpenCV_LIBS}
+  Threads::Threads
+  -lconfig++
+  acolib
+)
+target_compile_options(coverage_sequence_creator_map
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable
+)
+target_include_directories(coverage_sequence_creator_map
+  PRIVATE
+  include
+)
+
 #target_link_libraries(global_planner_test
 #        ${catkin_LIBRARIES}
 #        ${OpenCV_LIBS}
@@ -472,6 +499,7 @@ install(TARGETS
   coverage_sequence_creator
   coverage_sequence_creator_cad
   coverage_sequence_creator_omniverse
+  coverage_sequence_creator_map
   graph_partitioner_test
   acolib
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -482,6 +510,14 @@ install(TARGETS
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING 
+  PATTERN "*.h"
+  PATTERN "*.hpp"
+  PATTERN ".svn" EXCLUDE
+)
+## Mark cpp header files for installation
+install(DIRECTORY include/fast_csv_parser/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/../fast_csv_parser
   FILES_MATCHING 
   PATTERN "*.h"
   PATTERN "*.hpp"
