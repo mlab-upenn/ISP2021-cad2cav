@@ -232,7 +232,7 @@ void write_plans_to_csv(const std::vector<Plan>& plans, std::string filename) {
   file_to_write.close();
 }
 
-void read_sequence_from_csv(std::vector<std::array<int, 2>>* sequence,
+void read_sequence_from_csv(std::vector<std::array<double, 2>>* sequence,
                             const std::string& filename) {
   std::ifstream file(filename);
   if (!file) {
@@ -243,7 +243,7 @@ void read_sequence_from_csv(std::vector<std::array<int, 2>>* sequence,
   while (getline(file, line)) {
     std::vector<std::string> vec;
     boost::algorithm::split(vec, line, boost::is_any_of(","));
-    std::array<int, 2> node{};
+    std::array<double, 2> node{};
     node[0] = std::stod(vec[0]);
     node[1] = std::stod(vec[1]);
     sequence->emplace_back(node);

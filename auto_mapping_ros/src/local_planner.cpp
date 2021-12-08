@@ -83,6 +83,8 @@ LocalPlanner::LocalPlanner()
   node_handle_->getParam("velocity", velocity_);
 
   // Update Non ROS Map Params
+  bool translate_coord;
+  node_handle_->getParam("translate_non_ros_coord", translate_coord);
   double non_ros_map_width;
   node_handle_->getParam("non_ros_map_width", non_ros_map_width);
   double non_ros_map_height;
@@ -90,7 +92,7 @@ LocalPlanner::LocalPlanner()
   bool switch_xy;
   node_handle_->getParam("switch_xy", switch_xy);
 
-  std::vector<std::array<int, 2>> coverage_sequence_non_ros_map;
+  std::vector<std::array<double, 2>> coverage_sequence_non_ros_map;
   const auto csv_filepath =
       ros::package::getPath(package_name) + csv_relative_filepath;
   std::string csv_localtraj_path =
@@ -98,11 +100,20 @@ LocalPlanner::LocalPlanner()
   amr::read_sequence_from_csv(&coverage_sequence_non_ros_map, csv_filepath);
 
   // Translate non ros sequence to ros
-  const auto coverage_sequence_ros_map =
-      fmt_star::translate_sequence_to_ros_coords(
-          coverage_sequence_non_ros_map, non_ros_map_width, non_ros_map_height,
-          switch_xy, ros_map_width_cells * resolution_,
-          ros_map_height_cells * resolution_, origin_x, origin_y);
+  std::vector<std::array<double, 2>> coverage_sequence_ros_map;
+  if (translate_coord) {
+    std::vector<std::array<int, 2>> coverage_sequence;
+    for (const auto& waypoint : coverage_sequence_non_ros_map) {
+      coverage_sequence.push_back(
+          {static_cast<int>(waypoint[0]), static_cast<int>(waypoint[1])});
+    }
+    coverage_sequence_ros_map = fmt_star::translate_sequence_to_ros_coords(
+        coverage_sequence, non_ros_map_width, non_ros_map_height, switch_xy,
+        ros_map_width_cells * resolution_, ros_map_height_cells * resolution_,
+        origin_x, origin_y);
+  } else {
+    coverage_sequence_ros_map = coverage_sequence_non_ros_map;
+  }
 
   coverage_sequence_ =
       global_planner_.init(coverage_sequence_ros_map, distance_threshold_);

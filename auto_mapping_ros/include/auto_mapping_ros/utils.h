@@ -38,7 +38,7 @@ void visualize_sequence_on_graph(
 
 void write_plans_to_csv(const std::vector<Plan>& plans, std::string filename);
 
-void read_sequence_from_csv(std::vector<std::array<int, 2>>* sequence,
+void read_sequence_from_csv(std::vector<std::array<double, 2>>* sequence,
                             const std::string& filename = "sequence.csv");
 
 std::array<double, 2> translate_indices_to_xy(
