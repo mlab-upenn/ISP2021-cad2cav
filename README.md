@@ -126,5 +126,5 @@ roslaunch racecar teleop.launch
 
 Press the `RB` button on the Logitech controller to put race car in autonomous navigation mode.
 
-The screenshot below shows the [FMT* planing algorithm](https://arxiv.org/pdf/1306.3532.pdf) `open` sample set (in green) and the resulting planned path (in red) for the next waypoint.
+The screenshot below shows the [FMT* planing algorithm](https://arxiv.org/pdf/1306.3532.pdf) `open` sample set (in green) and the resulting planned path (in red) for the next waypoint. The coverage sequence for this race car is shown in blue. 
 ![](docs/img/fmt_star.png)
