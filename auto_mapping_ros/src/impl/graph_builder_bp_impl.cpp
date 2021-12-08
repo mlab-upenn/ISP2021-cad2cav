@@ -134,7 +134,7 @@ void GraphBuilderBP::build_graph(
   }
 
   // For debug
-  ROS_WARN("The tranformed UE4 waypoints in map coordinates:");
+  ROS_WARN("The tranformed map waypoints in map coordinates:");
   for (const auto& p : map_waypoint_nodes) {
     std::cout << "(" << p[1] << ", " << p[0] << ")\n";
   }
@@ -143,7 +143,7 @@ void GraphBuilderBP::build_graph(
   construct_graph(map_waypoint_nodes);
 
   // visualizes graph
-  visualize_graph(map_, graph_);
+  visualize_graph(map_, graph_, false);
 }
 
 void GraphBuilderBP::build_graph(const std::vector<cv::Point2f>& waypoints) {

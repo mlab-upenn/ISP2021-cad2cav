@@ -21,17 +21,20 @@ void print_graph(const Graph& graph);
 
 void print_graph_with_new_ids(Graph& graph);
 
-void visualize_graph(const cv::Mat& map, const Graph& graph);
+void visualize_graph(const cv::Mat& map, const Graph& graph,
+                     bool trim_map_for_display = true);
 
 int get_closest_clicked_node_on_map(const cv::Mat& map, aco::Graph& graph);
 
 void visualize_sequence_on_graph(
     const cv::Mat& map, const Graph& graph,
-    const std::vector<std::array<int, 2>>& sequence);
+    const std::vector<std::array<int, 2>>& sequence,
+    bool trim_map_for_display = true);
 
 void visualize_sequence_on_graph(
     const cv::Mat& map, const Graph& graph,
-    const std::vector<std::array<double, 2>>& sequence, bool switch_xy = false);
+    const std::vector<std::array<double, 2>>& sequence, bool switch_xy = false,
+    bool trim_map_for_display = true);
 
 void write_plans_to_csv(const std::vector<Plan>& plans, std::string filename);
 

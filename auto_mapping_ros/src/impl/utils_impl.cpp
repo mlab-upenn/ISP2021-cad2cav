@@ -38,28 +38,37 @@ void print_graph_with_new_ids(Graph& graph) {
   print_graph(graph);
 }
 
-void visualize_graph(const cv::Mat& map, const Graph& graph) {
-  cv::Mat visual_graph(map.size(), CV_8UC3, cv::Vec3b(0, 0, 0));
+void visualize_graph(const cv::Mat& map, const Graph& graph,
+                     bool trim_map_for_display) {
+  if (trim_map_for_display) {
+    cv::Mat visual_graph(map.size(), CV_8UC3, cv::Vec3b(0, 0, 0));
 
-  for (int i = 0; i < map.rows; i++) {
-    for (int j = 0; j < map.cols; j++) {
-      if (map.at<uchar>(i, j) > 200) {
-        visual_graph.at<cv::Vec3b>(i, j) = cv::Vec3b(255, 255, 255);
+    for (int i = 0; i < map.rows; i++) {
+      for (int j = 0; j < map.cols; j++) {
+        if (map.at<uchar>(i, j) > 200) {
+          visual_graph.at<cv::Vec3b>(i, j) = cv::Vec3b(255, 255, 255);
+        }
       }
     }
-  }
 
-  for (const auto& node : graph) {
-    cv::circle(visual_graph, {node.y, node.x}, 4, cv::Scalar(100, 0, 0));
-    for (const auto& neighbor : node.neighbors) {
-      cv::line(visual_graph, {node.y, node.x}, {neighbor->y, neighbor->x},
-               cv::Vec3b(0, 0, 100));
+    cv::namedWindow("Visual Graph", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Visual Graph", visual_graph);
+    cv::waitKey(0);
+  } else {
+    cv::Mat visual_graph{map.clone()};
+
+    for (const auto& node : graph) {
+      cv::circle(visual_graph, {node.y, node.x}, 4, cv::Scalar(100, 0, 0));
+      for (const auto& neighbor : node.neighbors) {
+        cv::line(visual_graph, {node.y, node.x}, {neighbor->y, neighbor->x},
+                 cv::Vec3b(0, 0, 100));
+      }
     }
-  }
 
-  cv::namedWindow("Visual Graph", cv::WINDOW_AUTOSIZE);
-  cv::imshow("Visual Graph", visual_graph);
-  cv::waitKey(0);
+    cv::namedWindow("Visual Graph", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Visual Graph", visual_graph);
+    cv::waitKey(0);
+  }
 }
 
 static std::array<int, 2> clicked_point;
@@ -118,7 +127,8 @@ int get_closest_clicked_node_on_map(const cv::Mat& map, aco::Graph& graph) {
 
 void visualize_sequence_on_graph(
     const cv::Mat& map, const Graph& graph,
-    const std::vector<std::array<double, 2>>& sequence, bool switch_xy) {
+    const std::vector<std::array<double, 2>>& sequence, bool switch_xy,
+    bool trim_map_for_display) {
   std::vector<std::array<int, 2>> int_sequence;
   for (const auto& p : sequence) {
     if (switch_xy)
@@ -126,50 +136,84 @@ void visualize_sequence_on_graph(
     else
       int_sequence.push_back({static_cast<int>(p[0]), static_cast<int>(p[1])});
   }
-  visualize_sequence_on_graph(map, graph, int_sequence);
+  visualize_sequence_on_graph(map, graph, int_sequence, trim_map_for_display);
 }
 
 void visualize_sequence_on_graph(
     const cv::Mat& map, const Graph& graph,
-    const std::vector<std::array<int, 2>>& sequence) {
-  cv::Mat visual_graph(map.size(), CV_8UC3, cv::Vec3b(0, 0, 0));
+    const std::vector<std::array<int, 2>>& sequence,
+    bool trim_map_for_display) {
+  if (trim_map_for_display) {
+    cv::Mat visual_graph(map.size(), CV_8UC3, cv::Vec3b(0, 0, 0));
 
-  for (int i = 0; i < map.rows; i++) {
-    for (int j = 0; j < map.cols; j++) {
-      if (map.at<uchar>(i, j) > 200) {
-        visual_graph.at<cv::Vec3b>(i, j) = cv::Vec3b(255, 255, 255);
+    for (int i = 0; i < map.rows; i++) {
+      for (int j = 0; j < map.cols; j++) {
+        if (map.at<uchar>(i, j) > 200) {
+          visual_graph.at<cv::Vec3b>(i, j) = cv::Vec3b(255, 255, 255);
+        }
       }
     }
-  }
 
-  for (const auto& node : graph) {
-    cv::circle(visual_graph, {node.y, node.x}, 4, cv::Scalar(100, 0, 0));
-    for (const auto& neighbor : node.neighbors) {
-      cv::line(visual_graph, {node.y, node.x}, {neighbor->y, neighbor->x},
-               cv::Vec3b(0, 0, 100));
+    for (const auto& node : graph) {
+      cv::circle(visual_graph, {node.y, node.x}, 4, cv::Scalar(100, 0, 0));
+      for (const auto& neighbor : node.neighbors) {
+        cv::line(visual_graph, {node.y, node.x}, {neighbor->y, neighbor->x},
+                 cv::Vec3b(0, 0, 100));
+      }
     }
-  }
 
-  cv::Vec3b color = cv::Vec3b(0, 255, 0);
-  int x           = 1;
-  double t        = 5;
-  for (unsigned int i = 0; i < sequence.size(); i++) {
-    cv::circle(visual_graph, {sequence[i][1], sequence[i][0]}, 4,
-               cv::Scalar(100, 0, 0));
-    if (i != 0) {
-      cv::line(visual_graph, {sequence[i][1], sequence[i][0]},
-               {sequence[i - 1][1], sequence[i - 1][0]}, color,
-               static_cast<int>(t));
+    cv::Vec3b color = cv::Vec3b(0, 255, 0);
+    int x           = 1;
+    double t        = 5;
+    for (unsigned int i = 0; i < sequence.size(); i++) {
+      cv::circle(visual_graph, {sequence[i][1], sequence[i][0]}, 4,
+                 cv::Scalar(100, 0, 0));
+      if (i != 0) {
+        cv::line(visual_graph, {sequence[i][1], sequence[i][0]},
+                 {sequence[i - 1][1], sequence[i - 1][0]}, color,
+                 static_cast<int>(t));
+      }
+      color[x] = color[x] - 10;
+      if (color[x] < 5) {
+        color[x] = 255;
+      }
     }
-    color[x] = color[x] - 10;
-    if (color[x] < 5) {
-      color[x] = 255;
-    }
-  }
 
-  cv::namedWindow("Visual Graph", cv::WINDOW_AUTOSIZE);
-  cv::imshow("Visual Graph", visual_graph);
-  cv::waitKey(0);
+    cv::namedWindow("Visual Graph Sequence", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Visual Graph Sequence", visual_graph);
+    cv::waitKey(0);
+  } else {
+    cv::Mat visual_graph{map.clone()};
+
+    for (const auto& node : graph) {
+      cv::circle(visual_graph, {node.y, node.x}, 4, cv::Scalar(100, 0, 0));
+      for (const auto& neighbor : node.neighbors) {
+        cv::line(visual_graph, {node.y, node.x}, {neighbor->y, neighbor->x},
+                 cv::Vec3b(0, 0, 100));
+      }
+    }
+
+    cv::Vec3b color = cv::Vec3b(0, 255, 0);
+    int x           = 1;
+    double t        = 5;
+    for (unsigned int i = 0; i < sequence.size(); i++) {
+      cv::circle(visual_graph, {sequence[i][1], sequence[i][0]}, 4,
+                 cv::Scalar(100, 0, 0));
+      if (i != 0) {
+        cv::line(visual_graph, {sequence[i][1], sequence[i][0]},
+                 {sequence[i - 1][1], sequence[i - 1][0]}, color,
+                 static_cast<int>(t));
+      }
+      color[x] = color[x] - 10;
+      if (color[x] < 5) {
+        color[x] = 255;
+      }
+    }
+
+    cv::namedWindow("Visual Graph Sequence", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Visual Graph Sequence", visual_graph);
+    cv::waitKey(0);
+  }
 }
 
 void write_plans_to_csv(const std::vector<Plan>& plans, std::string filename) {

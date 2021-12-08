@@ -150,7 +150,7 @@ int main(int argc, char** argv) {
 
   // convert world coordinates to pixel coordinates
   cv::Mat map = adapter.toCvImage();
-  amr::GraphBuilderBP graph_builder(map);
+  amr::GraphBuilderBP graph_builder(map.clone());
   graph_builder.build_graph(adapter.toPixelCoordinates(waypoints));
   auto graph = graph_builder.get_graph();
 
@@ -172,9 +172,10 @@ int main(int argc, char** argv) {
     const auto current_csv_filepath =
         csv_filepath + "_" + std::to_string(i + 1) + ".csv";
     amr::write_sequence_to_csv(adapter.toWorldCoordinates(current_sequence),
-                               current_csv_filepath, true);
+                               current_csv_filepath, false);
 
-    amr::visualize_sequence_on_graph(map, graph, current_sequence, true);
+    amr::visualize_sequence_on_graph(map.clone(), graph, current_sequence, true,
+                                     false);
   }
 
   return 0;
