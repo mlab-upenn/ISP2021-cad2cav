@@ -99,3 +99,24 @@ Users can click to specify planning waypoints by running the following applicati
 rosrun map_service waypoint_registration_node
 ```
 ![](docs/img/user_waypoint_registration.png)
+
+### Coverage Sequence Generation
+After getting desired waypoint, one can run the following to generate initial routing scheme for multiple vehicles:
+```bash
+roslaunch auto_mapping_ros coverage_sequence_creator.launch
+```
+
+### Run Planning and Control
+Then one can run the planning and control node to navigate F1Tenth race cars by running the following:
+
+**(In this repo)**
+```bash
+rosrun map_service revit_map_test
+roslaunch auto_mapping_ros auto_mapping_ros_real.launch
+```
+
+**(On the race car, [shineyruan/cad2cav_onboard](https://github.com/shineyruan/cad2cav_onboard))**
+```bash
+roslaunch particle_filter localize_nomapserver.launch
+roslaunch racecar teleop.launch
+```
