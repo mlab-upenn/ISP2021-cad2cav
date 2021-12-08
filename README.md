@@ -105,6 +105,9 @@ After getting desired waypoint, one can run the following to generate initial ro
 ```bash
 roslaunch auto_mapping_ros coverage_sequence_creator.launch
 ```
+|      Coverage Sequence for Car 1      |      Coverage Sequence for Car 2      |
+| :-----------------------------------: | :-----------------------------------: |
+| ![](docs/img/coverage_sequence_1.png) | ![](docs/img/coverage_sequence_2.png) |
 
 ### Run Planning and Control
 Then one can run the planning and control node to navigate F1Tenth race cars by running the following:
@@ -120,3 +123,8 @@ roslaunch auto_mapping_ros auto_mapping_ros_real.launch
 roslaunch particle_filter localize_nomapserver.launch
 roslaunch racecar teleop.launch
 ```
+
+Press the `RB` button on the Logitech controller to put race car in autonomous navigation mode.
+
+The screenshot below shows the [FMT* planing algorithm](https://arxiv.org/pdf/1306.3532.pdf) `open` sample set (in green) and the resulting planned path (in red) for the next waypoint.
+![](docs/img/fmt_star.png)
