@@ -29,12 +29,12 @@ distance_threshold: 1.5 # map: levine_4_cad
 
 # Topics to publish and subscribe to
 pose_topic: "/pf/viz/inferred_pose"
-drive_topic: "/vesc/high_level/ackermann_cmd_mux/input/nav"
+drive_topic: "/vesc/high_level/ackermann_cmd_mux/input/nav_1"
 brake_topic: "brake_bool"
 scan_topic: "scan"
 
 # Frame Names
-base_frame: "base_link"
+base_frame: "laser"
 map_frame: "map"
 
 # Global Planner Name
@@ -82,7 +82,7 @@ rev_threshold: 1
 lane_0: "csv/temp.csv"
 
 # desired input
-des_vel: 0.5
+des_vel: 0.2
 des_steer: 0
 #constraints
 umax: 0.5 #change dt if you change this
