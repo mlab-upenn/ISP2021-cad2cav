@@ -29,17 +29,17 @@ LocalPlanner::LocalPlanner()
   node_handle_->getParam("pose_topic", pose_topic);
   pose_topic = pose_topic + "_" + std::to_string(local_planner_id_);
   node_handle_->getParam("drive_topic", drive_topic);
-  drive_topic = drive_topic + "_" + std::to_string(local_planner_id_);
+  // drive_topic = drive_topic + "_" + std::to_string(local_planner_id_);
   node_handle_->getParam("brake_topic", brake_topic);
   brake_topic = brake_topic + "_" + std::to_string(local_planner_id_);
   node_handle_->getParam("scan_topic", scan_topic);
-  scan_topic = scan_topic + "_" + std::to_string(local_planner_id_);
+  // scan_topic = scan_topic + "_" + std::to_string(local_planner_id_);
   plan_topic = "current_plan_" + std::to_string(local_planner_id_);
   seq_topic  = "coverage_sequence_" + std::to_string(local_planner_id_);
 
   node_handle_->getParam("base_frame", base_frame_);
   base_frame_ =
-      "racecar" + std::to_string(local_planner_id_) + "/" + base_frame_;
+      /*  "racecar" + std::to_string(local_planner_id_) + "/" + */ base_frame_;
   node_handle_->getParam("map_frame", map_frame_);
 
   std::string local_planning_mode;
