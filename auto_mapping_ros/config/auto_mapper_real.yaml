@@ -13,7 +13,7 @@ local_planner_mode: "pure_pursuit"
 
 # Parameter for pure pursuit algorithm
 # A good estimate is 0-2r (According to the implementation explanation given in RI, CMU)
-lookahead_distance: 1
+lookahead_distance: 1.25
 
 # Whether waypoints need non-ROS to ROS coordinate transformation
 translate_non_ros_coord: false
@@ -82,7 +82,7 @@ rev_threshold: 1
 lane_0: "csv/temp.csv"
 
 # desired input
-des_vel: 0.2
+des_vel: 0.3
 des_steer: 0
 #constraints
 umax: 0.5 #change dt if you change this
