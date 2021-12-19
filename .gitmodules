@@ -10,3 +10,6 @@
 [submodule "map_service/include/fast-csv-reader"]
 	path = map_service/include/fast-csv-reader
 	url = https://github.com/ben-strasser/fast-cpp-csv-parser.git
+[submodule "darknet_ros"]
+	path = darknet_ros
+	url = https://github.com/Shumin326/darknet_ros.git
