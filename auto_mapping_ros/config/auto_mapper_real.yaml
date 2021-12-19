@@ -2,39 +2,39 @@
 package_name: "auto_mapping_ros"
 
 # basic config
-num_vehicles: 2
+num_vehicles: 1
 
 csv_filepath: "/csv/sequence"
 csv_localtraj: "/csv/local_traj_50_fwd_rev.csv"
 
 # Local planner option
 #   "pure_pursuit" or "mpc"
-local_planner_mode: "mpc"
+local_planner_mode: "pure_pursuit"
 
 # Parameter for pure pursuit algorithm
 # A good estimate is 0-2r (According to the implementation explanation given in RI, CMU)
-lookahead_distance: 1
+lookahead_distance: 1.25
 
 # Whether waypoints need non-ROS to ROS coordinate transformation
-translate_non_ros_coord: true
+translate_non_ros_coord: false
 
 # Non ROS Map Values
 # (User needs to change these values when changing maps)
-non_ros_map_width: 1388 # map: levine_4_cad
-non_ros_map_height: 952
-switch_xy: true
+non_ros_map_width: 1 # map: world coordinates defined by Revit
+non_ros_map_height: 1
+switch_xy: false
 
 # Distance threshold to start planning for the next node
-distance_threshold: 2.0 # map: levine_4_cad
+distance_threshold: 1.5 # map: levine_4_cad
 
 # Topics to publish and subscribe to
-pose_topic: "gt_pose"
-drive_topic: "nav"
+pose_topic: "/pf/viz/inferred_pose"
+drive_topic: "/vesc/high_level/ackermann_cmd_mux/input/nav_1"
 brake_topic: "brake_bool"
 scan_topic: "scan"
 
 # Frame Names
-base_frame: "base_link"
+base_frame: "laser"
 map_frame: "map"
 
 # Global Planner Name
@@ -82,7 +82,7 @@ rev_threshold: 1
 lane_0: "csv/temp.csv"
 
 # desired input
-des_vel: 0.5
+des_vel: 0.3
 des_steer: 0
 #constraints
 umax: 0.5 #change dt if you change this

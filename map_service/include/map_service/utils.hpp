@@ -1,6 +1,9 @@
 #ifndef __MAP_SERVER_UTILS_HPP__
 #define __MAP_SERVER_UTILS_HPP__
 
+#include <nav_msgs/OccupancyGrid.h>
+
+#include <opencv2/opencv.hpp>
 #include <string>
 #include <vector>
 
@@ -26,6 +29,9 @@ namespace utils {
  */
 RevitInfo readRevitStructure(const std::string file_name,
                              const std::string file_dir = "revit_export");
+
+cv::Mat occupancyGridToCvImage(const nav_msgs::OccupancyGrid& occ_grid);
+
 }  // namespace utils
 }  // namespace map_service
 }  // namespace cad2cav

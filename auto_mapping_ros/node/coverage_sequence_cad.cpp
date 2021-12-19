@@ -1,8 +1,8 @@
 #include <ros/package.h>
 #include <ros/ros.h>
 
-#include <filesystem>
-namespace fs = std::filesystem;
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
 
 #include "auto_mapping_ros/graph_builder_bp.hpp"
 #include "auto_mapping_ros/utils.h"
@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
       simulator_package_path / "maps/levine_4.dwg.png";
   const fs::path unreal_waypoints_path =
       amr_package_path / "csv/actorLocation.csv";
-  const std::string csv_filepath = amr_package_path / "csv/sequence";
+  const std::string csv_filepath = (amr_package_path / "csv/sequence").string();
 
   ros::init(argc, argv, "coverage_sequence_generator",
             ros::InitOption::AnonymousName);
@@ -27,12 +27,12 @@ int main(int argc, char** argv) {
   n.getParam("num_vehicles", n_agents);
   ROS_WARN_STREAM("No. of vehicles: " << n_agents);
 
-  cv::Mat map = cv::imread(cad_map_filepath, cv::IMREAD_GRAYSCALE);
+  cv::Mat map = cv::imread(cad_map_filepath.string(), cv::IMREAD_GRAYSCALE);
   ROS_INFO_STREAM("Read in map of size (col*row): " << map.cols << "x"
                                                     << map.rows);
 
   amr::GraphBuilderBP graph_builder(map);
-  graph_builder.build_graph(unreal_waypoints_path);
+  graph_builder.build_graph(unreal_waypoints_path.string());
   auto graph = graph_builder.get_graph();
 
   const auto gp_graph = cad2cav::fromUserGraph(graph, true);

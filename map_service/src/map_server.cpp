@@ -1,5 +1,10 @@
 #include "map_service/map_server.hpp"
 
+#include <grid_map_cv/GridMapCvConverter.hpp>
+#include <grid_map_ros/GridMapRosConverter.hpp>
+
+#include "map_service/utils.hpp"
+
 namespace cad2cav {
 namespace map_service {
 
@@ -187,6 +192,10 @@ cad2cav_msgs::LandmarkDetectionList MapServer::composeWindowLandmarkMsg(
 
   window_msg.landmark_detections.push_back(window_detection);
   return window_msg;
+}
+
+cv::Mat MapServer::toCvImage() const {
+  return utils::occupancyGridToCvImage(map_);
 }
 
 }  // namespace map_service

@@ -235,7 +235,7 @@ bool GraphBuilder::check_collision(const Node &current_node,
 
   double intermediate_x = current_node.x;
   double intermediate_y = current_node.y;
-  for (size_t v = 0; v < steps; v++) {
+  for (int v = 0; v < steps; v++) {
     intermediate_x         = intermediate_x + x_increment;
     intermediate_y         = intermediate_y + y_increment;
     const auto pixel_value = static_cast<int>(map_.at<uchar>(

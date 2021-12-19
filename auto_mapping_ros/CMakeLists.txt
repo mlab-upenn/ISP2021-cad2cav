@@ -1,17 +1,11 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(auto_mapping_ros)
 
-option(Automapper_DEBUG "Add debug symbol in auto_mapping_ros" OFF)
-
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++17 -Wall)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} "-g -O0")
+set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} "-O3")
 add_compile_options(-fdiagnostics-color=always)  # colored output in Ninja build
-if (Automapper_DEBUG)
-  add_compile_options(-g)
-else()
-  add_compile_options(-O3)
-endif()
-#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -31,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   cad2cav_types
   graph_partitioner
+  map_service
 )
 
 set(CMAKE_PREFIX_PATH /usr/local/lib/cmake)
@@ -41,12 +36,11 @@ find_package(
   osqp
 )
 
+## System dependencies are found with CMake's conventions
+find_package(Boost REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Threads REQUIRED)
-
-## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -136,7 +130,7 @@ find_package(Threads REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES aco_router
-  CATKIN_DEPENDS roscpp rospy roslib std_msgs
+  CATKIN_DEPENDS roscpp rospy roslib std_msgs map_service graph_partitioner
 #  DEPENDS system_lib
 )
 
@@ -147,10 +141,11 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
+  SYSTEM PUBLIC
   aco_router
-  include
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
   /usr/local/include/eigen3/Eigen 
   /usr/local/include/osqp
 )
@@ -174,98 +169,107 @@ add_subdirectory(aco_router)
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node node/auto_mapping_ros_node.cpp
-src/constraints.cpp
-src/cost.cpp
-src/input.cpp
-src/model.cpp
-src/mpc.cpp
-src/occgrid.cpp
-src/state.cpp
-src/trajectory_planner.cpp
-src/transforms.cpp
-src/visualizer.cpp
-src/trajectory.cpp
-src/local_planner.cpp
-src/impl/types_impl.cpp
-src/impl/graph_builder_impl.cpp
-src/impl/landmarks_impl.cpp
-src/impl/utils_impl.cpp
-src/impl/maneuvers_impl.cpp
-src/global_planner.cpp)
+  src/constraints.cpp
+  src/cost.cpp
+  src/input.cpp
+  src/model.cpp
+  src/mpc.cpp
+  src/occgrid.cpp
+  src/state.cpp
+  src/trajectory_planner.cpp
+  src/transforms.cpp
+  src/visualizer.cpp
+  src/trajectory.cpp
+  src/local_planner.cpp
+  src/impl/types_impl.cpp
+  src/impl/graph_builder_impl.cpp
+  src/impl/landmarks_impl.cpp
+  src/impl/utils_impl.cpp
+  src/impl/maneuvers_impl.cpp
+  src/global_planner.cpp
+)
 
 add_executable(skeletonizer_test test/skeletonizer_test.cpp 
-        src/impl/utils_impl.cpp 
-        src/impl/types_impl.cpp
-        src/impl/skeletonizer_impl.cpp
+  src/impl/utils_impl.cpp 
+  src/impl/types_impl.cpp
+  src/impl/skeletonizer_impl.cpp
 )
 
 add_executable(graph_builder_test test/graph_builder_test.cpp 
-        src/impl/graph_builder_impl.cpp
-        src/impl/landmarks_impl.cpp
-        src/impl/utils_impl.cpp
-        src/impl/types_impl.cpp
-        src/impl/skeletonizer_impl.cpp
+  src/impl/graph_builder_impl.cpp
+  src/impl/landmarks_impl.cpp
+  src/impl/utils_impl.cpp
+  src/impl/types_impl.cpp
+  src/impl/skeletonizer_impl.cpp
 )
 
 add_executable(frontier_finding_test 
-        test/frontier_finding_test.cpp 
-        src/impl/graph_builder_impl.cpp
-        src/impl/landmarks_impl.cpp
-        src/impl/utils_impl.cpp
-        src/impl/types_impl.cpp
-        src/impl/skeletonizer_impl.cpp
+  test/frontier_finding_test.cpp 
+  src/impl/graph_builder_impl.cpp
+  src/impl/landmarks_impl.cpp
+  src/impl/utils_impl.cpp
+  src/impl/types_impl.cpp
+  src/impl/skeletonizer_impl.cpp
 )
 
 add_executable(graph_builder_blueprint_test 
-        test/graph_builder_blueprint_test.cpp 
-        src/impl/graph_builder_impl.cpp
-        src/impl/landmarks_impl.cpp
-        src/impl/utils_impl.cpp
-        src/impl/types_impl.cpp
-        src/impl/skeletonizer_impl.cpp
+  test/graph_builder_blueprint_test.cpp 
+  src/impl/graph_builder_impl.cpp
+  src/impl/landmarks_impl.cpp
+  src/impl/utils_impl.cpp
+  src/impl/types_impl.cpp
+  src/impl/skeletonizer_impl.cpp
 )
 
 add_executable(coverage_planner_aco_test
-        test/coverage_planner_aco_test.cpp 
-        src/impl/types_impl.cpp
-        src/impl/utils_impl.cpp
-        src/impl/graph_builder_impl.cpp
-        src/impl/landmarks_impl.cpp
-        src/impl/skeletonizer_impl.cpp
+  test/coverage_planner_aco_test.cpp 
+  src/impl/types_impl.cpp
+  src/impl/utils_impl.cpp
+  src/impl/graph_builder_impl.cpp
+  src/impl/landmarks_impl.cpp
+  src/impl/skeletonizer_impl.cpp
 )
 
 add_executable(coverage_sequence_creator 
-        node/coverage_sequence_csv_creator.cpp
-        src/impl/types_impl.cpp
-        src/impl/utils_impl.cpp
-        src/impl/graph_builder_impl.cpp
-        src/impl/landmarks_impl.cpp
-        src/impl/skeletonizer_impl.cpp
+  node/coverage_sequence_csv_creator.cpp
+  src/impl/types_impl.cpp
+  src/impl/utils_impl.cpp
+  src/impl/graph_builder_impl.cpp
+  src/impl/landmarks_impl.cpp
+  src/impl/skeletonizer_impl.cpp
 )
 
 add_executable(coverage_sequence_creator_cad
-        node/coverage_sequence_cad.cpp
-        src/impl/types_impl.cpp
-        src/impl/utils_impl.cpp
-        src/impl/graph_builder_impl.cpp
-        src/impl/graph_builder_bp_impl.cpp
+  node/coverage_sequence_cad.cpp
+  src/impl/types_impl.cpp
+  src/impl/utils_impl.cpp
+  src/impl/graph_builder_impl.cpp
+  src/impl/graph_builder_bp_impl.cpp
 )
 
 add_executable(graph_partitioner_test
-        test/coverage_sequence_graph_partitioner_test.cpp
-        src/impl/types_impl.cpp
-        src/impl/utils_impl.cpp
-        src/impl/graph_builder_impl.cpp
-        src/impl/graph_builder_bp_impl.cpp
-        src/impl/skeletonizer_impl.cpp
+  test/coverage_sequence_graph_partitioner_test.cpp
+  src/impl/types_impl.cpp
+  src/impl/utils_impl.cpp
+  src/impl/graph_builder_impl.cpp
+  src/impl/graph_builder_bp_impl.cpp
+  src/impl/skeletonizer_impl.cpp
 )
 
 add_executable(coverage_sequence_creator_omniverse
-        node/coverage_sequence_omniverse.cpp
-        src/impl/types_impl.cpp
-        src/impl/utils_impl.cpp
-        src/impl/graph_builder_impl.cpp
-        src/impl/graph_builder_bp_impl.cpp
+  node/coverage_sequence_omniverse.cpp
+  src/impl/types_impl.cpp
+  src/impl/utils_impl.cpp
+  src/impl/graph_builder_impl.cpp
+  src/impl/graph_builder_bp_impl.cpp
+)
+
+add_executable(coverage_sequence_creator_map
+  node/coverage_sequence_map_service.cpp
+  src/impl/types_impl.cpp
+  src/impl/utils_impl.cpp
+  src/impl/graph_builder_impl.cpp
+  src/impl/graph_builder_bp_impl.cpp
 )
 
 #add_executable(global_planner_test test/global_planner_test.cpp src/global_planner.cpp)
@@ -286,79 +290,179 @@ add_dependencies(${PROJECT_NAME}_node ${fmt_star_EXXPORTED_TARGETS} fmt_star_gen
 ## Specify libraries to link a library or executable target against
 
 target_link_libraries(${PROJECT_NAME}_node
-    ${catkin_LIBRARIES}
-    ${OpenCV_LIBS}
-    OsqpEigen::OsqpEigen
-    osqp::osqp
-    acolib
-    config++
-    stdc++fs
-    )
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  OsqpEigen::OsqpEigen
+  osqp::osqp
+  acolib
+  config++
+  stdc++fs
+)
+target_compile_options(${PROJECT_NAME}_node
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable
+)
+target_include_directories(${PROJECT_NAME}_node
+  PRIVATE
+  include
+)
 
 target_link_libraries(graph_builder_test
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBS}
-        -lconfig++
-        acolib
-        )
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  -lconfig++
+  acolib
+)
+target_compile_options(graph_builder_test
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable
+)
+target_include_directories(graph_builder_test
+  PRIVATE
+  include
+)
 
 target_link_libraries(frontier_finding_test
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBS}
-        -lconfig++
-        acolib
-        )
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  -lconfig++
+  acolib
+)
+target_compile_options(frontier_finding_test
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable
+)
+target_include_directories(frontier_finding_test
+  PRIVATE
+  include
+)
 
 target_link_libraries(skeletonizer_test
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBS}
-        acolib
-        -lconfig++
-        )
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  acolib
+  -lconfig++
+)
+target_compile_options(skeletonizer_test
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable
+)
+target_include_directories(skeletonizer_test
+  PRIVATE
+  include
+)
 
 target_link_libraries(graph_builder_blueprint_test
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBS}
-        -lconfig++
-        acolib
-        )
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  -lconfig++
+  acolib
+)
+target_compile_options(graph_builder_blueprint_test
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable
+)
+target_include_directories(graph_builder_blueprint_test
+  PRIVATE
+  include
+)
+
 
 target_link_libraries(coverage_planner_aco_test
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBS}
-        -lconfig++
-        acolib
-        )
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  -lconfig++
+  acolib
+)
+target_compile_options(coverage_planner_aco_test
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable
+)
+target_include_directories(coverage_planner_aco_test
+  PRIVATE
+  include
+)
 
 target_link_libraries(coverage_sequence_creator
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBS}
-        -lconfig++
-        acolib
-        )
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  -lconfig++
+  acolib
+)
+target_compile_options(coverage_sequence_creator
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable
+)
+target_include_directories(coverage_sequence_creator
+  PRIVATE
+  include
+)
+
 
 target_link_libraries(coverage_sequence_creator_cad
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBS}
-        Threads::Threads
-        -lconfig++
-        acolib
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${OpenCV_LIBS}
+  Threads::Threads
+  -lconfig++
+  acolib
+)
+target_compile_options(coverage_sequence_creator_cad
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable
+)
+target_include_directories(coverage_sequence_creator_cad
+  PRIVATE
+  include
 )
 
 target_link_libraries(graph_partitioner_test
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBS}
-        Threads::Threads
-        -lconfig++
-        acolib
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  Threads::Threads
+  -lconfig++
+  acolib
+)
+target_compile_options(graph_partitioner_test
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable
+)
+target_include_directories(graph_partitioner_test
+  PRIVATE
+  include
 )
 
 target_link_libraries(coverage_sequence_creator_omniverse
-        ${catkin_LIBRARIES}
-        ${OpenCV_LIBS}
-        Threads::Threads
-        -lconfig++
-        acolib
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  Threads::Threads
+  -lconfig++
+  acolib
+)
+target_compile_options(coverage_sequence_creator_omniverse
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable
+)
+target_include_directories(coverage_sequence_creator_omniverse
+  PRIVATE
+  include
+)
+
+target_link_libraries(coverage_sequence_creator_map
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${OpenCV_LIBS}
+  Threads::Threads
+  -lconfig++
+  acolib
+)
+target_compile_options(coverage_sequence_creator_map
+  PRIVATE
+  -Wall -Werror -Wno-unused-variable
+)
+target_include_directories(coverage_sequence_creator_map
+  PRIVATE
+  include
 )
 
 #target_link_libraries(global_planner_test
@@ -385,18 +489,19 @@ target_link_libraries(coverage_sequence_creator_omniverse
 
 ## Mark executables and/or libraries for installation
 install(TARGETS 
-        ${PROJECT_NAME}_node 
-        skeletonizer_test 
-        graph_builder_test
-        frontier_finding_test
-        skeletonizer_test
-        graph_builder_blueprint_test
-        coverage_planner_aco_test
-        coverage_sequence_creator
-        coverage_sequence_creator_cad
-        coverage_sequence_creator_omniverse
-        graph_partitioner_test
-        acolib
+  ${PROJECT_NAME}_node 
+  skeletonizer_test 
+  graph_builder_test
+  frontier_finding_test
+  skeletonizer_test
+  graph_builder_blueprint_test
+  coverage_planner_aco_test
+  coverage_sequence_creator
+  coverage_sequence_creator_cad
+  coverage_sequence_creator_omniverse
+  coverage_sequence_creator_map
+  graph_partitioner_test
+  acolib
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -405,6 +510,14 @@ install(TARGETS
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING 
+  PATTERN "*.h"
+  PATTERN "*.hpp"
+  PATTERN ".svn" EXCLUDE
+)
+## Mark cpp header files for installation
+install(DIRECTORY include/fast_csv_parser/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/../fast_csv_parser
   FILES_MATCHING 
   PATTERN "*.h"
   PATTERN "*.hpp"
