@@ -32,9 +32,10 @@ Graph deep_copy_graph(const Graph& graph) {
   for (unsigned int i = 0; i < graph.size(); i++) {
     std::vector<Node*> neighbors;
     for (const auto& neighbor_node : graph[i].neighbors) {
-      neighbors.emplace_back([&](int id) {
+      neighbors.emplace_back([&](int id) -> Node* {
         for (auto& node : graph_copy)
           if (node.id == id) return &node;
+        return nullptr;
       }(neighbor_node->id));
     }
     graph_copy[i].neighbors = neighbors;

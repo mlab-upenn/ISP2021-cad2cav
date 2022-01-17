@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(map_service)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
-add_compile_options(-std=c++17 -Wall)
+set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-fdiagnostics-color=always)  # colored output in Ninja build
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -fno-omit-frame-pointer")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
@@ -16,11 +15,14 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslib
   cad2cav_msgs
+  grid_map_ros
 )
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(Threads REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -110,8 +112,8 @@ find_package(Eigen3 REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES map_service
-  CATKIN_DEPENDS cad2cav_types roscpp roslib cad2cav_msgs
+  LIBRARIES mapservice_server mapservice_utils
+  CATKIN_DEPENDS cad2cav_types roscpp roslib cad2cav_msgs grid_map_ros
 #  DEPENDS system_lib
 )
 
@@ -122,10 +124,14 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  include
+  SYSTEM PUBLIC
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${Boost_INCLUDE_DIR}
+  ${OpenCV_INCLUDE_DIRS}
+)
+include_directories(
+  include
 )
 
 ## Declare a C++ library
@@ -146,6 +152,8 @@ add_library(mapservice_server
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(revit_map_test test/revit_build_map.cpp)
 
+add_executable(waypoint_registration_node node/user_click_waypoint.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -157,13 +165,36 @@ add_executable(revit_map_test test/revit_build_map.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
+target_link_libraries(mapservice_server
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+)
 target_link_libraries(mapservice_utils
   ${catkin_LIBRARIES}
+)
+target_link_libraries(waypoint_registration_node
+  ${catkin_LIBRARIES}
+  Threads::Threads
+  mapservice_utils
+  mapservice_server
 )
 target_link_libraries(revit_map_test
   ${catkin_LIBRARIES}
   mapservice_utils
   mapservice_server
+)
+
+target_compile_options(mapservice_utils
+  PRIVATE
+  -Wall -Wall -Wno-unused-variable
+)
+target_compile_options(waypoint_registration_node
+  PRIVATE
+  -Wall -Wall -Wno-unused-variable
+)
+target_compile_options(revit_map_test
+  PRIVATE
+  -Wall -Wall -Wno-unused-variable
 )
 
 #############
@@ -184,6 +215,7 @@ target_link_libraries(revit_map_test
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
 install(TARGETS
   revit_map_test
+  waypoint_registration_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

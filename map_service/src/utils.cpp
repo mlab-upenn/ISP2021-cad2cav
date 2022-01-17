@@ -5,6 +5,9 @@
 #include <ros/package.h>
 
 #include <filesystem>
+#include <grid_map_cv/GridMapCvConverter.hpp>
+#include <grid_map_ros/GridMapRosConverter.hpp>
+
 namespace fs = std::filesystem;
 
 namespace cad2cav {
@@ -72,6 +75,40 @@ RevitInfo readRevitStructure(const std::string file_name,
   }
 
   return revit_info;
+}
+
+namespace {
+cv::Mat transposeMapImage(const cv::Mat& map_image_original) {
+  cv::Mat map_image{map_image_original.cols, map_image_original.rows, CV_8UC1},
+      temp1{map_image_original.rows, map_image_original.cols, CV_8UC1},
+      temp2{map_image_original.rows, map_image_original.cols, CV_8UC1};
+
+  cv::flip(map_image_original, temp1, 0);
+  cv::flip(temp1, temp2, 1);
+  cv::transpose(temp2, map_image);
+
+  cv::Mat map_image_colored;
+  cv::cvtColor(map_image, map_image_colored, cv::COLOR_GRAY2BGR);
+
+  return map_image_colored;
+}
+}  // namespace
+
+cv::Mat occupancyGridToCvImage(const nav_msgs::OccupancyGrid& occ_grid) {
+  static const std::string map_layer = "base";
+
+  grid_map::GridMap grid_map;
+  if (!grid_map::GridMapRosConverter::fromOccupancyGrid(occ_grid, map_layer,
+                                                        grid_map)) {
+    ROS_ERROR("Conversion to GridMap failed");
+  }
+
+  cv::Mat map_img;
+  if (!grid_map::GridMapCvConverter::toImage<unsigned char, 1>(
+          grid_map, map_layer, CV_8UC1, 0, 100, map_img)) {
+    ROS_ERROR("Conversion to cv::Mat failed");
+  }
+  return transposeMapImage(map_img);
 }
 
 }  // namespace utils

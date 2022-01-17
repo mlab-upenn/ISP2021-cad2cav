@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 
 #include <Eigen/Dense>
+#include <opencv2/opencv.hpp>
 #include <string>
 
 #include "cad2cav_msgs/LandmarkDetectionList.h"
@@ -56,6 +57,26 @@ public:
     door_pub_.publish(composeDoorLandmarkMsg(timestamp));
     window_pub_.publish(composeWindowLandmarkMsg(timestamp));
   }
+  /**
+   * @brief Get the current Map Info
+   *
+   * @return nav_msgs::MapMetaData
+   */
+  nav_msgs::MapMetaData getMapInfo() const { return map_.info; }
+  /**
+   * @brief Get all the door objects
+   *
+   * @return const std::vector<cad2cav::revit::Door>&
+   */
+  const std::vector<cad2cav::revit::Door>& getDoors() const { return doors_; }
+  /**
+   * @brief Get all the window objects
+   *
+   * @return const std::vector<cad2cav::revit::Window>&
+   */
+  const std::vector<cad2cav::revit::Window>& getWindows() const {
+    return windows_;
+  }
 
   // Disable copy operations
   MapServer(const MapServer& other) = delete;
@@ -82,6 +103,12 @@ public:
    * @return Eigen::Vector2d
    */
   Eigen::Vector2d gridToWorldCoordinates(const Eigen::Vector2d& grid_xy);
+  /**
+   * @brief Converts occupancy grid data to GridMap.
+   *
+   * @return grid_map::GridMap
+   */
+  cv::Mat toCvImage() const;
 
 private:
   ros::NodeHandle n_;

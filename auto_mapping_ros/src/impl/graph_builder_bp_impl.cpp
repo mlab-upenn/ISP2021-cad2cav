@@ -124,6 +124,28 @@ void GraphBuilderBP::build_graph(const std::string& path_to_csv) {
   visualize_graph(map_, graph_);
 }
 
+void GraphBuilderBP::build_graph(
+    const std::vector<Eigen::Vector2i>& user_waypoints) {
+  // constructs waypoints in graph format
+  std::vector<std::array<int, 2>> map_waypoint_nodes;
+  for (const auto& p : user_waypoints) {
+    int intX = static_cast<int>(p.x()), intY = static_cast<int>(p.y());
+    map_waypoint_nodes.emplace_back(std::array<int, 2>{intY, intX});
+  }
+
+  // For debug
+  ROS_WARN("The tranformed map waypoints in map coordinates:");
+  for (const auto& p : map_waypoint_nodes) {
+    std::cout << "(" << p[1] << ", " << p[0] << ")\n";
+  }
+
+  // constructs graph
+  construct_graph(map_waypoint_nodes);
+
+  // visualizes graph
+  visualize_graph(map_, graph_, false);
+}
+
 void GraphBuilderBP::build_graph(const std::vector<cv::Point2f>& waypoints) {
   // TODO: This function needs refactor
   //
